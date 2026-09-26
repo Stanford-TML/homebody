@@ -6,10 +6,8 @@ let library;
 function startupProfile() {
   const connection = navigator.connection;
   const desktop = matchMedia('(min-width: 900px)').matches;
-  const downlink = connection?.downlink;
   const slow = connection?.saveData || /^(slow-2g|2g|3g)$/.test(connection?.effectiveType || '');
   if (!desktop || slow) return { height: 480, budget: 900000, estimate: 1e6 };
-  if (downlink > 0 && downlink < 5) return { height: 720, budget: 2e6, estimate: 2.5e6 };
   // Prefer a sharp first segment on laptops, including browsers without network hints.
   // This is a startup preference, not a minimum quality: ABR can still step down.
   return { height: 1080, budget: 4e6, estimate: 5e6 };
