@@ -1,30 +1,48 @@
+import { initializeVideoControls } from "./video-controls.js";
+import { prepareMux, suspendMux, muxCanShareBandwidth } from "./mux-video.js";
+
 // Give visible videos and the next selected video a head start without loading
 // every demo or restarting media that the browser has already buffered.
 export function initializeVideoPlayback() {
+  initializeVideoControls();
   const states = new Map();
   let frame = 0;
 
-  function eligible(video) {
-    return !video.hidden && video.dataset.playbackDisabled !== "true" &&
+  function rendered(video) {
+    return !video.hidden &&
       !video.closest('[hidden], [inert], details:not([open])') &&
       video.getClientRects().length > 0;
   }
 
-  function prepare(video) {
-    if (!eligible(video)) return;
+  function eligible(video) {
+    return rendered(video) && video.dataset.playbackDisabled !== "true";
+  }
+
+  function bufferedAhead(video) {
+    for (let i = 0; i < video.buffered.length; i++) {
+      if (video.buffered.start(i) <= video.currentTime && video.buffered.end(i) >= video.currentTime) {
+        return (video.buffered.end(i) - video.currentTime) / (video.playbackRate || 1);
+      }
+    }
+    return 0;
+  }
+
+  function prepare(video, preview = false) {
+    if (!(preview ? rendered(video) : eligible(video))) return;
     if (video.dataset.poster) {
       video.poster = video.dataset.poster;
       delete video.dataset.poster;
     }
     video.preload = "auto";
     // In particular, do not call load() again on the already-loading teaser.
-    if (video.networkState === HTMLMediaElement.NETWORK_EMPTY) video.load();
+    if (!prepareMux(video) && video.networkState === HTMLMediaElement.NETWORK_EMPTY) video.load();
   }
 
   function updatePlayback(video) {
     const state = states.get(video);
     const shouldPlay = state.visible && !document.hidden &&
       !state.userPaused && eligible(video);
+    if (video.hasAttribute("data-controls-on-demand") && (!state.visible || !eligible(video))) video.controls = false;
     if (video.ended && state.holdSeconds > 0) state.holding = true;
     if (state.holding) {
       if (shouldPlay && state.holdTimer === null) {
@@ -49,6 +67,12 @@ export function initializeVideoPlayback() {
 
   function updatePreloads() {
     frame = 0;
+    const imagesPending = [...document.images].some(image => {
+      if (image.complete || image.closest('[hidden], details:not([open])')) return false;
+      const rect = image.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight &&
+        rect.right > 0 && rect.left < innerWidth;
+    });
     let next = null;
     let nearest = Infinity;
     const visible = new Set();
@@ -61,13 +85,28 @@ export function initializeVideoPlayback() {
         next = video;
       }
     }
-    for (const [video, state] of states) {
-      const priority = video.hasAttribute("data-preload-priority") && video.currentTime === 0;
-      if (!document.hidden && eligible(video) && (visible.has(video) || video === next || priority)) {
+    // The adjacent task is a visible carousel preview, not a hidden section.
+    // Give it a head start only after the selected task has eight seconds ready.
+    const tasks = [...states.keys()].filter(video => video.matches(".task-recording"));
+    const selected = tasks.find(video => eligible(video) && (visible.has(video) || video === next));
+    const adjacent = !imagesPending && selected && bufferedAhead(selected) >= 8
+      && (!selected.dataset.muxPlaybackId || muxCanShareBandwidth(selected))
+      ? tasks.find(video => video !== selected && rendered(video) && bufferedAhead(video) < 8)
+      : null;
+    const activeMux = [...visible].find(video => video.dataset.muxPlaybackId);
+    if (activeMux && (bufferedAhead(activeMux) < 8 || !muxCanShareBandwidth(activeMux))) next = null;
+    for (const [video] of states) {
+      const rect = video.getBoundingClientRect();
+      const priority = video.hasAttribute("data-preload-priority") && video.currentTime === 0 &&
+        rect.bottom > 0 && rect.top < innerHeight * 2;
+      if (!document.hidden && eligible(video) && (visible.has(video) || priority || (!imagesPending && video === next))) {
         prepare(video);
+      } else if (!document.hidden && video === adjacent) {
+        prepare(video, true);
       } else {
         // Preserve buffered media and the playhead when a carousel selection changes.
         video.preload = "none";
+        suspendMux(video);
       }
       updatePlayback(video);
     }
@@ -90,7 +129,7 @@ export function initializeVideoPlayback() {
     schedule();
   }, { threshold: [0, 0.25] }) : null;
 
-  document.querySelectorAll("video").forEach(video => {
+  document.querySelectorAll("video:not(.mf-loop-video)").forEach(video => {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
@@ -104,21 +143,16 @@ export function initializeVideoPlayback() {
     const state = { visible: !observer, userPaused: false, automaticPause: false,
       holding: false, holdTimer: null, holdSeconds };
     states.set(video, state);
+    if (video.matches(".task-recording")) {
+      // Recheck when the active buffer fills, drains, or playback resumes.
+      for (const event of ["progress", "loadeddata", "timeupdate", "waiting"]) {
+        video.addEventListener(event, schedule);
+      }
+    }
     if (holdSeconds > 0) video.addEventListener("ended", () => {
       state.holding = true;
       updatePlayback(video);
     });
-    if (video.hasAttribute("data-controls-on-demand")) {
-      video.controls = false;
-      video.addEventListener("click", () => { video.controls = true; });
-      video.addEventListener("keydown", event => {
-        if (!video.controls && (event.key === "Enter" || event.key === " ")) {
-          event.preventDefault();
-          video.controls = true;
-        } else if (event.key === "Escape") video.controls = false;
-      });
-      video.addEventListener("blur", () => { video.controls = false; });
-    }
     video.addEventListener("seeking", () => {
       clearTimeout(state.holdTimer);
       state.holdTimer = null;
@@ -145,6 +179,10 @@ export function initializeVideoPlayback() {
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule);
   document.addEventListener("toggle", schedule, true);
+  // Let visible still images finish before speculative video downloads begin.
+  document.addEventListener("load", schedule, true);
+  document.addEventListener("error", schedule, true);
+  document.addEventListener("homebody:images-ready", schedule);
   document.addEventListener("visibilitychange", () => {
     states.forEach((state, video) => updatePlayback(video));
     schedule();
