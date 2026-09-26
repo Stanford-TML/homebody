@@ -1,5 +1,5 @@
 import { initializeVideoControls } from "./video-controls.js";
-import { prepareMux, suspendMux, muxCanShareBandwidth } from "./mux-video.js";
+import { prepareMux, suspendMux, muxCanShareBandwidth } from "./mux-video.js?v=2";
 
 // Give visible videos and the next selected video a head start without loading
 // every demo or restarting media that the browser has already buffered.

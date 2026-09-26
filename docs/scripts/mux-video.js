@@ -3,6 +3,18 @@
 const streams = new WeakMap();
 let library;
 
+function startupProfile() {
+  const connection = navigator.connection;
+  const desktop = matchMedia('(min-width: 900px)').matches;
+  const downlink = connection?.downlink;
+  const slow = connection?.saveData || /^(slow-2g|2g|3g)$/.test(connection?.effectiveType || '');
+  if (!desktop || slow) return { height: 480, budget: 900000, estimate: 1e6 };
+  if (downlink > 0 && downlink < 5) return { height: 720, budget: 2e6, estimate: 2.5e6 };
+  // Prefer a sharp first segment on laptops, including browsers without network hints.
+  // This is a startup preference, not a minimum quality: ABR can still step down.
+  return { height: 1080, budget: 4e6, estimate: 5e6 };
+}
+
 export function muxCanShareBandwidth(video) {
   const state = streams.get(video);
   const estimate = state?.hls?.bandwidthEstimate || (navigator.connection?.downlink || 0) * 1e6;
@@ -34,7 +46,10 @@ export function prepareMux(video) {
   }
   state = { wanted: true, ready: false, loading: false, hls: null, fallback: false };
   streams.set(video, state);
-  const url = `https://stream.mux.com/${video.dataset.muxPlaybackId}.m3u8`;
+  const startup = startupProfile();
+  video.dataset.streamStartPreference = String(startup.height);
+  const url = `https://stream.mux.com/${video.dataset.muxPlaybackId}.m3u8` +
+    (startup.height === 1080 ? '?rendition_order=desc' : '');
 
   function fallback() {
     video.dataset.streamError = video.error?.message || 'HLS unavailable or fatal streaming error';
@@ -77,18 +92,19 @@ export function prepareMux(video) {
     const hls = state.hls = new Hls({
       autoStartLoad: false,
       capLevelToPlayerSize: true,
-      abrEwmaDefaultEstimate: 1e6,
+      abrEwmaDefaultEstimate: startup.estimate,
       maxBufferLength: 12,
       maxMaxBufferLength: 24,
       backBufferLength: 10
     });
     video.dataset.streamEngine = 'hls.js';
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      // Start near 480p, then let bandwidth-based adaptation choose subsequent segments.
+      // Pick the initial rendition for the screen/network, then adapt subsequent segments.
       const affordable = hls.levels.map((level, index) => ({ level, index }))
-        .filter(({ level }) => level.bitrate <= 900000)
+        .filter(({ level }) => level.height <= startup.height && level.bitrate <= startup.budget)
         .sort((a, b) => b.level.bitrate - a.level.bitrate);
       hls.startLevel = affordable[0]?.index ?? 0;
+      video.dataset.streamStartHeight = String(hls.levels[hls.startLevel]?.height || '');
       state.ready = true;
       if (state.wanted) {
         state.loading = true;
