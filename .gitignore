@@ -1,0 +1,6 @@
+/*
+!/.gitignore
+!/README.md
+!/docs/
+.DS_Store
+*.map
