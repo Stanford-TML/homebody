@@ -18,8 +18,14 @@
   </a>
 </p>
 
-<p align="center">Code coming soon.</p>
-
 <p align="center">
   <img src="docs/figures/overview-full.webp" alt="HomeBody overview: explore and collect scene data, reconstruct the kitchen, and deploy humanoid skills in the real world." width="100%">
 </p>
+
+### Code release schedule
+
+| Target date | Release | Scope | Status |
+|---|---|---|---|
+| October 4, 2026 | **SIM** | Simulation environment with navigation and pick-and-place. | Planned |
+| October 11, 2026 | **REAL2SIM** | Exploration and scene-reconstruction pipeline. | Planned |
+| October 18, 2026 | **REAL** | Real-world deployment code and setup instructions. | Planned |
