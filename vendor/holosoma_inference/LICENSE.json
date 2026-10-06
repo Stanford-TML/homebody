@@ -1,0 +1,8 @@
+{
+ "schema": "vendor-licence/v1",
+ "licence": "Apache-2.0",
+ "file": "LICENSE",
+ "sha256": "08ec859c8be03e3d0f64ae6df3d67f7fd990051e0b1f6ac3240915bd1de6ee03",
+ "bytes": 11348,
+ "first_line": "Apache License"
+}

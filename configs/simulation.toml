@@ -1,0 +1,33 @@
+# Simulator-side overrides: the simulated robot, its sensors and its contacts. Omitted
+# settings take the defaults in src/homebody/session/config.py. Values that belong to one
+# room live in that scene package's settings.toml. Credentials never go in this file.
+
+[physics]
+# The arm plays its trajectories faster in MuJoCo than the default.
+arm_rate = 1.0
+
+[motion]
+# The simulated robot's floor footprint, narrower than the default.
+robot_radius = 0.20
+route_clearance_margin = 0.16
+# Turn onto the stance heading nearer to it and close in faster than the defaults, since
+# the simulated gait steps in place at each stance.
+aim_in_distance = 0.50
+min_close_speed = 0.22
+final_speed = 0.25
+
+[collision]
+# Rendered depth is noiseless; 5 mm padding is enough and avoids phantom edge hits.
+cloud_margin = 0.005
+# Real obstacles span several depth voxels; a lone voxel is ignored.
+min_hit_voxels = 3
+
+[grasp]
+# A newly exposed face of a rigid object shifts its aligned cloud by up to about 2.4 cm.
+target_surface_tolerance = 0.03
+# Pixels newly exposed after a lift leave a palm-frame cloud residual of about 5 cm.
+recovery_match = 0.055
+
+[placement]
+# Clear a landed object before folding the arm back toward the torso.
+withdraw_height = 0.08

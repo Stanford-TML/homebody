@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "homebody"
+version = "0.1.0"
+description = "An open-source agentic framework for vision-language models to control humanoid robots on long-horizon tasks"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+  "numpy>=1.26", "scipy>=1.13", "mujoco==3.11.0", "torch>=2.4",
+  "pillow>=10", "trimesh>=4.4", "viser>=1.1", "imageio-ffmpeg>=0.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+homebody = "homebody.__main__:main"
+
+[tool.setuptools]
+package-dir = { "" = "src", "holosoma_inference" = "vendor/holosoma_inference" }
+
+[tool.setuptools.packages.find]
+where = ["src", "vendor"]
+
+[tool.setuptools.package-data]
+homebody = ["**/*.md"]
+holosoma_inference = ["LICENSE*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src", "vendor"]
+
+[tool.ruff]
+line-length = 100

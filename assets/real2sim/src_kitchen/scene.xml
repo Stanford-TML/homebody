@@ -1,0 +1,1810 @@
+<mujoco model="src_kitchen">
+  <asset>
+    <mesh name="juice_carton_collision" file="meshes/juice_carton_collision.obj" inertia="convex" />
+    <mesh name="parcel_corner_collision" file="meshes/parcel_corner_collision.obj" inertia="convex" />
+    <mesh name="parcel_left_collision" file="meshes/parcel_left_collision.obj" inertia="convex" />
+    <mesh name="red_white_carton_collision" file="meshes/red_white_carton_collision.obj" inertia="convex" />
+    <mesh name="part_000" file="meshes/part_000.obj" />
+    <texture name="part_000" type="2d" file="meshes/part_000.png" />
+    <material name="part_000_material" rgba="1 1 1 1" specular="0.1" texture="part_000" />
+    <mesh name="part_001" file="meshes/part_001.obj" />
+    <material name="part_001_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_002" file="meshes/part_002.obj" />
+    <material name="part_002_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_003" file="meshes/part_003.obj" />
+    <material name="part_003_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_004" file="meshes/part_004.obj" />
+    <material name="part_004_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_005" file="meshes/part_005.obj" />
+    <material name="part_005_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_006" file="meshes/part_006.obj" />
+    <material name="part_006_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_007" file="meshes/part_007.obj" />
+    <material name="part_007_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_008" file="meshes/part_008.obj" />
+    <material name="part_008_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_009" file="meshes/part_009.obj" />
+    <texture name="part_009" type="2d" file="meshes/part_009.png" />
+    <material name="part_009_material" rgba="1 1 1 1" specular="0.1" texture="part_009" />
+    <mesh name="part_010" file="meshes/part_010.obj" />
+    <material name="part_010_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_011" file="meshes/part_011.obj" />
+    <material name="part_011_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_012" file="meshes/part_012.obj" />
+    <material name="part_012_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_013" file="meshes/part_013.obj" />
+    <material name="part_013_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_014" file="meshes/part_014.obj" />
+    <material name="part_014_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_015" file="meshes/part_015.obj" />
+    <material name="part_015_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_016" file="meshes/part_016.obj" />
+    <material name="part_016_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_017" file="meshes/part_017.obj" />
+    <material name="part_017_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_018" file="meshes/part_018.obj" />
+    <texture name="part_018" type="2d" file="meshes/part_018.png" />
+    <material name="part_018_material" rgba="1 1 1 1" specular="0.1" texture="part_018" />
+    <mesh name="part_019" file="meshes/part_019.obj" />
+    <material name="part_019_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_020" file="meshes/part_020.obj" />
+    <material name="part_020_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_021" file="meshes/part_021.obj" />
+    <material name="part_021_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_022" file="meshes/part_022.obj" />
+    <material name="part_022_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_023" file="meshes/part_023.obj" />
+    <material name="part_023_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_024" file="meshes/part_024.obj" />
+    <material name="part_024_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_025" file="meshes/part_025.obj" />
+    <material name="part_025_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_026" file="meshes/part_026.obj" />
+    <material name="part_026_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_027" file="meshes/part_027.obj" />
+    <material name="part_027_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_028" file="meshes/part_028.obj" />
+    <material name="part_028_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_029" file="meshes/part_029.obj" />
+    <material name="part_029_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_030" file="meshes/part_030.obj" />
+    <material name="part_030_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_031" file="meshes/part_031.obj" />
+    <material name="part_031_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_032" file="meshes/part_032.obj" />
+    <material name="part_032_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_033" file="meshes/part_033.obj" />
+    <material name="part_033_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_034" file="meshes/part_034.obj" />
+    <material name="part_034_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_035" file="meshes/part_035.obj" />
+    <material name="part_035_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_036" file="meshes/part_036.obj" />
+    <material name="part_036_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_037" file="meshes/part_037.obj" />
+    <material name="part_037_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_038" file="meshes/part_038.obj" />
+    <material name="part_038_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_039" file="meshes/part_039.obj" />
+    <material name="part_039_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_040" file="meshes/part_040.obj" />
+    <material name="part_040_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_041" file="meshes/part_041.obj" />
+    <material name="part_041_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_042" file="meshes/part_042.obj" />
+    <material name="part_042_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_043" file="meshes/part_043.obj" />
+    <material name="part_043_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_044" file="meshes/part_044.obj" />
+    <material name="part_044_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_045" file="meshes/part_045.obj" />
+    <material name="part_045_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_046" file="meshes/part_046.obj" />
+    <material name="part_046_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_047" file="meshes/part_047.obj" />
+    <material name="part_047_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_048" file="meshes/part_048.obj" />
+    <material name="part_048_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_049" file="meshes/part_049.obj" />
+    <material name="part_049_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_050" file="meshes/part_050.obj" />
+    <texture name="part_050" type="2d" file="meshes/part_050.png" />
+    <material name="part_050_material" rgba="1 1 1 1" specular="0.1" texture="part_050" />
+    <mesh name="part_051" file="meshes/part_051.obj" />
+    <texture name="part_051" type="2d" file="meshes/part_051.png" />
+    <material name="part_051_material" rgba="1 1 1 1" specular="0.1" texture="part_051" />
+    <mesh name="part_052" file="meshes/part_052.obj" />
+    <texture name="part_052" type="2d" file="meshes/part_052.png" />
+    <material name="part_052_material" rgba="1 1 1 1" specular="0.1" texture="part_052" />
+    <mesh name="part_053" file="meshes/part_053.obj" />
+    <texture name="part_053" type="2d" file="meshes/part_053.png" />
+    <material name="part_053_material" rgba="1 1 1 1" specular="0.1" texture="part_053" />
+    <mesh name="part_054" file="meshes/part_054.obj" />
+    <material name="part_054_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_055" file="meshes/part_055.obj" />
+    <texture name="part_055" type="2d" file="meshes/part_055.png" />
+    <material name="part_055_material" rgba="1 1 1 1" specular="0.1" texture="part_055" />
+    <mesh name="part_056" file="meshes/part_056.obj" />
+    <material name="part_056_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_057" file="meshes/part_057.obj" />
+    <texture name="part_057" type="2d" file="meshes/part_057.png" />
+    <material name="part_057_material" rgba="1 1 1 1" specular="0.1" texture="part_057" />
+    <mesh name="part_058" file="meshes/part_058.obj" />
+    <material name="part_058_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_059" file="meshes/part_059.obj" />
+    <texture name="part_059" type="2d" file="meshes/part_059.png" />
+    <material name="part_059_material" rgba="1 1 1 1" specular="0.1" texture="part_059" />
+    <mesh name="part_060" file="meshes/part_060.obj" />
+    <material name="part_060_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_061" file="meshes/part_061.obj" />
+    <texture name="part_061" type="2d" file="meshes/part_061.png" />
+    <material name="part_061_material" rgba="1 1 1 1" specular="0.1" texture="part_061" />
+    <mesh name="part_062" file="meshes/part_062.obj" />
+    <material name="part_062_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_063" file="meshes/part_063.obj" />
+    <texture name="part_063" type="2d" file="meshes/part_063.png" />
+    <material name="part_063_material" rgba="1 1 1 1" specular="0.1" texture="part_063" />
+    <mesh name="part_064" file="meshes/part_064.obj" />
+    <material name="part_064_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_065" file="meshes/part_065.obj" />
+    <texture name="part_065" type="2d" file="meshes/part_065.png" />
+    <material name="part_065_material" rgba="1 1 1 1" specular="0.1" texture="part_065" />
+    <mesh name="part_066" file="meshes/part_066.obj" />
+    <material name="part_066_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_067" file="meshes/part_067.obj" />
+    <material name="part_067_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_068" file="meshes/part_068.obj" />
+    <texture name="part_068" type="2d" file="meshes/part_068.png" />
+    <material name="part_068_material" rgba="1 1 1 1" specular="0.1" texture="part_068" />
+    <mesh name="part_069" file="meshes/part_069.obj" />
+    <texture name="part_069" type="2d" file="meshes/part_069.png" />
+    <material name="part_069_material" rgba="1 1 1 1" specular="0.1" texture="part_069" />
+    <mesh name="part_070" file="meshes/part_070.obj" />
+    <texture name="part_070" type="2d" file="meshes/part_070.png" />
+    <material name="part_070_material" rgba="1 1 1 1" specular="0.1" texture="part_070" />
+    <mesh name="part_071" file="meshes/part_071.obj" />
+    <texture name="part_071" type="2d" file="meshes/part_071.png" />
+    <material name="part_071_material" rgba="1 1 1 1" specular="0.1" texture="part_071" />
+    <mesh name="part_072" file="meshes/part_072.obj" />
+    <material name="part_072_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_073" file="meshes/part_073.obj" />
+    <texture name="part_073" type="2d" file="meshes/part_073.png" />
+    <material name="part_073_material" rgba="1 1 1 1" specular="0.1" texture="part_073" />
+    <mesh name="part_074" file="meshes/part_074.obj" />
+    <texture name="part_074" type="2d" file="meshes/part_074.png" />
+    <material name="part_074_material" rgba="1 1 1 1" specular="0.1" texture="part_074" />
+    <mesh name="part_075" file="meshes/part_075.obj" />
+    <texture name="part_075" type="2d" file="meshes/part_075.png" />
+    <material name="part_075_material" rgba="1 1 1 1" specular="0.1" texture="part_075" />
+    <mesh name="part_076" file="meshes/part_076.obj" />
+    <texture name="part_076" type="2d" file="meshes/part_076.png" />
+    <material name="part_076_material" rgba="1 1 1 1" specular="0.1" texture="part_076" />
+    <mesh name="part_077" file="meshes/part_077.obj" />
+    <texture name="part_077" type="2d" file="meshes/part_077.png" />
+    <material name="part_077_material" rgba="1 1 1 1" specular="0.1" texture="part_077" />
+    <mesh name="part_078" file="meshes/part_078.obj" />
+    <material name="part_078_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_079" file="meshes/part_079.obj" />
+    <texture name="part_079" type="2d" file="meshes/part_079.png" />
+    <material name="part_079_material" rgba="1 1 1 1" specular="0.1" texture="part_079" />
+    <mesh name="part_080" file="meshes/part_080.obj" />
+    <material name="part_080_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_081" file="meshes/part_081.obj" />
+    <texture name="part_081" type="2d" file="meshes/part_081.png" />
+    <material name="part_081_material" rgba="1 1 1 1" specular="0.1" texture="part_081" />
+    <mesh name="part_082" file="meshes/part_082.obj" />
+    <material name="part_082_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_083" file="meshes/part_083.obj" />
+    <texture name="part_083" type="2d" file="meshes/part_083.png" />
+    <material name="part_083_material" rgba="1 1 1 1" specular="0.1" texture="part_083" />
+    <mesh name="part_084" file="meshes/part_084.obj" />
+    <material name="part_084_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_085" file="meshes/part_085.obj" />
+    <texture name="part_085" type="2d" file="meshes/part_085.png" />
+    <material name="part_085_material" rgba="1 1 1 1" specular="0.1" texture="part_085" />
+    <mesh name="part_086" file="meshes/part_086.obj" />
+    <material name="part_086_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_087" file="meshes/part_087.obj" />
+    <material name="part_087_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_088" file="meshes/part_088.obj" />
+    <material name="part_088_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_089" file="meshes/part_089.obj" />
+    <texture name="part_089" type="2d" file="meshes/part_089.png" />
+    <material name="part_089_material" rgba="1 1 1 1" specular="0.1" texture="part_089" />
+    <mesh name="part_090" file="meshes/part_090.obj" />
+    <texture name="part_090" type="2d" file="meshes/part_090.png" />
+    <material name="part_090_material" rgba="1 1 1 1" specular="0.1" texture="part_090" />
+    <mesh name="part_091" file="meshes/part_091.obj" />
+    <texture name="part_091" type="2d" file="meshes/part_091.png" />
+    <material name="part_091_material" rgba="1 1 1 1" specular="0.1" texture="part_091" />
+    <mesh name="part_092" file="meshes/part_092.obj" />
+    <texture name="part_092" type="2d" file="meshes/part_092.png" />
+    <material name="part_092_material" rgba="1 1 1 1" specular="0.1" texture="part_092" />
+    <mesh name="part_093" file="meshes/part_093.obj" />
+    <texture name="part_093" type="2d" file="meshes/part_093.png" />
+    <material name="part_093_material" rgba="1 1 1 1" specular="0.1" texture="part_093" />
+    <mesh name="part_094" file="meshes/part_094.obj" />
+    <material name="part_094_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_095" file="meshes/part_095.obj" />
+    <texture name="part_095" type="2d" file="meshes/part_095.png" />
+    <material name="part_095_material" rgba="1 1 1 1" specular="0.1" texture="part_095" />
+    <mesh name="part_096" file="meshes/part_096.obj" />
+    <material name="part_096_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_097" file="meshes/part_097.obj" />
+    <texture name="part_097" type="2d" file="meshes/part_097.png" />
+    <material name="part_097_material" rgba="1 1 1 1" specular="0.1" texture="part_097" />
+    <mesh name="part_098" file="meshes/part_098.obj" />
+    <material name="part_098_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_099" file="meshes/part_099.obj" />
+    <texture name="part_099" type="2d" file="meshes/part_099.png" />
+    <material name="part_099_material" rgba="1 1 1 1" specular="0.1" texture="part_099" />
+    <mesh name="part_100" file="meshes/part_100.obj" />
+    <material name="part_100_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_101" file="meshes/part_101.obj" />
+    <texture name="part_101" type="2d" file="meshes/part_101.png" />
+    <material name="part_101_material" rgba="1 1 1 1" specular="0.1" texture="part_101" />
+    <mesh name="part_102" file="meshes/part_102.obj" />
+    <material name="part_102_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_103" file="meshes/part_103.obj" />
+    <texture name="part_103" type="2d" file="meshes/part_103.png" />
+    <material name="part_103_material" rgba="1 1 1 1" specular="0.1" texture="part_103" />
+    <mesh name="part_104" file="meshes/part_104.obj" />
+    <material name="part_104_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_105" file="meshes/part_105.obj" />
+    <material name="part_105_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_106" file="meshes/part_106.obj" />
+    <texture name="part_106" type="2d" file="meshes/part_106.png" />
+    <material name="part_106_material" rgba="1 1 1 1" specular="0.1" texture="part_106" />
+    <mesh name="part_107" file="meshes/part_107.obj" />
+    <texture name="part_107" type="2d" file="meshes/part_107.png" />
+    <material name="part_107_material" rgba="1 1 1 1" specular="0.1" texture="part_107" />
+    <mesh name="part_108" file="meshes/part_108.obj" />
+    <texture name="part_108" type="2d" file="meshes/part_108.png" />
+    <material name="part_108_material" rgba="1 1 1 1" specular="0.1" texture="part_108" />
+    <mesh name="part_109" file="meshes/part_109.obj" />
+    <texture name="part_109" type="2d" file="meshes/part_109.png" />
+    <material name="part_109_material" rgba="1 1 1 1" specular="0.1" texture="part_109" />
+    <mesh name="part_110" file="meshes/part_110.obj" />
+    <texture name="part_110" type="2d" file="meshes/part_110.png" />
+    <material name="part_110_material" rgba="1 1 1 1" specular="0.1" texture="part_110" />
+    <mesh name="part_111" file="meshes/part_111.obj" />
+    <material name="part_111_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_112" file="meshes/part_112.obj" />
+    <texture name="part_112" type="2d" file="meshes/part_112.png" />
+    <material name="part_112_material" rgba="1 1 1 1" specular="0.1" texture="part_112" />
+    <mesh name="part_113" file="meshes/part_113.obj" />
+    <material name="part_113_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_114" file="meshes/part_114.obj" />
+    <texture name="part_114" type="2d" file="meshes/part_114.png" />
+    <material name="part_114_material" rgba="1 1 1 1" specular="0.1" texture="part_114" />
+    <mesh name="part_115" file="meshes/part_115.obj" />
+    <material name="part_115_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_116" file="meshes/part_116.obj" />
+    <texture name="part_116" type="2d" file="meshes/part_116.png" />
+    <material name="part_116_material" rgba="1 1 1 1" specular="0.1" texture="part_116" />
+    <mesh name="part_117" file="meshes/part_117.obj" />
+    <texture name="part_117" type="2d" file="meshes/part_117.png" />
+    <material name="part_117_material" rgba="1 1 1 1" specular="0.1" texture="part_117" />
+    <mesh name="part_118" file="meshes/part_118.obj" />
+    <texture name="part_118" type="2d" file="meshes/part_118.png" />
+    <material name="part_118_material" rgba="1 1 1 1" specular="0.1" texture="part_118" />
+    <mesh name="part_119" file="meshes/part_119.obj" />
+    <texture name="part_119" type="2d" file="meshes/part_119.png" />
+    <material name="part_119_material" rgba="1 1 1 1" specular="0.1" texture="part_119" />
+    <mesh name="part_120" file="meshes/part_120.obj" />
+    <texture name="part_120" type="2d" file="meshes/part_120.png" />
+    <material name="part_120_material" rgba="1 1 1 1" specular="0.1" texture="part_120" />
+    <mesh name="part_121" file="meshes/part_121.obj" />
+    <material name="part_121_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_122" file="meshes/part_122.obj" />
+    <material name="part_122_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_123" file="meshes/part_123.obj" />
+    <material name="part_123_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_124" file="meshes/part_124.obj" />
+    <material name="part_124_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_125" file="meshes/part_125.obj" />
+    <material name="part_125_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_126" file="meshes/part_126.obj" />
+    <texture name="part_126" type="2d" file="meshes/part_126.png" />
+    <material name="part_126_material" rgba="1 1 1 1" specular="0.1" texture="part_126" />
+    <mesh name="part_127" file="meshes/part_127.obj" />
+    <material name="part_127_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_128" file="meshes/part_128.obj" />
+    <material name="part_128_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_129" file="meshes/part_129.obj" />
+    <material name="part_129_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_130" file="meshes/part_130.obj" />
+    <material name="part_130_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_131" file="meshes/part_131.obj" />
+    <material name="part_131_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_132" file="meshes/part_132.obj" />
+    <texture name="part_132" type="2d" file="meshes/part_132.png" />
+    <material name="part_132_material" rgba="1 1 1 1" specular="0.1" texture="part_132" />
+    <mesh name="part_133" file="meshes/part_133.obj" />
+    <material name="part_133_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_134" file="meshes/part_134.obj" />
+    <material name="part_134_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_135" file="meshes/part_135.obj" />
+    <material name="part_135_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_136" file="meshes/part_136.obj" />
+    <material name="part_136_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_137" file="meshes/part_137.obj" />
+    <material name="part_137_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_138" file="meshes/part_138.obj" />
+    <texture name="part_138" type="2d" file="meshes/part_138.png" />
+    <material name="part_138_material" rgba="1 1 1 1" specular="0.1" texture="part_138" />
+    <mesh name="part_139" file="meshes/part_139.obj" />
+    <material name="part_139_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_140" file="meshes/part_140.obj" />
+    <material name="part_140_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_141" file="meshes/part_141.obj" />
+    <material name="part_141_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_142" file="meshes/part_142.obj" />
+    <material name="part_142_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_143" file="meshes/part_143.obj" />
+    <material name="part_143_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_144" file="meshes/part_144.obj" />
+    <texture name="part_144" type="2d" file="meshes/part_144.png" />
+    <material name="part_144_material" rgba="1 1 1 1" specular="0.1" texture="part_144" />
+    <mesh name="part_145" file="meshes/part_145.obj" />
+    <material name="part_145_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_146" file="meshes/part_146.obj" />
+    <material name="part_146_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_147" file="meshes/part_147.obj" />
+    <material name="part_147_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_148" file="meshes/part_148.obj" />
+    <material name="part_148_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_149" file="meshes/part_149.obj" />
+    <material name="part_149_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_150" file="meshes/part_150.obj" />
+    <texture name="part_150" type="2d" file="meshes/part_150.png" />
+    <material name="part_150_material" rgba="1 1 1 1" specular="0.1" texture="part_150" />
+    <mesh name="part_151" file="meshes/part_151.obj" />
+    <material name="part_151_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_152" file="meshes/part_152.obj" />
+    <material name="part_152_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_153" file="meshes/part_153.obj" />
+    <material name="part_153_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_154" file="meshes/part_154.obj" />
+    <material name="part_154_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_155" file="meshes/part_155.obj" />
+    <material name="part_155_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_156" file="meshes/part_156.obj" />
+    <texture name="part_156" type="2d" file="meshes/part_156.png" />
+    <material name="part_156_material" rgba="1 1 1 1" specular="0.1" texture="part_156" />
+    <mesh name="part_157" file="meshes/part_157.obj" />
+    <material name="part_157_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_158" file="meshes/part_158.obj" />
+    <material name="part_158_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_159" file="meshes/part_159.obj" />
+    <material name="part_159_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_160" file="meshes/part_160.obj" />
+    <material name="part_160_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_161" file="meshes/part_161.obj" />
+    <material name="part_161_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_162" file="meshes/part_162.obj" />
+    <texture name="part_162" type="2d" file="meshes/part_162.png" />
+    <material name="part_162_material" rgba="1 1 1 1" specular="0.1" texture="part_162" />
+    <mesh name="part_163" file="meshes/part_163.obj" />
+    <material name="part_163_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_164" file="meshes/part_164.obj" />
+    <material name="part_164_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_165" file="meshes/part_165.obj" />
+    <material name="part_165_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_166" file="meshes/part_166.obj" />
+    <material name="part_166_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_167" file="meshes/part_167.obj" />
+    <material name="part_167_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_168" file="meshes/part_168.obj" />
+    <material name="part_168_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_169" file="meshes/part_169.obj" />
+    <texture name="part_169" type="2d" file="meshes/part_169.png" />
+    <material name="part_169_material" rgba="1 1 1 1" specular="0.1" texture="part_169" />
+    <mesh name="part_170" file="meshes/part_170.obj" />
+    <material name="part_170_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_171" file="meshes/part_171.obj" />
+    <texture name="part_171" type="2d" file="meshes/part_171.png" />
+    <material name="part_171_material" rgba="1 1 1 1" specular="0.1" texture="part_171" />
+    <mesh name="part_172" file="meshes/part_172.obj" />
+    <material name="part_172_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_173" file="meshes/part_173.obj" />
+    <material name="part_173_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_174" file="meshes/part_174.obj" />
+    <material name="part_174_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_175" file="meshes/part_175.obj" />
+    <texture name="part_175" type="2d" file="meshes/part_175.png" />
+    <material name="part_175_material" rgba="1 1 1 1" specular="0.1" texture="part_175" />
+    <mesh name="part_176" file="meshes/part_176.obj" />
+    <texture name="part_176" type="2d" file="meshes/part_176.png" />
+    <material name="part_176_material" rgba="1 1 1 1" specular="0.1" texture="part_176" />
+    <mesh name="part_177" file="meshes/part_177.obj" />
+    <texture name="part_177" type="2d" file="meshes/part_177.png" />
+    <material name="part_177_material" rgba="1 1 1 1" specular="0.1" texture="part_177" />
+    <mesh name="part_178" file="meshes/part_178.obj" />
+    <texture name="part_178" type="2d" file="meshes/part_178.png" />
+    <material name="part_178_material" rgba="1 1 1 1" specular="0.1" texture="part_178" />
+    <mesh name="part_179" file="meshes/part_179.obj" />
+    <texture name="part_179" type="2d" file="meshes/part_179.png" />
+    <material name="part_179_material" rgba="1 1 1 1" specular="0.1" texture="part_179" />
+    <mesh name="part_180" file="meshes/part_180.obj" />
+    <texture name="part_180" type="2d" file="meshes/part_180.png" />
+    <material name="part_180_material" rgba="1 1 1 1" specular="0.1" texture="part_180" />
+    <mesh name="part_181" file="meshes/part_181.obj" />
+    <texture name="part_181" type="2d" file="meshes/part_181.png" />
+    <material name="part_181_material" rgba="1 1 1 1" specular="0.1" texture="part_181" />
+    <mesh name="part_182" file="meshes/part_182.obj" />
+    <texture name="part_182" type="2d" file="meshes/part_182.png" />
+    <material name="part_182_material" rgba="1 1 1 1" specular="0.1" texture="part_182" />
+    <mesh name="part_183" file="meshes/part_183.obj" />
+    <texture name="part_183" type="2d" file="meshes/part_183.png" />
+    <material name="part_183_material" rgba="1 1 1 1" specular="0.1" texture="part_183" />
+    <mesh name="part_184" file="meshes/part_184.obj" />
+    <texture name="part_184" type="2d" file="meshes/part_184.png" />
+    <material name="part_184_material" rgba="1 1 1 1" specular="0.1" texture="part_184" />
+    <mesh name="part_185" file="meshes/part_185.obj" />
+    <texture name="part_185" type="2d" file="meshes/part_185.png" />
+    <material name="part_185_material" rgba="1 1 1 1" specular="0.1" texture="part_185" />
+    <mesh name="part_186" file="meshes/part_186.obj" />
+    <material name="part_186_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_187" file="meshes/part_187.obj" />
+    <material name="part_187_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_188" file="meshes/part_188.obj" />
+    <material name="part_188_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_189" file="meshes/part_189.obj" />
+    <material name="part_189_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_190" file="meshes/part_190.obj" />
+    <texture name="part_190" type="2d" file="meshes/part_190.png" />
+    <material name="part_190_material" rgba="1 1 1 1" specular="0.1" texture="part_190" />
+    <mesh name="part_191" file="meshes/part_191.obj" />
+    <material name="part_191_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_192" file="meshes/part_192.obj" />
+    <material name="part_192_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_193" file="meshes/part_193.obj" />
+    <material name="part_193_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_194" file="meshes/part_194.obj" />
+    <material name="part_194_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_195" file="meshes/part_195.obj" />
+    <texture name="part_195" type="2d" file="meshes/part_195.png" />
+    <material name="part_195_material" rgba="1 1 1 1" specular="0.1" texture="part_195" />
+    <mesh name="part_196" file="meshes/part_196.obj" />
+    <material name="part_196_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_197" file="meshes/part_197.obj" />
+    <material name="part_197_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_198" file="meshes/part_198.obj" />
+    <material name="part_198_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_199" file="meshes/part_199.obj" />
+    <material name="part_199_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_200" file="meshes/part_200.obj" />
+    <texture name="part_200" type="2d" file="meshes/part_200.png" />
+    <material name="part_200_material" rgba="1 1 1 1" specular="0.1" texture="part_200" />
+    <mesh name="part_201" file="meshes/part_201.obj" />
+    <material name="part_201_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_202" file="meshes/part_202.obj" />
+    <material name="part_202_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_203" file="meshes/part_203.obj" />
+    <material name="part_203_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_204" file="meshes/part_204.obj" />
+    <material name="part_204_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_205" file="meshes/part_205.obj" />
+    <material name="part_205_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_206" file="meshes/part_206.obj" />
+    <texture name="part_206" type="2d" file="meshes/part_206.png" />
+    <material name="part_206_material" rgba="1 1 1 1" specular="0.1" texture="part_206" />
+    <mesh name="part_207" file="meshes/part_207.obj" />
+    <texture name="part_207" type="2d" file="meshes/part_207.png" />
+    <material name="part_207_material" rgba="1 1 1 1" specular="0.1" texture="part_207" />
+    <mesh name="part_208" file="meshes/part_208.obj" />
+    <texture name="part_208" type="2d" file="meshes/part_208.png" />
+    <material name="part_208_material" rgba="1 1 1 1" specular="0.1" texture="part_208" />
+    <mesh name="part_209" file="meshes/part_209.obj" />
+    <texture name="part_209" type="2d" file="meshes/part_209.png" />
+    <material name="part_209_material" rgba="1 1 1 1" specular="0.1" texture="part_209" />
+    <mesh name="part_210" file="meshes/part_210.obj" />
+    <texture name="part_210" type="2d" file="meshes/part_210.png" />
+    <material name="part_210_material" rgba="1 1 1 1" specular="0.1" texture="part_210" />
+    <mesh name="part_211" file="meshes/part_211.obj" />
+    <texture name="part_211" type="2d" file="meshes/part_211.png" />
+    <material name="part_211_material" rgba="1 1 1 1" specular="0.1" texture="part_211" />
+    <mesh name="part_212" file="meshes/part_212.obj" />
+    <material name="part_212_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_213" file="meshes/part_213.obj" />
+    <material name="part_213_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_214" file="meshes/part_214.obj" />
+    <material name="part_214_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_215" file="meshes/part_215.obj" />
+    <material name="part_215_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_216" file="meshes/part_216.obj" />
+    <texture name="part_216" type="2d" file="meshes/part_216.png" />
+    <material name="part_216_material" rgba="1 1 1 1" specular="0.1" texture="part_216" />
+    <mesh name="part_217" file="meshes/part_217.obj" />
+    <texture name="part_217" type="2d" file="meshes/part_217.png" />
+    <material name="part_217_material" rgba="1 1 1 1" specular="0.1" texture="part_217" />
+    <mesh name="part_218" file="meshes/part_218.obj" />
+    <material name="part_218_material" rgba="0.721568627 0.188235294 0.0235294118 1" specular="0.1" />
+    <mesh name="part_219" file="meshes/part_219.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_219" type="2d" file="meshes/part_219.png" />
+    <material name="part_219_material" rgba="1 1 1 1" specular="0.1" texture="part_219" />
+    <mesh name="part_220" file="meshes/part_220.obj" />
+    <material name="part_220_material" rgba="0.309803922 0.160784314 0.0745098039 1" specular="0.1" />
+    <mesh name="part_221" file="meshes/part_221.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_221" type="2d" file="meshes/part_221.png" />
+    <material name="part_221_material" rgba="1 1 1 1" specular="0.1" texture="part_221" />
+    <mesh name="part_222" file="meshes/part_222.obj" />
+    <material name="part_222_material" rgba="0.309803922 0.160784314 0.0745098039 1" specular="0.1" />
+    <mesh name="part_223" file="meshes/part_223.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_223" type="2d" file="meshes/part_223.png" />
+    <material name="part_223_material" rgba="1 1 1 1" specular="0.1" texture="part_223" />
+    <mesh name="part_224" file="meshes/part_224.obj" />
+    <material name="part_224_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_225" file="meshes/part_225.obj" />
+    <texture name="part_225" type="2d" file="meshes/part_225.png" />
+    <material name="part_225_material" rgba="1 1 1 1" specular="0.1" texture="part_225" />
+    <mesh name="part_226" file="meshes/part_226.obj" />
+    <texture name="part_226" type="2d" file="meshes/part_226.png" />
+    <material name="part_226_material" rgba="1 1 1 1" specular="0.1" texture="part_226" />
+    <mesh name="part_227" file="meshes/part_227.obj" />
+    <texture name="part_227" type="2d" file="meshes/part_227.png" />
+    <material name="part_227_material" rgba="1 1 1 1" specular="0.1" texture="part_227" />
+    <mesh name="part_228" file="meshes/part_228.obj" />
+    <texture name="part_228" type="2d" file="meshes/part_228.png" />
+    <material name="part_228_material" rgba="1 1 1 1" specular="0.1" texture="part_228" />
+    <mesh name="part_229" file="meshes/part_229.obj" />
+    <material name="part_229_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_230" file="meshes/part_230.obj" />
+    <texture name="part_230" type="2d" file="meshes/part_230.png" />
+    <material name="part_230_material" rgba="1 1 1 1" specular="0.1" texture="part_230" />
+    <mesh name="part_231" file="meshes/part_231.obj" />
+    <texture name="part_231" type="2d" file="meshes/part_231.png" />
+    <material name="part_231_material" rgba="1 1 1 1" specular="0.1" texture="part_231" />
+    <mesh name="part_232" file="meshes/part_232.obj" />
+    <texture name="part_232" type="2d" file="meshes/part_232.png" />
+    <material name="part_232_material" rgba="1 1 1 1" specular="0.1" texture="part_232" />
+    <mesh name="part_233" file="meshes/part_233.obj" />
+    <texture name="part_233" type="2d" file="meshes/part_233.png" />
+    <material name="part_233_material" rgba="1 1 1 1" specular="0.1" texture="part_233" />
+    <mesh name="part_234" file="meshes/part_234.obj" />
+    <material name="part_234_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_235" file="meshes/part_235.obj" />
+    <material name="part_235_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_236" file="meshes/part_236.obj" />
+    <material name="part_236_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_237" file="meshes/part_237.obj" />
+    <material name="part_237_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_238" file="meshes/part_238.obj" />
+    <material name="part_238_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_239" file="meshes/part_239.obj" />
+    <texture name="part_239" type="2d" file="meshes/part_239.png" />
+    <material name="part_239_material" rgba="1 1 1 1" specular="0.1" texture="part_239" />
+    <mesh name="part_240" file="meshes/part_240.obj" />
+    <material name="part_240_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_241" file="meshes/part_241.obj" />
+    <texture name="part_241" type="2d" file="meshes/part_241.png" />
+    <material name="part_241_material" rgba="1 1 1 1" specular="0.1" texture="part_241" />
+    <mesh name="part_242" file="meshes/part_242.obj" />
+    <material name="part_242_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_243" file="meshes/part_243.obj" />
+    <material name="part_243_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_244" file="meshes/part_244.obj" />
+    <material name="part_244_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_245" file="meshes/part_245.obj" />
+    <texture name="part_245" type="2d" file="meshes/part_245.png" />
+    <material name="part_245_material" rgba="1 1 1 1" specular="0.1" texture="part_245" />
+    <mesh name="part_246" file="meshes/part_246.obj" />
+    <texture name="part_246" type="2d" file="meshes/part_246.png" />
+    <material name="part_246_material" rgba="1 1 1 1" specular="0.1" texture="part_246" />
+    <mesh name="part_247" file="meshes/part_247.obj" />
+    <texture name="part_247" type="2d" file="meshes/part_247.png" />
+    <material name="part_247_material" rgba="1 1 1 1" specular="0.1" texture="part_247" />
+    <mesh name="part_248" file="meshes/part_248.obj" />
+    <texture name="part_248" type="2d" file="meshes/part_248.png" />
+    <material name="part_248_material" rgba="1 1 1 1" specular="0.1" texture="part_248" />
+    <mesh name="part_249" file="meshes/part_249.obj" />
+    <material name="part_249_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_250" file="meshes/part_250.obj" />
+    <texture name="part_250" type="2d" file="meshes/part_250.png" />
+    <material name="part_250_material" rgba="1 1 1 1" specular="0.1" texture="part_250" />
+    <mesh name="part_251" file="meshes/part_251.obj" />
+    <texture name="part_251" type="2d" file="meshes/part_251.png" />
+    <material name="part_251_material" rgba="1 1 1 1" specular="0.1" texture="part_251" />
+    <mesh name="part_252" file="meshes/part_252.obj" />
+    <texture name="part_252" type="2d" file="meshes/part_252.png" />
+    <material name="part_252_material" rgba="1 1 1 1" specular="0.1" texture="part_252" />
+    <mesh name="part_253" file="meshes/part_253.obj" />
+    <texture name="part_253" type="2d" file="meshes/part_253.png" />
+    <material name="part_253_material" rgba="1 1 1 1" specular="0.1" texture="part_253" />
+    <mesh name="part_254" file="meshes/part_254.obj" />
+    <texture name="part_254" type="2d" file="meshes/part_254.png" />
+    <material name="part_254_material" rgba="1 1 1 1" specular="0.1" texture="part_254" />
+    <mesh name="part_255" file="meshes/part_255.obj" />
+    <texture name="part_255" type="2d" file="meshes/part_255.png" />
+    <material name="part_255_material" rgba="1 1 1 1" specular="0.1" texture="part_255" />
+    <mesh name="part_256" file="meshes/part_256.obj" />
+    <texture name="part_256" type="2d" file="meshes/part_256.png" />
+    <material name="part_256_material" rgba="1 1 1 1" specular="0.1" texture="part_256" />
+    <mesh name="part_257" file="meshes/part_257.obj" />
+    <texture name="part_257" type="2d" file="meshes/part_257.png" />
+    <material name="part_257_material" rgba="1 1 1 1" specular="0.1" texture="part_257" />
+    <mesh name="part_258" file="meshes/part_258.obj" />
+    <texture name="part_258" type="2d" file="meshes/part_258.png" />
+    <material name="part_258_material" rgba="1 1 1 1" specular="0.1" texture="part_258" />
+    <mesh name="part_259" file="meshes/part_259.obj" />
+    <texture name="part_259" type="2d" file="meshes/part_259.png" />
+    <material name="part_259_material" rgba="1 1 1 1" specular="0.1" texture="part_259" />
+    <mesh name="part_260" file="meshes/part_260.obj" />
+    <material name="part_260_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_261" file="meshes/part_261.obj" />
+    <texture name="part_261" type="2d" file="meshes/part_261.png" />
+    <material name="part_261_material" rgba="1 1 1 1" specular="0.1" texture="part_261" />
+    <mesh name="part_262" file="meshes/part_262.obj" />
+    <material name="part_262_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_263" file="meshes/part_263.obj" />
+    <texture name="part_263" type="2d" file="meshes/part_263.png" />
+    <material name="part_263_material" rgba="1 1 1 1" specular="0.1" texture="part_263" />
+    <mesh name="part_264" file="meshes/part_264.obj" />
+    <material name="part_264_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_265" file="meshes/part_265.obj" />
+    <material name="part_265_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_266" file="meshes/part_266.obj" />
+    <material name="part_266_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_267" file="meshes/part_267.obj" />
+    <material name="part_267_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_268" file="meshes/part_268.obj" />
+    <material name="part_268_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_269" file="meshes/part_269.obj" />
+    <texture name="part_269" type="2d" file="meshes/part_269.png" />
+    <material name="part_269_material" rgba="1 1 1 1" specular="0.1" texture="part_269" />
+    <mesh name="part_270" file="meshes/part_270.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_270_material" rgba="0.0352941176 0.0352941176 0.0352941176 1" specular="0.1" />
+    <mesh name="part_271" file="meshes/part_271.obj" />
+    <material name="part_271_material" rgba="0.0117647059 0.0352941176 0.278431373 1" specular="0.1" />
+    <mesh name="part_272" file="meshes/part_272.obj" />
+    <material name="part_272_material" rgba="0.0117647059 0.0352941176 0.278431373 1" specular="0.1" />
+    <mesh name="part_273" file="meshes/part_273.obj" />
+    <material name="part_273_material" rgba="0.0117647059 0.0352941176 0.278431373 1" specular="0.1" />
+    <mesh name="part_274" file="meshes/part_274.obj" />
+    <texture name="part_274" type="2d" file="meshes/part_274.png" />
+    <material name="part_274_material" rgba="1 1 1 1" specular="0.1" texture="part_274" />
+    <mesh name="part_275" file="meshes/part_275.obj" />
+    <material name="part_275_material" rgba="0.0117647059 0.0352941176 0.278431373 1" specular="0.1" />
+    <mesh name="part_276" file="meshes/part_276.obj" />
+    <material name="part_276_material" rgba="0.0117647059 0.0274509804 0.0666666667 1" specular="0.1" />
+    <mesh name="part_277" file="meshes/part_277.obj" />
+    <material name="part_277_material" rgba="0.549019608 0.568627451 0.568627451 1" specular="0.1" />
+    <mesh name="part_278" file="meshes/part_278.obj" />
+    <material name="part_278_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_279" file="meshes/part_279.obj" />
+    <material name="part_279_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_280" file="meshes/part_280.obj" />
+    <material name="part_280_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_281" file="meshes/part_281.obj" />
+    <texture name="part_281" type="2d" file="meshes/part_281.png" />
+    <material name="part_281_material" rgba="1 1 1 1" specular="0.1" texture="part_281" />
+    <mesh name="part_282" file="meshes/part_282.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_282_material" rgba="0.0117647059 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_283" file="meshes/part_283.obj" />
+    <material name="part_283_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_284" file="meshes/part_284.obj" />
+    <material name="part_284_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_285" file="meshes/part_285.obj" />
+    <material name="part_285_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_286" file="meshes/part_286.obj" />
+    <material name="part_286_material" rgba="0.0196078431 0.0235294118 0.0274509804 1" specular="0.1" />
+    <mesh name="part_287" file="meshes/part_287.obj" />
+    <texture name="part_287" type="2d" file="meshes/part_287.png" />
+    <material name="part_287_material" rgba="1 1 1 1" specular="0.1" texture="part_287" />
+    <mesh name="part_288" file="meshes/part_288.obj" />
+    <material name="part_288_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_289" file="meshes/part_289.obj" />
+    <material name="part_289_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_290" file="meshes/part_290.obj" />
+    <texture name="part_290" type="2d" file="meshes/part_290.png" />
+    <material name="part_290_material" rgba="1 1 1 1" specular="0.1" texture="part_290" />
+    <mesh name="part_291" file="meshes/part_291.obj" />
+    <material name="part_291_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_292" file="meshes/part_292.obj" />
+    <material name="part_292_material" rgba="0.678431373 0.698039216 0.729411765 1" specular="0.1" />
+    <mesh name="part_293" file="meshes/part_293.obj" />
+    <texture name="part_293" type="2d" file="meshes/part_293.png" />
+    <material name="part_293_material" rgba="1 1 1 1" specular="0.1" texture="part_293" />
+    <mesh name="part_294" file="meshes/part_294.obj" />
+    <texture name="part_294" type="2d" file="meshes/part_294.png" />
+    <material name="part_294_material" rgba="1 1 1 1" specular="0.1" texture="part_294" />
+    <mesh name="part_295" file="meshes/part_295.obj" />
+    <texture name="part_295" type="2d" file="meshes/part_295.png" />
+    <material name="part_295_material" rgba="1 1 1 1" specular="0.1" texture="part_295" />
+    <mesh name="part_296" file="meshes/part_296.obj" />
+    <texture name="part_296" type="2d" file="meshes/part_296.png" />
+    <material name="part_296_material" rgba="1 1 1 1" specular="0.1" texture="part_296" />
+    <mesh name="part_297" file="meshes/part_297.obj" />
+    <texture name="part_297" type="2d" file="meshes/part_297.png" />
+    <material name="part_297_material" rgba="1 1 1 1" specular="0.1" texture="part_297" />
+    <mesh name="part_298" file="meshes/part_298.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_298" type="2d" file="meshes/part_298.png" />
+    <material name="part_298_material" rgba="1 1 1 1" specular="0.1" texture="part_298" />
+    <mesh name="part_299" file="meshes/part_299.obj" />
+    <material name="part_299_material" rgba="0.321568627 0.329411765 0.329411765 1" specular="0.1" />
+    <mesh name="part_300" file="meshes/part_300.obj" />
+    <material name="part_300_material" rgba="1 0.968627451 0.890196078 1" specular="0.1" />
+    <mesh name="part_301" file="meshes/part_301.obj" />
+    <material name="part_301_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_302" file="meshes/part_302.obj" />
+    <material name="part_302_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_303" file="meshes/part_303.obj" />
+    <material name="part_303_material" rgba="0.321568627 0.329411765 0.329411765 1" specular="0.1" />
+    <mesh name="part_304" file="meshes/part_304.obj" />
+    <material name="part_304_material" rgba="1 0.968627451 0.890196078 1" specular="0.1" />
+    <mesh name="part_305" file="meshes/part_305.obj" />
+    <material name="part_305_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_306" file="meshes/part_306.obj" />
+    <material name="part_306_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_307" file="meshes/part_307.obj" />
+    <material name="part_307_material" rgba="0.321568627 0.329411765 0.329411765 1" specular="0.1" />
+    <mesh name="part_308" file="meshes/part_308.obj" />
+    <material name="part_308_material" rgba="1 0.968627451 0.890196078 1" specular="0.1" />
+    <mesh name="part_309" file="meshes/part_309.obj" />
+    <material name="part_309_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_310" file="meshes/part_310.obj" />
+    <material name="part_310_material" rgba="0.0156862745 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_311" file="meshes/part_311.obj" />
+    <material name="part_311_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_312" file="meshes/part_312.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_312" type="2d" file="meshes/part_312.png" />
+    <material name="part_312_material" rgba="1 1 1 1" specular="0.1" texture="part_312" />
+    <mesh name="part_313" file="meshes/part_313.obj" />
+    <material name="part_313_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_314" file="meshes/part_314.obj" />
+    <material name="part_314_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_315" file="meshes/part_315.obj" />
+    <material name="part_315_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_316" file="meshes/part_316.obj" />
+    <material name="part_316_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_317" file="meshes/part_317.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_317" type="2d" file="meshes/part_317.png" />
+    <material name="part_317_material" rgba="1 1 1 1" specular="0.1" texture="part_317" />
+    <mesh name="part_318" file="meshes/part_318.obj" />
+    <material name="part_318_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_319" file="meshes/part_319.obj" />
+    <material name="part_319_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_320" file="meshes/part_320.obj" />
+    <material name="part_320_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_321" file="meshes/part_321.obj" />
+    <material name="part_321_material" rgba="0.0117647059 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_322" file="meshes/part_322.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_322_material" rgba="0.2 0.270588235 0.250980392 1" specular="0.1" />
+    <mesh name="part_323" file="meshes/part_323.obj" />
+    <material name="part_323_material" rgba="0.0117647059 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_324" file="meshes/part_324.obj" />
+    <material name="part_324_material" rgba="0.0117647059 0.0156862745 0.0156862745 1" specular="0.1" />
+    <mesh name="part_325" file="meshes/part_325.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_325_material" rgba="0.0117647059 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_326" file="meshes/part_326.obj" />
+    <material name="part_326_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_327" file="meshes/part_327.obj" />
+    <material name="part_327_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_328" file="meshes/part_328.obj" />
+    <material name="part_328_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_329" file="meshes/part_329.obj" />
+    <material name="part_329_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_330" file="meshes/part_330.obj" />
+    <material name="part_330_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_331" file="meshes/part_331.obj" />
+    <material name="part_331_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_332" file="meshes/part_332.obj" />
+    <material name="part_332_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_333" file="meshes/part_333.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_333_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_334" file="meshes/part_334.obj" />
+    <material name="part_334_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_335" file="meshes/part_335.obj" />
+    <material name="part_335_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_336" file="meshes/part_336.obj" />
+    <material name="part_336_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_337" file="meshes/part_337.obj" />
+    <material name="part_337_material" rgba="0.968627451 0.952941176 0.870588235 1" specular="0.1" />
+    <mesh name="part_338" file="meshes/part_338.obj" />
+    <material name="part_338_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_339" file="meshes/part_339.obj" />
+    <material name="part_339_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_340" file="meshes/part_340.obj" />
+    <material name="part_340_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_341" file="meshes/part_341.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_341_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_342" file="meshes/part_342.obj" />
+    <material name="part_342_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_343" file="meshes/part_343.obj" />
+    <material name="part_343_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_344" file="meshes/part_344.obj" />
+    <material name="part_344_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_345" file="meshes/part_345.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_345_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_346" file="meshes/part_346.obj" />
+    <material name="part_346_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_347" file="meshes/part_347.obj" />
+    <material name="part_347_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_348" file="meshes/part_348.obj" />
+    <material name="part_348_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_349" file="meshes/part_349.obj" />
+    <material name="part_349_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_350" file="meshes/part_350.obj" />
+    <material name="part_350_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_351" file="meshes/part_351.obj" />
+    <material name="part_351_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_352" file="meshes/part_352.obj" />
+    <material name="part_352_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_353" file="meshes/part_353.obj" />
+    <material name="part_353_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_354" file="meshes/part_354.obj" />
+    <material name="part_354_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_355" file="meshes/part_355.obj" />
+    <material name="part_355_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_356" file="meshes/part_356.obj" />
+    <material name="part_356_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_357" file="meshes/part_357.obj" />
+    <material name="part_357_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_358" file="meshes/part_358.obj" />
+    <material name="part_358_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_359" file="meshes/part_359.obj" />
+    <material name="part_359_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_360" file="meshes/part_360.obj" />
+    <material name="part_360_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_361" file="meshes/part_361.obj" />
+    <material name="part_361_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_362" file="meshes/part_362.obj" />
+    <material name="part_362_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_363" file="meshes/part_363.obj" />
+    <material name="part_363_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_364" file="meshes/part_364.obj" />
+    <material name="part_364_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_365" file="meshes/part_365.obj" />
+    <material name="part_365_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_366" file="meshes/part_366.obj" />
+    <material name="part_366_material" rgba="0.788235294 0.819607843 0.898039216 0.419607843" specular="0.1" />
+    <mesh name="part_367" file="meshes/part_367.obj" />
+    <material name="part_367_material" rgba="0.788235294 0.819607843 0.898039216 0.419607843" specular="0.1" />
+    <mesh name="part_368" file="meshes/part_368.obj" />
+    <material name="part_368_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_369" file="meshes/part_369.obj" />
+    <material name="part_369_material" rgba="0.0156862745 0.231372549 0.521568627 1" specular="0.1" />
+    <mesh name="part_370" file="meshes/part_370.obj" />
+    <material name="part_370_material" rgba="0.839215686 0.898039216 0.909803922 0.180392157" specular="0.1" />
+    <mesh name="part_371" file="meshes/part_371.obj" />
+    <material name="part_371_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_372" file="meshes/part_372.obj" />
+    <texture name="part_372" type="2d" file="meshes/part_372.png" />
+    <material name="part_372_material" rgba="1 1 1 1" specular="0.1" texture="part_372" />
+    <mesh name="part_373" file="meshes/part_373.obj" />
+    <material name="part_373_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_374" file="meshes/part_374.obj" />
+    <material name="part_374_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_375" file="meshes/part_375.obj" />
+    <material name="part_375_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_376" file="meshes/part_376.obj" />
+    <material name="part_376_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_377" file="meshes/part_377.obj" />
+    <material name="part_377_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_378" file="meshes/part_378.obj" />
+    <material name="part_378_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_379" file="meshes/part_379.obj" />
+    <material name="part_379_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_380" file="meshes/part_380.obj" />
+    <material name="part_380_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_381" file="meshes/part_381.obj" />
+    <material name="part_381_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_382" file="meshes/part_382.obj" />
+    <material name="part_382_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_383" file="meshes/part_383.obj" />
+    <material name="part_383_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_384" file="meshes/part_384.obj" />
+    <material name="part_384_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_385" file="meshes/part_385.obj" />
+    <material name="part_385_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_386" file="meshes/part_386.obj" />
+    <material name="part_386_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_387" file="meshes/part_387.obj" />
+    <material name="part_387_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_388" file="meshes/part_388.obj" />
+    <material name="part_388_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_389" file="meshes/part_389.obj" />
+    <material name="part_389_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_390" file="meshes/part_390.obj" />
+    <material name="part_390_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_391" file="meshes/part_391.obj" />
+    <material name="part_391_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_392" file="meshes/part_392.obj" />
+    <material name="part_392_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_393" file="meshes/part_393.obj" />
+    <material name="part_393_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_394" file="meshes/part_394.obj" />
+    <material name="part_394_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_395" file="meshes/part_395.obj" />
+    <material name="part_395_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_396" file="meshes/part_396.obj" />
+    <material name="part_396_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_397" file="meshes/part_397.obj" />
+    <material name="part_397_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_398" file="meshes/part_398.obj" />
+    <material name="part_398_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_399" file="meshes/part_399.obj" />
+    <material name="part_399_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_400" file="meshes/part_400.obj" />
+    <material name="part_400_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_401" file="meshes/part_401.obj" />
+    <material name="part_401_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_402" file="meshes/part_402.obj" />
+    <material name="part_402_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_403" file="meshes/part_403.obj" />
+    <material name="part_403_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_404" file="meshes/part_404.obj" />
+    <material name="part_404_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_405" file="meshes/part_405.obj" />
+    <material name="part_405_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_406" file="meshes/part_406.obj" />
+    <material name="part_406_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_407" file="meshes/part_407.obj" />
+    <material name="part_407_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_408" file="meshes/part_408.obj" />
+    <material name="part_408_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_409" file="meshes/part_409.obj" />
+    <material name="part_409_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_410" file="meshes/part_410.obj" />
+    <material name="part_410_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_411" file="meshes/part_411.obj" />
+    <material name="part_411_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_412" file="meshes/part_412.obj" />
+    <material name="part_412_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_413" file="meshes/part_413.obj" />
+    <material name="part_413_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_414" file="meshes/part_414.obj" />
+    <material name="part_414_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_415" file="meshes/part_415.obj" />
+    <material name="part_415_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_416" file="meshes/part_416.obj" />
+    <material name="part_416_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_417" file="meshes/part_417.obj" />
+    <material name="part_417_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_418" file="meshes/part_418.obj" />
+    <material name="part_418_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_419" file="meshes/part_419.obj" />
+    <material name="part_419_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_420" file="meshes/part_420.obj" />
+    <material name="part_420_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_421" file="meshes/part_421.obj" />
+    <material name="part_421_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_422" file="meshes/part_422.obj" />
+    <material name="part_422_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_423" file="meshes/part_423.obj" />
+    <material name="part_423_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_424" file="meshes/part_424.obj" />
+    <material name="part_424_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_425" file="meshes/part_425.obj" />
+    <material name="part_425_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_426" file="meshes/part_426.obj" />
+    <material name="part_426_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_427" file="meshes/part_427.obj" />
+    <material name="part_427_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_428" file="meshes/part_428.obj" />
+    <material name="part_428_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_429" file="meshes/part_429.obj" />
+    <material name="part_429_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_430" file="meshes/part_430.obj" />
+    <material name="part_430_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_431" file="meshes/part_431.obj" />
+    <material name="part_431_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_432" file="meshes/part_432.obj" />
+    <material name="part_432_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_433" file="meshes/part_433.obj" />
+    <material name="part_433_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_434" file="meshes/part_434.obj" />
+    <material name="part_434_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_435" file="meshes/part_435.obj" />
+    <material name="part_435_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_436" file="meshes/part_436.obj" />
+    <material name="part_436_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_437" file="meshes/part_437.obj" />
+    <material name="part_437_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_438" file="meshes/part_438.obj" />
+    <material name="part_438_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_439" file="meshes/part_439.obj" />
+    <material name="part_439_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_440" file="meshes/part_440.obj" />
+    <material name="part_440_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_441" file="meshes/part_441.obj" />
+    <material name="part_441_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_442" file="meshes/part_442.obj" />
+    <material name="part_442_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_443" file="meshes/part_443.obj" />
+    <material name="part_443_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_444" file="meshes/part_444.obj" />
+    <material name="part_444_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_445" file="meshes/part_445.obj" />
+    <material name="part_445_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_446" file="meshes/part_446.obj" />
+    <material name="part_446_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_447" file="meshes/part_447.obj" />
+    <material name="part_447_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_448" file="meshes/part_448.obj" />
+    <material name="part_448_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_449" file="meshes/part_449.obj" />
+    <material name="part_449_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_450" file="meshes/part_450.obj" />
+    <material name="part_450_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_451" file="meshes/part_451.obj" />
+    <material name="part_451_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_452" file="meshes/part_452.obj" />
+    <material name="part_452_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_453" file="meshes/part_453.obj" />
+    <material name="part_453_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_454" file="meshes/part_454.obj" />
+    <material name="part_454_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_455" file="meshes/part_455.obj" />
+    <material name="part_455_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_456" file="meshes/part_456.obj" />
+    <material name="part_456_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_457" file="meshes/part_457.obj" />
+    <material name="part_457_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_458" file="meshes/part_458.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_458_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_459" file="meshes/part_459.obj" />
+    <material name="part_459_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_460" file="meshes/part_460.obj" inertia="shell" maxhullvert="-1" />
+    <material name="part_460_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_461" file="meshes/part_461.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_461" type="2d" file="meshes/part_461.png" />
+    <material name="part_461_material" rgba="1 1 1 1" specular="0.1" texture="part_461" />
+    <mesh name="part_462" file="meshes/part_462.obj" />
+    <material name="part_462_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_463" file="meshes/part_463.obj" />
+    <material name="part_463_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_464" file="meshes/part_464.obj" />
+    <material name="part_464_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_465" file="meshes/part_465.obj" />
+    <material name="part_465_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_466" file="meshes/part_466.obj" />
+    <material name="part_466_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_467" file="meshes/part_467.obj" />
+    <material name="part_467_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_468" file="meshes/part_468.obj" />
+    <material name="part_468_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_469" file="meshes/part_469.obj" />
+    <material name="part_469_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_470" file="meshes/part_470.obj" />
+    <material name="part_470_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_471" file="meshes/part_471.obj" />
+    <material name="part_471_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_472" file="meshes/part_472.obj" />
+    <material name="part_472_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_473" file="meshes/part_473.obj" />
+    <material name="part_473_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_474" file="meshes/part_474.obj" />
+    <material name="part_474_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_475" file="meshes/part_475.obj" />
+    <material name="part_475_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_476" file="meshes/part_476.obj" />
+    <material name="part_476_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_477" file="meshes/part_477.obj" />
+    <material name="part_477_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_478" file="meshes/part_478.obj" />
+    <material name="part_478_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_479" file="meshes/part_479.obj" />
+    <material name="part_479_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_480" file="meshes/part_480.obj" />
+    <material name="part_480_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_481" file="meshes/part_481.obj" />
+    <material name="part_481_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_482" file="meshes/part_482.obj" />
+    <material name="part_482_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_483" file="meshes/part_483.obj" />
+    <material name="part_483_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_484" file="meshes/part_484.obj" />
+    <material name="part_484_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_485" file="meshes/part_485.obj" />
+    <material name="part_485_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_486" file="meshes/part_486.obj" />
+    <material name="part_486_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_487" file="meshes/part_487.obj" />
+    <material name="part_487_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_488" file="meshes/part_488.obj" />
+    <material name="part_488_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_489" file="meshes/part_489.obj" />
+    <material name="part_489_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_490" file="meshes/part_490.obj" />
+    <material name="part_490_material" rgba="0.0235294118 0.0352941176 0.0392156863 1" specular="0.1" />
+    <mesh name="part_491" file="meshes/part_491.obj" />
+    <material name="part_491_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_492" file="meshes/part_492.obj" />
+    <material name="part_492_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_493" file="meshes/part_493.obj" />
+    <material name="part_493_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_494" file="meshes/part_494.obj" />
+    <material name="part_494_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_495" file="meshes/part_495.obj" />
+    <material name="part_495_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_496" file="meshes/part_496.obj" />
+    <material name="part_496_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_497" file="meshes/part_497.obj" />
+    <material name="part_497_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_498" file="meshes/part_498.obj" />
+    <material name="part_498_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_499" file="meshes/part_499.obj" />
+    <material name="part_499_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_500" file="meshes/part_500.obj" />
+    <material name="part_500_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_501" file="meshes/part_501.obj" />
+    <material name="part_501_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_502" file="meshes/part_502.obj" />
+    <material name="part_502_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_503" file="meshes/part_503.obj" />
+    <material name="part_503_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_504" file="meshes/part_504.obj" />
+    <material name="part_504_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_505" file="meshes/part_505.obj" />
+    <material name="part_505_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_506" file="meshes/part_506.obj" />
+    <material name="part_506_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_507" file="meshes/part_507.obj" />
+    <material name="part_507_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_508" file="meshes/part_508.obj" />
+    <material name="part_508_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_509" file="meshes/part_509.obj" />
+    <material name="part_509_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_510" file="meshes/part_510.obj" />
+    <material name="part_510_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_511" file="meshes/part_511.obj" />
+    <material name="part_511_material" rgba="0.501960784 0.529411765 0.560784314 1" specular="0.1" />
+    <mesh name="part_512" file="meshes/part_512.obj" />
+    <material name="part_512_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_513" file="meshes/part_513.obj" />
+    <material name="part_513_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_514" file="meshes/part_514.obj" />
+    <material name="part_514_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_515" file="meshes/part_515.obj" />
+    <material name="part_515_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_516" file="meshes/part_516.obj" />
+    <material name="part_516_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_517" file="meshes/part_517.obj" />
+    <material name="part_517_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_518" file="meshes/part_518.obj" />
+    <material name="part_518_material" rgba="0.0156862745 0.231372549 0.521568627 1" specular="0.1" />
+    <mesh name="part_519" file="meshes/part_519.obj" />
+    <material name="part_519_material" rgba="0.768627451 0.831372549 0.870588235 1" specular="0.1" />
+    <mesh name="part_520" file="meshes/part_520.obj" />
+    <material name="part_520_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_521" file="meshes/part_521.obj" />
+    <material name="part_521_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_522" file="meshes/part_522.obj" />
+    <material name="part_522_material" rgba="0.619607843 0.658823529 0.698039216 1" specular="0.1" />
+    <mesh name="part_523" file="meshes/part_523.obj" />
+    <material name="part_523_material" rgba="0.00784313725 0.0117647059 0.0156862745 1" specular="0.1" />
+    <mesh name="part_524" file="meshes/part_524.obj" />
+    <material name="part_524_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_525" file="meshes/part_525.obj" />
+    <material name="part_525_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_526" file="meshes/part_526.obj" />
+    <material name="part_526_material" rgba="0.0156862745 0.0156862745 0.0196078431 1" specular="0.1" />
+    <mesh name="part_527" file="meshes/part_527.obj" />
+    <material name="part_527_material" rgba="0.858823529 0.858823529 0.819607843 1" specular="0.1" />
+    <mesh name="part_528" file="meshes/part_528.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_528" type="2d" file="meshes/part_528.png" />
+    <material name="part_528_material" rgba="1 1 1 1" specular="0.1" texture="part_528" />
+    <mesh name="part_529" file="meshes/part_529.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_529" type="2d" file="meshes/part_529.png" />
+    <material name="part_529_material" rgba="1 1 1 1" specular="0.1" texture="part_529" />
+    <mesh name="part_530" file="meshes/part_530.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_530" type="2d" file="meshes/part_530.png" />
+    <material name="part_530_material" rgba="1 1 1 1" specular="0.1" texture="part_530" />
+    <mesh name="part_531" file="meshes/part_531.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_531" type="2d" file="meshes/part_531.png" />
+    <material name="part_531_material" rgba="1 1 1 1" specular="0.1" texture="part_531" />
+    <mesh name="part_532" file="meshes/part_532.obj" inertia="shell" maxhullvert="-1" />
+    <texture name="part_532" type="2d" file="meshes/part_532.png" />
+    <material name="part_532_material" rgba="1 1 1 1" specular="0.1" texture="part_532" />
+    <mesh name="part_533" file="meshes/part_533.obj" />
+    <material name="part_533_material" rgba="0.858823529 0.858823529 0.819607843 1" specular="0.1" />
+    <mesh name="part_534" file="meshes/part_534.obj" />
+    <material name="part_534_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_535" file="meshes/part_535.obj" />
+    <material name="part_535_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_536" file="meshes/part_536.obj" />
+    <material name="part_536_material" rgba="0.8 0.898039216 0.909803922 0.141176471" specular="0.1" />
+    <mesh name="part_537" file="meshes/part_537.obj" />
+    <material name="part_537_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_538" file="meshes/part_538.obj" />
+    <material name="part_538_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_539" file="meshes/part_539.obj" />
+    <material name="part_539_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_540" file="meshes/part_540.obj" />
+    <material name="part_540_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_541" file="meshes/part_541.obj" />
+    <material name="part_541_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_542" file="meshes/part_542.obj" />
+    <material name="part_542_material" rgba="0.8 0.898039216 0.909803922 0.141176471" specular="0.1" />
+    <mesh name="part_543" file="meshes/part_543.obj" />
+    <material name="part_543_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_544" file="meshes/part_544.obj" />
+    <material name="part_544_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_545" file="meshes/part_545.obj" />
+    <material name="part_545_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+    <mesh name="part_546" file="meshes/part_546.obj" />
+    <material name="part_546_material" rgba="0.674509804 0.650980392 0.545098039 1" specular="0.1" />
+  </asset>
+  <worldbody>
+    <body name="juice_carton" pos="1.04314718 1.45365494 -0.274801403">
+      <freejoint name="juice_carton_joint" />
+      <geom name="juice_carton__collision" type="mesh" mesh="juice_carton_collision" mass="0.15" friction="4.0 0.20 0.020" condim="6" contype="2" conaffinity="3" group="3" rgba="0 0 0 0" />
+      <geom name="juice_carton__218" type="mesh" mesh="part_218" material="part_218_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="juice_carton__219" type="mesh" mesh="part_219" material="part_219_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    </body>
+    <body name="parcel_corner" pos="5.0388577 3.85479927 -0.307950705">
+      <freejoint name="parcel_corner_joint" />
+      <geom name="parcel_corner__collision" type="mesh" mesh="parcel_corner_collision" mass="0.15" friction="4.0 0.20 0.020" condim="6" contype="2" conaffinity="3" group="3" rgba="0 0 0 0" />
+      <geom name="parcel_corner__222" type="mesh" mesh="part_222" material="part_222_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="parcel_corner__223" type="mesh" mesh="part_223" material="part_223_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    </body>
+    <body name="parcel_left" pos="3.70771539 3.74864137 -0.290531605">
+      <freejoint name="parcel_left_joint" />
+      <geom name="parcel_left__collision" type="mesh" mesh="parcel_left_collision" mass="0.15" friction="4.0 0.20 0.020" condim="6" contype="2" conaffinity="3" group="3" rgba="0 0 0 0" />
+      <geom name="parcel_left__220" type="mesh" mesh="part_220" material="part_220_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="parcel_left__221" type="mesh" mesh="part_221" material="part_221_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    </body>
+    <body name="red_white_carton" pos="6.39395142 2.25706279 -0.350761935">
+      <freejoint name="red_white_carton_joint" />
+      <geom name="red_white_carton__collision" type="mesh" mesh="red_white_carton_collision" mass="0.15" friction="4.0 0.20 0.020" condim="6" contype="2" conaffinity="3" group="3" rgba="0 0 0 0" />
+      <geom name="red_white_carton__527" type="mesh" mesh="part_527" material="part_527_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__528" type="mesh" mesh="part_528" material="part_528_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__529" type="mesh" mesh="part_529" material="part_529_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__530" type="mesh" mesh="part_530" material="part_530_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__531" type="mesh" mesh="part_531" material="part_531_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__532" type="mesh" mesh="part_532" material="part_532_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+      <geom name="red_white_carton__533" type="mesh" mesh="part_533" material="part_533_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    </body>
+    <geom name="island_stool_1__0" type="mesh" mesh="part_000" material="part_000_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__1" type="mesh" mesh="part_001" material="part_001_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__2" type="mesh" mesh="part_002" material="part_002_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__3" type="mesh" mesh="part_003" material="part_003_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__4" type="mesh" mesh="part_004" material="part_004_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__5" type="mesh" mesh="part_005" material="part_005_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__6" type="mesh" mesh="part_006" material="part_006_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__7" type="mesh" mesh="part_007" material="part_007_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_1__8" type="mesh" mesh="part_008" material="part_008_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__9" type="mesh" mesh="part_009" material="part_009_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__10" type="mesh" mesh="part_010" material="part_010_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__11" type="mesh" mesh="part_011" material="part_011_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__12" type="mesh" mesh="part_012" material="part_012_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__13" type="mesh" mesh="part_013" material="part_013_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__14" type="mesh" mesh="part_014" material="part_014_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__15" type="mesh" mesh="part_015" material="part_015_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__16" type="mesh" mesh="part_016" material="part_016_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_2__17" type="mesh" mesh="part_017" material="part_017_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__18" type="mesh" mesh="part_018" material="part_018_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__19" type="mesh" mesh="part_019" material="part_019_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__20" type="mesh" mesh="part_020" material="part_020_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__21" type="mesh" mesh="part_021" material="part_021_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__22" type="mesh" mesh="part_022" material="part_022_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__23" type="mesh" mesh="part_023" material="part_023_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__24" type="mesh" mesh="part_024" material="part_024_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__25" type="mesh" mesh="part_025" material="part_025_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_stool_3__26" type="mesh" mesh="part_026" material="part_026_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__27" type="mesh" mesh="part_027" material="part_027_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__28" type="mesh" mesh="part_028" material="part_028_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__29" type="mesh" mesh="part_029" material="part_029_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__30" type="mesh" mesh="part_030" material="part_030_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__31" type="mesh" mesh="part_031" material="part_031_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__32" type="mesh" mesh="part_032" material="part_032_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__33" type="mesh" mesh="part_033" material="part_033_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__34" type="mesh" mesh="part_034" material="part_034_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__35" type="mesh" mesh="part_035" material="part_035_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__36" type="mesh" mesh="part_036" material="part_036_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__37" type="mesh" mesh="part_037" material="part_037_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__38" type="mesh" mesh="part_038" material="part_038_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__39" type="mesh" mesh="part_039" material="part_039_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__40" type="mesh" mesh="part_040" material="part_040_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__41" type="mesh" mesh="part_041" material="part_041_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__42" type="mesh" mesh="part_042" material="part_042_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__43" type="mesh" mesh="part_043" material="part_043_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__44" type="mesh" mesh="part_044" material="part_044_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__45" type="mesh" mesh="part_045" material="part_045_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__46" type="mesh" mesh="part_046" material="part_046_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__47" type="mesh" mesh="part_047" material="part_047_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__48" type="mesh" mesh="part_048" material="part_048_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__49" type="mesh" mesh="part_049" material="part_049_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__50" type="mesh" mesh="part_050" material="part_050_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__51" type="mesh" mesh="part_051" material="part_051_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__52" type="mesh" mesh="part_052" material="part_052_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__53" type="mesh" mesh="part_053" material="part_053_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__54" type="mesh" mesh="part_054" material="part_054_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__55" type="mesh" mesh="part_055" material="part_055_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__56" type="mesh" mesh="part_056" material="part_056_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__57" type="mesh" mesh="part_057" material="part_057_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__58" type="mesh" mesh="part_058" material="part_058_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__59" type="mesh" mesh="part_059" material="part_059_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__60" type="mesh" mesh="part_060" material="part_060_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__61" type="mesh" mesh="part_061" material="part_061_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__62" type="mesh" mesh="part_062" material="part_062_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__63" type="mesh" mesh="part_063" material="part_063_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__64" type="mesh" mesh="part_064" material="part_064_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__65" type="mesh" mesh="part_065" material="part_065_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island__66" type="mesh" mesh="part_066" material="part_066_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__67" type="mesh" mesh="part_067" material="part_067_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__68" type="mesh" mesh="part_068" material="part_068_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__69" type="mesh" mesh="part_069" material="part_069_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__70" type="mesh" mesh="part_070" material="part_070_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__71" type="mesh" mesh="part_071" material="part_071_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__72" type="mesh" mesh="part_072" material="part_072_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__73" type="mesh" mesh="part_073" material="part_073_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__74" type="mesh" mesh="part_074" material="part_074_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__75" type="mesh" mesh="part_075" material="part_075_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__76" type="mesh" mesh="part_076" material="part_076_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__77" type="mesh" mesh="part_077" material="part_077_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__78" type="mesh" mesh="part_078" material="part_078_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__79" type="mesh" mesh="part_079" material="part_079_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__80" type="mesh" mesh="part_080" material="part_080_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__81" type="mesh" mesh="part_081" material="part_081_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__82" type="mesh" mesh="part_082" material="part_082_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__83" type="mesh" mesh="part_083" material="part_083_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sorting_cabinet__84" type="mesh" mesh="part_084" material="part_084_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="empty_table__85" type="mesh" mesh="part_085" material="part_085_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="empty_table__86" type="mesh" mesh="part_086" material="part_086_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="empty_table__87" type="mesh" mesh="part_087" material="part_087_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__88" type="mesh" mesh="part_088" material="part_088_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__89" type="mesh" mesh="part_089" material="part_089_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__90" type="mesh" mesh="part_090" material="part_090_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__91" type="mesh" mesh="part_091" material="part_091_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__92" type="mesh" mesh="part_092" material="part_092_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__93" type="mesh" mesh="part_093" material="part_093_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__94" type="mesh" mesh="part_094" material="part_094_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__95" type="mesh" mesh="part_095" material="part_095_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__96" type="mesh" mesh="part_096" material="part_096_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__97" type="mesh" mesh="part_097" material="part_097_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__98" type="mesh" mesh="part_098" material="part_098_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__99" type="mesh" mesh="part_099" material="part_099_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__100" type="mesh" mesh="part_100" material="part_100_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__101" type="mesh" mesh="part_101" material="part_101_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__102" type="mesh" mesh="part_102" material="part_102_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__103" type="mesh" mesh="part_103" material="part_103_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_long__104" type="mesh" mesh="part_104" material="part_104_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__105" type="mesh" mesh="part_105" material="part_105_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__106" type="mesh" mesh="part_106" material="part_106_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__107" type="mesh" mesh="part_107" material="part_107_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__108" type="mesh" mesh="part_108" material="part_108_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__109" type="mesh" mesh="part_109" material="part_109_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__110" type="mesh" mesh="part_110" material="part_110_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__111" type="mesh" mesh="part_111" material="part_111_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__112" type="mesh" mesh="part_112" material="part_112_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__113" type="mesh" mesh="part_113" material="part_113_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__114" type="mesh" mesh="part_114" material="part_114_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="upper_return__115" type="mesh" mesh="part_115" material="part_115_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__116" type="mesh" mesh="part_116" material="part_116_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__117" type="mesh" mesh="part_117" material="part_117_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__118" type="mesh" mesh="part_118" material="part_118_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__119" type="mesh" mesh="part_119" material="part_119_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__120" type="mesh" mesh="part_120" material="part_120_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__121" type="mesh" mesh="part_121" material="part_121_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__122" type="mesh" mesh="part_122" material="part_122_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__123" type="mesh" mesh="part_123" material="part_123_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__124" type="mesh" mesh="part_124" material="part_124_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__125" type="mesh" mesh="part_125" material="part_125_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__126" type="mesh" mesh="part_126" material="part_126_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__127" type="mesh" mesh="part_127" material="part_127_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__128" type="mesh" mesh="part_128" material="part_128_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__129" type="mesh" mesh="part_129" material="part_129_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__130" type="mesh" mesh="part_130" material="part_130_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__131" type="mesh" mesh="part_131" material="part_131_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__132" type="mesh" mesh="part_132" material="part_132_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__133" type="mesh" mesh="part_133" material="part_133_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__134" type="mesh" mesh="part_134" material="part_134_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__135" type="mesh" mesh="part_135" material="part_135_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__136" type="mesh" mesh="part_136" material="part_136_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__137" type="mesh" mesh="part_137" material="part_137_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__138" type="mesh" mesh="part_138" material="part_138_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__139" type="mesh" mesh="part_139" material="part_139_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__140" type="mesh" mesh="part_140" material="part_140_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__141" type="mesh" mesh="part_141" material="part_141_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__142" type="mesh" mesh="part_142" material="part_142_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__143" type="mesh" mesh="part_143" material="part_143_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__144" type="mesh" mesh="part_144" material="part_144_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__145" type="mesh" mesh="part_145" material="part_145_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__146" type="mesh" mesh="part_146" material="part_146_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__147" type="mesh" mesh="part_147" material="part_147_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__148" type="mesh" mesh="part_148" material="part_148_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__149" type="mesh" mesh="part_149" material="part_149_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__150" type="mesh" mesh="part_150" material="part_150_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__151" type="mesh" mesh="part_151" material="part_151_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__152" type="mesh" mesh="part_152" material="part_152_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__153" type="mesh" mesh="part_153" material="part_153_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__154" type="mesh" mesh="part_154" material="part_154_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__155" type="mesh" mesh="part_155" material="part_155_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__156" type="mesh" mesh="part_156" material="part_156_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__157" type="mesh" mesh="part_157" material="part_157_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__158" type="mesh" mesh="part_158" material="part_158_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__159" type="mesh" mesh="part_159" material="part_159_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__160" type="mesh" mesh="part_160" material="part_160_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__161" type="mesh" mesh="part_161" material="part_161_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__162" type="mesh" mesh="part_162" material="part_162_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__163" type="mesh" mesh="part_163" material="part_163_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__164" type="mesh" mesh="part_164" material="part_164_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__165" type="mesh" mesh="part_165" material="part_165_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__166" type="mesh" mesh="part_166" material="part_166_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__167" type="mesh" mesh="part_167" material="part_167_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__168" type="mesh" mesh="part_168" material="part_168_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__169" type="mesh" mesh="part_169" material="part_169_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__170" type="mesh" mesh="part_170" material="part_170_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__171" type="mesh" mesh="part_171" material="part_171_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__172" type="mesh" mesh="part_172" material="part_172_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__173" type="mesh" mesh="part_173" material="part_173_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_counter__174" type="mesh" mesh="part_174" material="part_174_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__175" type="mesh" mesh="part_175" material="part_175_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__176" type="mesh" mesh="part_176" material="part_176_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__177" type="mesh" mesh="part_177" material="part_177_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__178" type="mesh" mesh="part_178" material="part_178_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__179" type="mesh" mesh="part_179" material="part_179_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__180" type="mesh" mesh="part_180" material="part_180_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__181" type="mesh" mesh="part_181" material="part_181_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__182" type="mesh" mesh="part_182" material="part_182_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__183" type="mesh" mesh="part_183" material="part_183_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__184" type="mesh" mesh="part_184" material="part_184_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__185" type="mesh" mesh="part_185" material="part_185_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__186" type="mesh" mesh="part_186" material="part_186_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__187" type="mesh" mesh="part_187" material="part_187_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__188" type="mesh" mesh="part_188" material="part_188_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__189" type="mesh" mesh="part_189" material="part_189_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__190" type="mesh" mesh="part_190" material="part_190_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__191" type="mesh" mesh="part_191" material="part_191_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__192" type="mesh" mesh="part_192" material="part_192_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__193" type="mesh" mesh="part_193" material="part_193_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__194" type="mesh" mesh="part_194" material="part_194_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__195" type="mesh" mesh="part_195" material="part_195_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__196" type="mesh" mesh="part_196" material="part_196_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__197" type="mesh" mesh="part_197" material="part_197_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__198" type="mesh" mesh="part_198" material="part_198_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__199" type="mesh" mesh="part_199" material="part_199_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__200" type="mesh" mesh="part_200" material="part_200_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__201" type="mesh" mesh="part_201" material="part_201_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__202" type="mesh" mesh="part_202" material="part_202_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__203" type="mesh" mesh="part_203" material="part_203_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__204" type="mesh" mesh="part_204" material="part_204_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter__205" type="mesh" mesh="part_205" material="part_205_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__206" type="mesh" mesh="part_206" material="part_206_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__207" type="mesh" mesh="part_207" material="part_207_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__208" type="mesh" mesh="part_208" material="part_208_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__209" type="mesh" mesh="part_209" material="part_209_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__210" type="mesh" mesh="part_210" material="part_210_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__211" type="mesh" mesh="part_211" material="part_211_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__212" type="mesh" mesh="part_212" material="part_212_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__213" type="mesh" mesh="part_213" material="part_213_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__214" type="mesh" mesh="part_214" material="part_214_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__215" type="mesh" mesh="part_215" material="part_215_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__216" type="mesh" mesh="part_216" material="part_216_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge__217" type="mesh" mesh="part_217" material="part_217_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__224" type="mesh" mesh="part_224" material="part_224_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__225" type="mesh" mesh="part_225" material="part_225_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__226" type="mesh" mesh="part_226" material="part_226_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__227" type="mesh" mesh="part_227" material="part_227_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__228" type="mesh" mesh="part_228" material="part_228_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__229" type="mesh" mesh="part_229" material="part_229_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__230" type="mesh" mesh="part_230" material="part_230_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__231" type="mesh" mesh="part_231" material="part_231_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__232" type="mesh" mesh="part_232" material="part_232_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__233" type="mesh" mesh="part_233" material="part_233_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__234" type="mesh" mesh="part_234" material="part_234_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__235" type="mesh" mesh="part_235" material="part_235_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__236" type="mesh" mesh="part_236" material="part_236_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__237" type="mesh" mesh="part_237" material="part_237_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__238" type="mesh" mesh="part_238" material="part_238_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__239" type="mesh" mesh="part_239" material="part_239_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__240" type="mesh" mesh="part_240" material="part_240_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__241" type="mesh" mesh="part_241" material="part_241_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__242" type="mesh" mesh="part_242" material="part_242_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_left__243" type="mesh" mesh="part_243" material="part_243_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__244" type="mesh" mesh="part_244" material="part_244_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__245" type="mesh" mesh="part_245" material="part_245_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__246" type="mesh" mesh="part_246" material="part_246_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__247" type="mesh" mesh="part_247" material="part_247_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__248" type="mesh" mesh="part_248" material="part_248_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__249" type="mesh" mesh="part_249" material="part_249_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__250" type="mesh" mesh="part_250" material="part_250_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__251" type="mesh" mesh="part_251" material="part_251_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__252" type="mesh" mesh="part_252" material="part_252_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__253" type="mesh" mesh="part_253" material="part_253_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__254" type="mesh" mesh="part_254" material="part_254_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__255" type="mesh" mesh="part_255" material="part_255_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__256" type="mesh" mesh="part_256" material="part_256_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__257" type="mesh" mesh="part_257" material="part_257_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__258" type="mesh" mesh="part_258" material="part_258_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__259" type="mesh" mesh="part_259" material="part_259_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__260" type="mesh" mesh="part_260" material="part_260_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__261" type="mesh" mesh="part_261" material="part_261_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__262" type="mesh" mesh="part_262" material="part_262_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__263" type="mesh" mesh="part_263" material="part_263_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__264" type="mesh" mesh="part_264" material="part_264_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__265" type="mesh" mesh="part_265" material="part_265_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__266" type="mesh" mesh="part_266" material="part_266_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__267" type="mesh" mesh="part_267" material="part_267_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="corner_counter_return__268" type="mesh" mesh="part_268" material="part_268_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__269" type="mesh" mesh="part_269" material="part_269_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__270_collision" type="box" pos="5.7481835 2.88775246 -0.802886506" quat="-0.543226959 0.692600016 -0.106759666 0.462398165" size="0.635373702 0.610724577 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="range__270" type="mesh" mesh="part_270" material="part_270_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__271" type="mesh" mesh="part_271" material="part_271_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__272" type="mesh" mesh="part_272" material="part_272_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__273" type="mesh" mesh="part_273" material="part_273_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__274" type="mesh" mesh="part_274" material="part_274_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__275" type="mesh" mesh="part_275" material="part_275_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cooler__276" type="mesh" mesh="part_276" material="part_276_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cooler__277" type="mesh" mesh="part_277" material="part_277_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cooler__278" type="mesh" mesh="part_278" material="part_278_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cooler__279" type="mesh" mesh="part_279" material="part_279_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cooler__280" type="mesh" mesh="part_280" material="part_280_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__281" type="mesh" mesh="part_281" material="part_281_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__282_collision" type="box" pos="0.884800287 1.65152502 -0.18652939" quat="0.673319768 -0.638053145 -0.326744893 0.181015051" size="0.201575635 0.134260689 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="toaster__282" type="mesh" mesh="part_282" material="part_282_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__283" type="mesh" mesh="part_283" material="part_283_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__284" type="mesh" mesh="part_284" material="part_284_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__285" type="mesh" mesh="part_285" material="part_285_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__286" type="mesh" mesh="part_286" material="part_286_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="occupied_table__287" type="mesh" mesh="part_287" material="part_287_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="occupied_table__288" type="mesh" mesh="part_288" material="part_288_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="occupied_table__289" type="mesh" mesh="part_289" material="part_289_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rear_table__290" type="mesh" mesh="part_290" material="part_290_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rear_table__291" type="mesh" mesh="part_291" material="part_291_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rear_table__292" type="mesh" mesh="part_292" material="part_292_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_1__293" type="mesh" mesh="part_293" material="part_293_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_2__294" type="mesh" mesh="part_294" material="part_294_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_3__295" type="mesh" mesh="part_295" material="part_295_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="hood__296" type="mesh" mesh="part_296" material="part_296_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="hood__297" type="mesh" mesh="part_297" material="part_297_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="floor__298_collision" type="plane" pos="2.49375581 -2.73630574 -1.2174469" quat="0.993315076 0.00291375828 0.00680330423 -0.11519716" size="0 0 0.05" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="floor__298" type="mesh" mesh="part_298" material="part_298_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_1__299" type="mesh" mesh="part_299" material="part_299_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_1__300" type="mesh" mesh="part_300" material="part_300_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_1__301" type="mesh" mesh="part_301" material="part_301_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_1__302" type="mesh" mesh="part_302" material="part_302_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_2__303" type="mesh" mesh="part_303" material="part_303_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_2__304" type="mesh" mesh="part_304" material="part_304_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_2__305" type="mesh" mesh="part_305" material="part_305_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_2__306" type="mesh" mesh="part_306" material="part_306_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_3__307" type="mesh" mesh="part_307" material="part_307_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_3__308" type="mesh" mesh="part_308" material="part_308_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_3__309" type="mesh" mesh="part_309" material="part_309_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pendant_3__310" type="mesh" mesh="part_310" material="part_310_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_right__311" type="mesh" mesh="part_311" material="part_311_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_right__312_collision" type="box" pos="7.31913421 1.66939243 -0.0462616119" quat="-0.55772594 0.691853998 -0.135700686 0.438024137" size="0.118538137 0.106703861 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="paper_towel_right__312" type="mesh" mesh="part_312" material="part_312_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_right__313" type="mesh" mesh="part_313" material="part_313_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_right__314" type="mesh" mesh="part_314" material="part_314_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="soap_dispenser_right__315" type="mesh" mesh="part_315" material="part_315_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_left__316" type="mesh" mesh="part_316" material="part_316_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_left__317_collision" type="box" pos="-0.0488878088 0.943499579 0.0537747801" quat="0.694939123 -0.606350236 -0.369774401 0.112542876" size="0.110423983 0.095463859 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="paper_towel_left__317" type="mesh" mesh="part_317" material="part_317_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_left__318" type="mesh" mesh="part_318" material="part_318_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="paper_towel_left__319" type="mesh" mesh="part_319" material="part_319_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="soap_dispenser_left__320" type="mesh" mesh="part_320" material="part_320_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="reflective_enclosure__321" type="mesh" mesh="part_321" material="part_321_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="reflective_enclosure__322_collision" type="box" pos="7.76529813 0.460554749 -0.113187835" quat="0.39234459 0.700583237 0.0958286384 -0.58827351" size="0.312652362 0.28595903 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="reflective_enclosure__322" type="mesh" mesh="part_322" material="part_322_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="reflective_enclosure__323" type="mesh" mesh="part_323" material="part_323_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="reflective_enclosure__324" type="mesh" mesh="part_324" material="part_324_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="reflective_enclosure__325_collision" type="box" pos="7.76305103 0.458567291 0.109353952" quat="0.634212444 0.654384962 -0.267918498 -0.312689264" size="0.0578070091 0.0154384669 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="reflective_enclosure__325" type="mesh" mesh="part_325" material="part_325_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__326" type="mesh" mesh="part_326" material="part_326_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__327" type="mesh" mesh="part_327" material="part_327_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__328" type="mesh" mesh="part_328" material="part_328_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__329" type="mesh" mesh="part_329" material="part_329_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__330" type="mesh" mesh="part_330" material="part_330_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__331" type="mesh" mesh="part_331" material="part_331_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__332" type="mesh" mesh="part_332" material="part_332_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_sink__333_collision" type="box" pos="0.286320522 1.10982788 -0.467614201" quat="-0.00555089142 0.0635737724 0.997945918 0.00561314454" size="0.0259790739 0.025979054 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="fridge_sink__333" type="mesh" mesh="part_333" material="part_333_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__334" type="mesh" mesh="part_334" material="part_334_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__335" type="mesh" mesh="part_335" material="part_335_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__336" type="mesh" mesh="part_336" material="part_336_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__337" type="mesh" mesh="part_337" material="part_337_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__338" type="mesh" mesh="part_338" material="part_338_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__339" type="mesh" mesh="part_339" material="part_339_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__340" type="mesh" mesh="part_340" material="part_340_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__341_collision" type="box" pos="7.46405578 1.40472668 -0.564124286" quat="0.0690800226 -0.00632149351 -0.00627617922 0.99757135" size="0.025986218 0.02598613 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="glass_sink__341" type="mesh" mesh="part_341" material="part_341_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__342" type="mesh" mesh="part_342" material="part_342_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__343" type="mesh" mesh="part_343" material="part_343_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__344" type="mesh" mesh="part_344" material="part_344_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__345_collision" type="box" pos="7.72803175 1.09938335 -0.568699916" quat="-0.372092641 -0.00842328657 -0.00289822 0.928152851" size="0.0259697052 0.025969767 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="glass_sink__345" type="mesh" mesh="part_345" material="part_345_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_sink__346" type="mesh" mesh="part_346" material="part_346_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__347" type="mesh" mesh="part_347" material="part_347_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__348" type="mesh" mesh="part_348" material="part_348_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__349" type="mesh" mesh="part_349" material="part_349_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__350" type="mesh" mesh="part_350" material="part_350_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__351" type="mesh" mesh="part_351" material="part_351_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__352" type="mesh" mesh="part_352" material="part_352_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__353" type="mesh" mesh="part_353" material="part_353_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_faucet__354" type="mesh" mesh="part_354" material="part_354_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__355" type="mesh" mesh="part_355" material="part_355_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__356" type="mesh" mesh="part_356" material="part_356_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__357" type="mesh" mesh="part_357" material="part_357_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__358" type="mesh" mesh="part_358" material="part_358_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__359" type="mesh" mesh="part_359" material="part_359_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__360" type="mesh" mesh="part_360" material="part_360_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__361" type="mesh" mesh="part_361" material="part_361_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_faucet__362" type="mesh" mesh="part_362" material="part_362_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="secondary_spout__363" type="mesh" mesh="part_363" material="part_363_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="secondary_spout__364" type="mesh" mesh="part_364" material="part_364_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="secondary_spout__365" type="mesh" mesh="part_365" material="part_365_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pitcher__366" type="mesh" mesh="part_366" material="part_366_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pitcher__367" type="mesh" mesh="part_367" material="part_367_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="pitcher__368" type="mesh" mesh="part_368" material="part_368_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cleaning_bottle__369" type="mesh" mesh="part_369" material="part_369_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cleaning_bottle__370" type="mesh" mesh="part_370" material="part_370_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cleaning_bottle__371" type="mesh" mesh="part_371" material="part_371_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="cleaning_bottle__372" type="mesh" mesh="part_372" material="part_372_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__373" type="mesh" mesh="part_373" material="part_373_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__374" type="mesh" mesh="part_374" material="part_374_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__375" type="mesh" mesh="part_375" material="part_375_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__376" type="mesh" mesh="part_376" material="part_376_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__377" type="mesh" mesh="part_377" material="part_377_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__378" type="mesh" mesh="part_378" material="part_378_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__379" type="mesh" mesh="part_379" material="part_379_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__380" type="mesh" mesh="part_380" material="part_380_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__381" type="mesh" mesh="part_381" material="part_381_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__382" type="mesh" mesh="part_382" material="part_382_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__383" type="mesh" mesh="part_383" material="part_383_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__384" type="mesh" mesh="part_384" material="part_384_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__385" type="mesh" mesh="part_385" material="part_385_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__386" type="mesh" mesh="part_386" material="part_386_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__387" type="mesh" mesh="part_387" material="part_387_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__388" type="mesh" mesh="part_388" material="part_388_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__389" type="mesh" mesh="part_389" material="part_389_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__390" type="mesh" mesh="part_390" material="part_390_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__391" type="mesh" mesh="part_391" material="part_391_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__392" type="mesh" mesh="part_392" material="part_392_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__393" type="mesh" mesh="part_393" material="part_393_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__394" type="mesh" mesh="part_394" material="part_394_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__395" type="mesh" mesh="part_395" material="part_395_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__396" type="mesh" mesh="part_396" material="part_396_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__397" type="mesh" mesh="part_397" material="part_397_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__398" type="mesh" mesh="part_398" material="part_398_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__399" type="mesh" mesh="part_399" material="part_399_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__400" type="mesh" mesh="part_400" material="part_400_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__401" type="mesh" mesh="part_401" material="part_401_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__402" type="mesh" mesh="part_402" material="part_402_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="rack__403" type="mesh" mesh="part_403" material="part_403_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_left_handle__404" type="mesh" mesh="part_404" material="part_404_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_left_handle__405" type="mesh" mesh="part_405" material="part_405_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_left_handle__406" type="mesh" mesh="part_406" material="part_406_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_right_handle__407" type="mesh" mesh="part_407" material="part_407_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_right_handle__408" type="mesh" mesh="part_408" material="part_408_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_right_handle__409" type="mesh" mesh="part_409" material="part_409_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="freezer_handle__410" type="mesh" mesh="part_410" material="part_410_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="freezer_handle__411" type="mesh" mesh="part_411" material="part_411_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="freezer_handle__412" type="mesh" mesh="part_412" material="part_412_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__413" type="mesh" mesh="part_413" material="part_413_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__414" type="mesh" mesh="part_414" material="part_414_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__415" type="mesh" mesh="part_415" material="part_415_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__416" type="mesh" mesh="part_416" material="part_416_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__417" type="mesh" mesh="part_417" material="part_417_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__418" type="mesh" mesh="part_418" material="part_418_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__419" type="mesh" mesh="part_419" material="part_419_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__420" type="mesh" mesh="part_420" material="part_420_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__421" type="mesh" mesh="part_421" material="part_421_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__422" type="mesh" mesh="part_422" material="part_422_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__423" type="mesh" mesh="part_423" material="part_423_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__424" type="mesh" mesh="part_424" material="part_424_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__425" type="mesh" mesh="part_425" material="part_425_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__426" type="mesh" mesh="part_426" material="part_426_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__427" type="mesh" mesh="part_427" material="part_427_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__428" type="mesh" mesh="part_428" material="part_428_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__429" type="mesh" mesh="part_429" material="part_429_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__430" type="mesh" mesh="part_430" material="part_430_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__431" type="mesh" mesh="part_431" material="part_431_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__432" type="mesh" mesh="part_432" material="part_432_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__433" type="mesh" mesh="part_433" material="part_433_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__434" type="mesh" mesh="part_434" material="part_434_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__435" type="mesh" mesh="part_435" material="part_435_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__436" type="mesh" mesh="part_436" material="part_436_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="toaster__437" type="mesh" mesh="part_437" material="part_437_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__438" type="mesh" mesh="part_438" material="part_438_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__439" type="mesh" mesh="part_439" material="part_439_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__440" type="mesh" mesh="part_440" material="part_440_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__441" type="mesh" mesh="part_441" material="part_441_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__442" type="mesh" mesh="part_442" material="part_442_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__443" type="mesh" mesh="part_443" material="part_443_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__444" type="mesh" mesh="part_444" material="part_444_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__445" type="mesh" mesh="part_445" material="part_445_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__446" type="mesh" mesh="part_446" material="part_446_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__447" type="mesh" mesh="part_447" material="part_447_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__448" type="mesh" mesh="part_448" material="part_448_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_counter_pulls_locks__449" type="mesh" mesh="part_449" material="part_449_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__450" type="mesh" mesh="part_450" material="part_450_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__451" type="mesh" mesh="part_451" material="part_451_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__452" type="mesh" mesh="part_452" material="part_452_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__453" type="mesh" mesh="part_453" material="part_453_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__454" type="mesh" mesh="part_454" material="part_454_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__455" type="mesh" mesh="part_455" material="part_455_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__456" type="mesh" mesh="part_456" material="part_456_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__457" type="mesh" mesh="part_457" material="part_457_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__458_collision" type="box" pos="4.26647735 1.41332704 -0.498108745" quat="0.707106994 0 0 -0.707106568" size="0.030000031 0.0299999714 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="island_faucet__458" type="mesh" mesh="part_458" material="part_458_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__459" type="mesh" mesh="part_459" material="part_459_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="island_faucet__460_collision" type="box" pos="4.00649536 1.71727234 -0.492696106" quat="0.707106799 0 0 -0.707106763" size="0.030000031 0.0299998522 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="island_faucet__460" type="mesh" mesh="part_460" material="part_460_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="fridge_notice__461_collision" type="box" pos="2.23615807 2.12192028 0.315340456" quat="0.701376009 0.561088561 0.435649351 0.0588299569" size="0.212574907 0.201765117 0.002" contype="2" conaffinity="3" rgba="0 0 0 0" group="3" mass="0" />
+    <geom name="fridge_notice__461" type="mesh" mesh="part_461" material="part_461_material" contype="0" conaffinity="0" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_0__462" type="mesh" mesh="part_462" material="part_462_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_0__463" type="mesh" mesh="part_463" material="part_463_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_0__464" type="mesh" mesh="part_464" material="part_464_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_0__465" type="mesh" mesh="part_465" material="part_465_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_0__466" type="mesh" mesh="part_466" material="part_466_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_1__467" type="mesh" mesh="part_467" material="part_467_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_1__468" type="mesh" mesh="part_468" material="part_468_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_1__469" type="mesh" mesh="part_469" material="part_469_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_1__470" type="mesh" mesh="part_470" material="part_470_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_1__471" type="mesh" mesh="part_471" material="part_471_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_2__472" type="mesh" mesh="part_472" material="part_472_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_plate_2__473" type="mesh" mesh="part_473" material="part_473_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__474" type="mesh" mesh="part_474" material="part_474_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__475" type="mesh" mesh="part_475" material="part_475_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__476" type="mesh" mesh="part_476" material="part_476_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__477" type="mesh" mesh="part_477" material="part_477_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__478" type="mesh" mesh="part_478" material="part_478_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__479" type="mesh" mesh="part_479" material="part_479_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__480" type="mesh" mesh="part_480" material="part_480_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__481" type="mesh" mesh="part_481" material="part_481_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__482" type="mesh" mesh="part_482" material="part_482_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__483" type="mesh" mesh="part_483" material="part_483_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__484" type="mesh" mesh="part_484" material="part_484_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__485" type="mesh" mesh="part_485" material="part_485_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__486" type="mesh" mesh="part_486" material="part_486_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__487" type="mesh" mesh="part_487" material="part_487_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__488" type="mesh" mesh="part_488" material="part_488_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__489" type="mesh" mesh="part_489" material="part_489_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__490" type="mesh" mesh="part_490" material="part_490_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="range__491" type="mesh" mesh="part_491" material="part_491_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__492" type="mesh" mesh="part_492" material="part_492_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__493" type="mesh" mesh="part_493" material="part_493_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__494" type="mesh" mesh="part_494" material="part_494_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__495" type="mesh" mesh="part_495" material="part_495_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__496" type="mesh" mesh="part_496" material="part_496_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__497" type="mesh" mesh="part_497" material="part_497_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__498" type="mesh" mesh="part_498" material="part_498_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__499" type="mesh" mesh="part_499" material="part_499_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__500" type="mesh" mesh="part_500" material="part_500_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__501" type="mesh" mesh="part_501" material="part_501_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__502" type="mesh" mesh="part_502" material="part_502_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__503" type="mesh" mesh="part_503" material="part_503_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__504" type="mesh" mesh="part_504" material="part_504_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__505" type="mesh" mesh="part_505" material="part_505_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__506" type="mesh" mesh="part_506" material="part_506_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__507" type="mesh" mesh="part_507" material="part_507_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__508" type="mesh" mesh="part_508" material="part_508_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="microwave_candidate__509" type="mesh" mesh="part_509" material="part_509_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__510" type="mesh" mesh="part_510" material="part_510_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__511" type="mesh" mesh="part_511" material="part_511_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__512" type="mesh" mesh="part_512" material="part_512_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__513" type="mesh" mesh="part_513" material="part_513_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__514" type="mesh" mesh="part_514" material="part_514_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__515" type="mesh" mesh="part_515" material="part_515_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__516" type="mesh" mesh="part_516" material="part_516_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="dishwasher__517" type="mesh" mesh="part_517" material="part_517_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_counter_device__518" type="mesh" mesh="part_518" material="part_518_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_counter_device__519" type="mesh" mesh="part_519" material="part_519_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_counter_device__520" type="mesh" mesh="part_520" material="part_520_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="counter_cables__521" type="mesh" mesh="part_521" material="part_521_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sink_deck_control__522" type="mesh" mesh="part_522" material="part_522_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="sink_deck_control__523" type="mesh" mesh="part_523" material="part_523_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_cables__524" type="mesh" mesh="part_524" material="part_524_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_cables__525" type="mesh" mesh="part_525" material="part_525_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="display_cables__526" type="mesh" mesh="part_526" material="part_526_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_fridge__534" type="mesh" mesh="part_534" material="part_534_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_range__535" type="mesh" mesh="part_535" material="part_535_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_a__536" type="mesh" mesh="part_536" material="part_536_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_a__537" type="mesh" mesh="part_537" material="part_537_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_a__538" type="mesh" mesh="part_538" material="part_538_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_a__539" type="mesh" mesh="part_539" material="part_539_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_a__540" type="mesh" mesh="part_540" material="part_540_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="wall_return__541" type="mesh" mesh="part_541" material="part_541_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_b__542" type="mesh" mesh="part_542" material="part_542_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_b__543" type="mesh" mesh="part_543" material="part_543_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_b__544" type="mesh" mesh="part_544" material="part_544_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_b__545" type="mesh" mesh="part_545" material="part_545_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="glass_b__546" type="mesh" mesh="part_546" material="part_546_material" contype="2" conaffinity="3" group="2" friction="1.2 0.005 0.0001" mass="0" />
+    <geom name="blue_bin__bottom_support" type="box" pos="2.03577 -2.69724 -1.298" size="0.14 0.25 0.1" quat="0.907711049 0 0 -0.41959582" contype="2" conaffinity="3" group="3" mass="0" solref="0.02 1" rgba="0 0 0 0" />
+    <geom name="corner_counter_return__sheet_support" type="box" pos="4.7804 3.97023 -0.45371" size="0.1448 0.1659 0.01" contype="2" conaffinity="3" group="3" mass="0" solref="0.05 1" rgba="0 0 0 0" />
+  </worldbody>
+</mujoco>

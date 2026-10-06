@@ -1,0 +1,20 @@
+[
+ {
+  "name": "default",
+  "task": "Put the coffee bags on the island and throw away the used cartons."
+ },
+ {
+  "name": "default_reworded",
+  "task": "Clean up the kitchen: the coffee bags go on the middle island, and the juice carton and the red-and-white carton go in the blue bin"
+ },
+ {
+  "name": "swapped",
+  "task": "Put the cartons on the middle island and throw the coffee bags in the recycling bin.",
+  "swap": true
+ },
+ {
+  "name": "swapped_reworded",
+  "task": "Move both cartons onto the kitchen island and dispose of the two coffee bags in the blue bin",
+  "swap": true
+ }
+]

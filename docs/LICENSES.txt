@@ -148,4 +148,4 @@ SOFTWARE.
 HLS.js 1.7.3 (light build)
 
 Source: https://github.com/video-dev/hls.js/tree/v1.7.3
-Distributed under BSD-2-Clause. Full license: scripts/vendor/hls-LICENSE.txt
+Distributed under Apache-2.0. Full license: scripts/vendor/hls-LICENSE.txt

@@ -1,0 +1,36 @@
+[
+ {
+  "name": "bags_to_rear_table",
+  "task": "Put the two coffee bags on the rear round table.",
+  "targets": {
+   "parcel_left": "rear_table",
+   "parcel_corner": "rear_table"
+  }
+ },
+ {
+  "name": "juice_to_front_table",
+  "task": "Put the red and white carton on the island and the orange juice carton on the foreground round table.",
+  "targets": {
+   "red_white_carton": "island",
+   "juice_carton": "empty_table"
+  }
+ },
+ {
+  "name": "cartons_to_corner_counter",
+  "task": "Move both cartons to the counter between the corner and the range.",
+  "targets": {
+   "juice_carton": "corner_counter_return",
+   "red_white_carton": "corner_counter_return"
+  }
+ },
+ {
+  "name": "moved_juice_to_bin",
+  "task": "Throw the orange juice carton in the recycling bin.",
+  "targets": {
+   "juice_carton": "blue_bin"
+  },
+  "place_objects": [
+   "juice_carton=3.1933,3.4231,-1.8632"
+  ]
+ }
+]

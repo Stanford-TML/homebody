@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "file": "amo_jit.pt",
+      "sha256": "6d867ed2dd2261d0f02a5e81d2b7f92802be30f3d36570fb7c4b18707649ef3f",
+      "bytes": 17819339
+    },
+    {
+      "file": "adapter_norm_stats.pt",
+      "sha256": "5adc634a7c5928b7d0a4ede15dbed4371b665b6972d706f32416350028e1956a",
+      "bytes": 1996
+    },
+    {
+      "file": "adapter_jit.pt",
+      "sha256": "159c5f691e55f68c68e2d98e287f4f87baa54e79759c04e06af3bdbc8f8edc98",
+      "bytes": 1661974
+    }
+  ]
+}

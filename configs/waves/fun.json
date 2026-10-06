@@ -1,0 +1,66 @@
+[
+ {
+  "name": "the_other_carton_to_bin",
+  "task": "Throw away the carton that isn't orange juice.",
+  "targets": {
+   "red_white_carton": "blue_bin"
+  }
+ },
+ {
+  "name": "juice_to_table_by_bin",
+  "task": "Put the orange juice on the round table closest to the recycling bin.",
+  "targets": {
+   "juice_carton": "empty_table"
+  }
+ },
+ {
+  "name": "carton_by_toaster",
+  "task": "Move the red and white carton next to the toaster.",
+  "targets": {
+   "red_white_carton": "fridge_sink"
+  }
+ },
+ {
+  "name": "swap_coffee_bags",
+  "task": "Swap the two coffee bags between their counters.",
+  "targets": {
+   "parcel_left": "corner_counter_return",
+   "parcel_corner": "corner_counter_left"
+  }
+ },
+ {
+  "name": "after_breakfast",
+  "task": "Breakfast is over: whichever carton isn't juice goes in the recycling.",
+  "targets": {
+   "red_white_carton": "blue_bin"
+  }
+ },
+ {
+  "name": "juice_for_guest",
+  "task": "The juice is for whoever sits at the round table nearest the recycling bin. Take it to them.",
+  "targets": {
+   "juice_carton": "empty_table"
+  }
+ },
+ {
+  "name": "farther_bag",
+  "task": "Put the coffee bag that's farther from the fridge on the island.",
+  "targets": {
+   "parcel_corner": "island"
+  }
+ },
+ {
+  "name": "conditional_juice",
+  "task": "If the orange juice is next to the toaster, move it to the island; otherwise throw it away.",
+  "targets": {
+   "juice_carton": "island"
+  }
+ },
+ {
+  "name": "there_and_back",
+  "task": "Show the red and white carton to someone at the island, then put it back where it was.",
+  "targets": {
+   "red_white_carton": "glass_sink"
+  }
+ }
+]

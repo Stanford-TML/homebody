@@ -1,0 +1,56 @@
+{
+ "name": "SRC Kitchen",
+ "frame": "ws_map",
+ "robot_start": [
+  3.86924934598348,
+  3.294465233322236,
+  2.2762990827114864
+ ],
+ "movable_entities": [
+  "juice_carton",
+  "red_white_carton",
+  "parcel_left",
+  "parcel_corner"
+ ],
+ "collision_boxes": [
+  {
+   "name": "blue_bin__bottom_support",
+   "position_ws_map_m": [
+    2.03577,
+    -2.69724,
+    -1.298
+   ],
+   "half_size_m": [
+    0.14,
+    0.25,
+    0.1
+   ],
+   "yaw_rad": -0.866,
+   "source": "solid support under a thin scanned surface",
+   "contact_solref": [
+    0.02,
+    1.0
+   ]
+  },
+  {
+   "name": "corner_counter_return__sheet_support",
+   "position_ws_map_m": [
+    4.7804,
+    3.97023,
+    -0.45371
+   ],
+   "half_size_m": [
+    0.1448,
+    0.1659,
+    0.01
+   ],
+   "yaw_rad": 0.0,
+   "contact_solref": [
+    0.05,
+    1.0
+   ],
+   "source": "solid support under a thin scanned surface"
+  }
+ ],
+ "default_task": "Put the coffee bags on the island and throw away the used cartons."
+}
