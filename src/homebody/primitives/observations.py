@@ -1,4 +1,5 @@
 """Immutable, synchronized sensor records a backend fills and skills read."""
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -14,6 +15,23 @@ def frozen_array(value, shape=None):
         raise ValueError(f"Expected shape {shape}, received {array.shape}")
     array.setflags(write=False)
     return array
+
+
+def frozen_metadata(value):
+    """Copy JSON sensor provenance so asynchronous consumers see the captured values."""
+    if isinstance(value, Mapping):
+        if any(not isinstance(key, str) for key in value):
+            raise ValueError("Sensor metadata keys must be strings")
+        return MappingProxyType({key: frozen_metadata(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(frozen_metadata(item) for item in value)
+    if isinstance(value, np.generic):
+        value = value.item()
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float) and np.isfinite(value):
+        return value
+    raise ValueError("Sensor metadata must contain finite JSON values")
 
 
 class ObservationError(ValueError):
@@ -75,12 +93,23 @@ class HandState:
                   (self.finger_closure_gap > settings.hold_closure_gap))
         return bool(paired[0] and np.any(paired[1:]))
 
+    def contact_supported(self, settings):
+        """Hand contact evidence; object retention additionally requires visual verification."""
+        efforts = self.finger_effort_fraction > settings.hold_effort_fraction
+        return bool(efforts[0] and np.any(efforts[1:]))
+
+    def closed_empty(self, settings):
+        return (self.closure >= 1. - settings.hold_closure_gap and
+                bool(np.all(self.finger_closure_gap <= settings.hold_closure_gap)))
+
 
 @dataclass(frozen=True)
 class NavigationMap:
     occupied: np.ndarray
     T_map_px: np.ndarray
     resolution: float
+    source_hash: str | None = None
+    frame_id: str | None = None
 
     def __post_init__(self):
         object.__setattr__(self, "occupied", frozen_array(self.occupied).astype(bool))
@@ -88,6 +117,11 @@ class NavigationMap:
         object.__setattr__(self, "T_map_px", frozen_array(self.T_map_px, (3, 3)))
         if self.occupied.ndim != 2 or self.resolution <= 0:
             raise ValueError("Invalid navigation raster")
+        if ((self.source_hash is not None or self.frame_id is not None)
+                and (not isinstance(self.source_hash, str)
+                     or re.fullmatch(r"[0-9a-f]{64}", self.source_hash) is None
+                     or not isinstance(self.frame_id, str) or not self.frame_id.strip())):
+            raise ValueError("Navigation provenance requires a source SHA256 and named frame")
 
 
 class RobotState:
@@ -126,12 +160,16 @@ class Measurement(RobotState):
 
 @dataclass(frozen=True)
 class Frame(RobotState):
-    """One synchronized sensor packet.
+    """One sensor packet, with separate capture provenance for asynchronous sensors.
 
     rgb, depth (metres along the optical axis, NaN where invalid) and labels (a positive
     integer per scene object, -1 on the robot, 0 elsewhere) share one image grid.
     world_camera is x right, y down, z ahead. base_pose is [x, y, yaw] on the map. joints
     are the G1's 29 in controller order, arms at ARMS. hands has "left" and "right".
+    sensor_metadata["depth_rays_from_world_camera"] is True only when the producer
+    establishes measured or rendered rays originating at world_camera for valid pixels.
+    Reprojected endpoints from a displaced camera do not establish free space on those rays;
+    an absent or non-True declaration permits endpoint evidence only.
     """
     epoch: int
     sequence: int
@@ -146,6 +184,7 @@ class Frame(RobotState):
     hands: Mapping[str, HandState]
     labels: np.ndarray
     navigation: NavigationMap
+    sensor_metadata: Mapping[str, object] | None = None
 
     def __post_init__(self):
         height, width = np.shape(self.depth)
@@ -155,6 +194,8 @@ class Frame(RobotState):
                             ("base_pose", (3,)), ("joints", (29,))):
             object.__setattr__(self, name, frozen_array(getattr(self, name), shape))
         object.__setattr__(self, "hands", MappingProxyType(dict(self.hands)))
+        if self.sensor_metadata is not None:
+            object.__setattr__(self, "sensor_metadata", frozen_metadata(self.sensor_metadata))
 
     def normalized_pixel(self, point):
         if (not isinstance(point, (list, tuple)) or len(point) != 2 or

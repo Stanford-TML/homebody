@@ -13,7 +13,9 @@ FLOOR_BAND_M = 0.10
 LIDAR_HEIGHT_M = 1.20  # lidar height above the floor
 RING_STOP_M = 0.35  # a lidar point this close in the direction of the move stops the move
 RING_BAND_M = (0.25, 1.10)
-ORIGIN_DROP_M = 0.01
+# Pinned SuperOdom skips registration below squared range 0.01 m^2 but publishes
+# those points at the map origin; ORIGIN_DROP_M is that 10 cm radius.
+ORIGIN_DROP_M = 0.10
 BODY_COLUMN_Z_M = (0.75, LIDAR_HEIGHT_M + 0.15)
 ARM_BOX_M = ((-0.35, 0.45), 0.42, (0.40, 1.35))
 SELF_LEARN_R_M = 0.45  # near points only: the ring's reach

@@ -1,6 +1,5 @@
 """The navigate skill: route on the static map to a stance and verify arrival from localized poses."""
 import math
-import sys
 from dataclasses import dataclass
 from itertools import pairwise
 
@@ -8,18 +7,21 @@ import numpy as np
 
 from homebody.helpers.geometry import wrap
 from homebody.helpers.navigation import (
+    body_frame,
     cell_free,
+    checked_segment,
     clearance,
     free_space,
     inside,
-    line_free,
     pixel,
     route,
-    square_stance,
+    run_in_point,
+    snapped_goal,
 )
 from homebody.motion.carry import compact_carry, continuing, recover
 
 from .contract import Result, SkillFailure
+from .navigation_goal import goal_arguments, stance
 
 NEEDS = ("base_velocity", "arm_target", "advance", "stop")
 
@@ -75,79 +77,6 @@ def execute(plan, ctx):
         ctx.advance(plan.epoch, settings.tick)
         transit.frame = ctx.measure(plan.epoch)
     raise SkillFailure("TIMEOUT", "Navigation deadline exceeded without verified arrival")
-
-
-def goal_arguments(arguments, navigation):
-    """The requested goal, the facing point (or None), the yaw (or None) and whether to snap.
-    The bare x/y form defaults snap off."""
-    bare = "x" in arguments or "y" in arguments
-    if bare:
-        if any(key in arguments for key in ("goal_map_1000", "goal_xy_m")):
-            raise SkillFailure("INVALID_ARGUMENT", "Do not mix x/y with a goal click or goal_xy_m")
-        if not all(finite_number(arguments.get(key)) for key in ("x", "y")):
-            raise SkillFailure("INVALID_ARGUMENT", "navigate requires finite x and y in map metres")
-        goal = np.array([arguments["x"], arguments["y"]], dtype=float)
-    else:
-        goal = map_point(arguments, "goal", navigation)
-    facing = (map_point(arguments, "facing", navigation)
-              if any(key in arguments for key in ("facing_map_1000", "facing_xy_m")) else None)
-    yaw = arguments.get("yaw")
-    if yaw is not None and not finite_number(yaw):
-        raise SkillFailure("INVALID_ARGUMENT", "yaw must be finite radians")
-    if yaw is not None and facing is not None:
-        raise SkillFailure("INVALID_ARGUMENT", "Supply facing or yaw, not both")
-    snap = arguments.get("snap", not bare)
-    if type(snap) is not bool:
-        raise SkillFailure("INVALID_ARGUMENT", "snap must be boolean")
-    return goal, facing, yaw, snap
-
-
-def map_point(arguments, name, navigation):
-    """One map click or metric point as map metres, never both."""
-    image_key, metric_key = name + "_map_1000", name + "_xy_m"
-    keys = [key for key in (image_key, metric_key) if key in arguments]
-    if len(keys) != 1:
-        raise SkillFailure("INVALID_ARGUMENT", f"Supply exactly one {image_key} or {metric_key}")
-    key = keys[0]
-    value = arguments[key]
-    if (not isinstance(value, (list, tuple)) or len(value) != 2 or
-            not all(finite_number(item) for item in value)):
-        raise SkillFailure("INVALID_ARGUMENT", f"{key} requires two finite numbers")
-    if key == metric_key:
-        return np.asarray(value, dtype=float)
-    if not all(0 <= item <= 1000 for item in value):
-        raise SkillFailure("INVALID_ARGUMENT", f"{key} must lie in [0,1000]")
-    height, width = navigation.occupied.shape
-    point = navigation.T_map_px @ np.r_[np.asarray(value) * [width, height] / 1000., 1.]
-    return np.round(point[:2] / point[2], 3)
-
-
-def finite_number(value):
-    return type(value) in (int, float) and -sys.float_info.max <= value <= sys.float_info.max
-
-
-def stance(arguments, navigation, free, requested, facing, yaw, snap, start, settings, reach):
-    """The goal and yaw to stand at, the yaw None when nothing fixes a heading."""
-    if snap and facing is not None:
-        hand = arguments.get("hand")
-        if hand not in (None, "left", "right"):
-            raise SkillFailure("INVALID_ARGUMENT", 'hand must be "left" or "right"')
-        shift = {None: 0.0, "right": settings.right_hand_offset, "left": -settings.left_hand_offset}[hand]
-        square = square_stance(navigation, facing, requested, reach, settings.stance_clearance, shift, free)
-        if square is None:
-            raise SkillFailure("NO_ROUTE", "No square stance clear of the faced edge on the clicked side")
-        goal, yaw = square
-    else:
-        goal = requested
-        if snap:
-            goal = snapped_goal(navigation, free, requested, start,
-                                settings.goal_snap_max_distance, settings.goal_snap_slack)
-            if goal is None:
-                raise SkillFailure("NO_ROUTE", "No free stance within the bounded goal snap distance")
-        aim = requested if facing is None and not np.array_equal(goal, requested) else facing
-        if yaw is None and aim is not None and np.linalg.norm(aim - goal) > 1e-6:
-            yaw = math.atan2(aim[1] - goal[1], aim[0] - goal[0])
-    return np.asarray(goal, float), yaw
 
 
 def route_waypoints(navigation, free, pose, goal, yaw, settings):
@@ -380,23 +309,6 @@ class Transit:
         self.send(0.0, 0.0, 0.0)
 
 
-def snapped_goal(navigation, free, goal, start, max_distance, slack):
-    """GOAL when free, else the free cell nearest START among those within SLACK of the nearest
-    to GOAL. None when none lies within MAX_DISTANCE."""
-    if cell_free(free, pixel(navigation, goal)):
-        return goal
-    cells = np.argwhere(free)
-    points = np.column_stack((cells[:, ::-1], np.ones(len(cells)))) @ navigation.T_map_px.T
-    points = points[:, :2] / points[:, 2, None]
-    distance = np.linalg.norm(points - goal, axis=1)
-    nearby = distance <= max_distance
-    if not nearby.any():
-        return None
-    nearby &= distance <= distance[nearby].min() + slack
-    choices = points[nearby]
-    return choices[np.argmin(np.linalg.norm(choices - start, axis=1))]
-
-
 def departure_point(navigation, free, pose, goal, settings):
     """Where the base backs straight out to before turning. None when it may turn where it
     stands or cannot back out."""
@@ -411,15 +323,6 @@ def departure_point(navigation, free, pose, goal, settings):
     heading = np.array([math.cos(pose[2]), math.sin(pose[2])])
     departure = start - settings.departure_distance * heading
     return departure if reverse_clear(navigation, free, start, departure, settings.robot_radius) else None
-
-
-def run_in_point(navigation, free, goal, yaw, origin, settings):
-    """The point run_in_distance behind the stance. None without a heading, from an origin
-    already nearer, or when the straight leg to the stance is not free."""
-    if yaw is None or np.linalg.norm(goal - origin) <= settings.run_in_distance:
-        return None
-    run_in = goal - settings.run_in_distance * np.array([math.cos(yaw), math.sin(yaw)])
-    return run_in if checked_segment(navigation, free, run_in, goal) else None
 
 
 def routed(navigation, origin, goal, run_in, settings):
@@ -443,12 +346,6 @@ def through(path, target, goal):
     return path if target is goal else [*path, goal]
 
 
-def checked_segment(navigation, free, start, end):
-    """Whether the straight segment START-END lies in free cells of the inflated map."""
-    cells = (pixel(navigation, start), pixel(navigation, end))
-    return all(cell_free(free, cell) for cell in cells) and line_free(*cells, free)
-
-
 def reverse_clear(navigation, free, start, end, radius):
     """Whether the base can back straight from START to END. The check begins at the first free
     cell behind START, which must lie within RADIUS."""
@@ -460,9 +357,3 @@ def reverse_clear(navigation, free, start, end, radius):
         if cell_free(free, pixel(navigation, point)):
             return checked_segment(navigation, free, point, end)
     return False
-
-
-def body_frame(pose, delta):
-    """The map offset DELTA in the frame of the base at POSE: (ahead, left)."""
-    c, s = math.cos(pose[2]), math.sin(pose[2])
-    return np.array([c * delta[0] + s * delta[1], -s * delta[0] + c * delta[1]])

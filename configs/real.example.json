@@ -1,0 +1,19 @@
+{
+  "iface": "REPLACE_WITH_ROBOT_INTERFACE",
+  "map_path": "configs/local/map.npz",
+  "map_sha256": "REPLACE_WITH_VERIFIED_MAP_SHA256",
+  "map_frame": "REPLACE_WITH_NAMED_DEPLOYMENT_FRAME",
+  "map_floor_height_m": null,
+  "alignment_path": "configs/local/current-alignment.json",
+  "camera_calibration": "assets/calib/g1_head.json",
+  "head_camera_serial": "REPLACE_WITH_CALIBRATED_HEAD_CAMERA_SERIAL",
+  "stereo_calibration_sha256": "REPLACE_WITH_STEREO_CALIBRATION_DIGEST",
+  "hand_calibration": null,
+  "body_address": "127.0.0.1:29400",
+  "color_endpoint": "tcp://127.0.0.1:55566",
+  "depth_endpoint": "tcp://127.0.0.1:55563",
+  "depth_telemetry_endpoint": "tcp://127.0.0.1:55564",
+  "segmentation_root": "vendor/samurai",
+  "segmentation_checkpoint": ".cache/models/sam2.1_hiera_tiny.pt",
+  "segmentation_checkpoint_sha256": "7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69"
+}

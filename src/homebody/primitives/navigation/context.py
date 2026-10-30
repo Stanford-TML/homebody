@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from homebody.motion.exploration.localizer import PoseGate
+    from homebody.primitives.navigation.actions.lower_body import LowerBody
 
 class Deadline:
     """Robot-time budget. Reads the backend's clock, never the wall — a step's duration
@@ -28,7 +29,7 @@ class Deadline:
     @contextmanager
     def paused(self):
         """Stop the clock while nothing on the robot is being spent: the planner thinking,
-        the user deciding."""
+        the user deciding. Sim time does not advance there anyway; wall time does."""
         if self._paused_at is not None:
             yield
             return
@@ -44,10 +45,13 @@ class Ctx:
     """What a skill sees: no backend name and no config, so a skill cannot discover where it runs."""
 
     observe: Callable[[str], Any]
-    step: Callable[[str, Any], None]
+    # A transformed lower-body command may be returned after its successful step.
+    step: Callable[[str, Any], LowerBody | None]
     now: Callable[[], float]
     deadline: Deadline
     progress: Callable[[str], None]
     log: Callable[..., None]
     gate: PoseGate
     wait: Callable[[float], None] = time.sleep
+    max_footprint_radius_m: float = .60
+    route_heading_gain_hz: float = 0.

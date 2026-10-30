@@ -119,3 +119,20 @@ def test_unknown_skill_is_an_invalid_argument_without_actuation():
     result = run(backend, events, name="levitate")
     assert result.code == "INVALID_ARGUMENT" and finished(events) == [result]
     assert not backend.commands and backend.stopped == 0
+
+
+def test_an_unexpected_abort_fault_stops_the_robot_and_reports_once(monkeypatch):
+    def execute(plan, ctx):
+        ctx.actions.base_velocity(ctx.observations.epoch, .1, 0., 0.)
+        raise SkillFailure("BROKEN", "refused after moving")
+
+    def abort(plan, ctx):
+        raise RuntimeError("abort implementation failed")
+
+    fake_skill(monkeypatch, execute, abort)
+    backend, events = FakeBackend(), []
+    with pytest.raises(RuntimeError, match="abort implementation failed"):
+        run(backend, events)
+    assert backend.stopped == 1 and not backend.velocity.any()
+    [result] = finished(events)
+    assert result.code == "ERROR" and result.details["original_code"] == "BROKEN"

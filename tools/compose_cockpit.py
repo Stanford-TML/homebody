@@ -19,14 +19,14 @@ from homebody.helpers.kinematics import Arm
 from homebody.motion.carry import RecoveryPlan
 from homebody.primitives.observations import Frame, HandState, NavigationMap
 from homebody.session.config import Topdown
-from homebody.skills import navigate, pick, place
+from homebody.skills import navigate_sim, pick, place
 from homebody.ui.console import Overlays
 from homebody.ui.theme import ACCENT, FACING, GOAL, MASK
 from homebody.vlm.provider import Decision
 from homebody.vlm.topdown import render, size_px
 
 ROOT = Path(__file__).resolve().parents[1]
-PLANS = (pick.Plan, pick.ApproachPlan, place.Plan, navigate.Plan, RecoveryPlan)
+PLANS = (pick.Plan, pick.ApproachPlan, place.Plan, navigate_sim.Plan, RecoveryPlan)
 EGO_HEIGHT = 480
 BACKGROUND, INK, MUTED, HIGHLIGHT = (22, 26, 33), (236, 240, 245), (150, 160, 175), (255, 200, 0)
 

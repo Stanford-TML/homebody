@@ -91,6 +91,8 @@ class Dex3Port:
         self._measured = {"left": None, "right": None}
         self._target = {"left": None, "right": None}
         self._command = {"left": None, "right": None}
+        self._published = {"left": None, "right": None}
+        self._hold_reference = None
         self._stamp = {"left": 0.0, "right": 0.0}
         self._latched = {"left": None, "right": None}
         self._latched_once = {"left": False, "right": False}   # a grasp verified on this close
@@ -241,15 +243,55 @@ class Dex3Port:
                 current = current + np.clip(target - current, -step, step)
                 current = self._bounded_squeeze(side, current)
                 self._command[side] = current
-                msg = self._new_command()
-                for i in range(7):
-                    msg.motor_cmd[i].mode = 1
-                    msg.motor_cmd[i].q = float(current[i])
-                    msg.motor_cmd[i].dq = 0.0
-                    msg.motor_cmd[i].tau = 0.0
-                    msg.motor_cmd[i].kp = self._kp
-                    msg.motor_cmd[i].kd = self._kd
-                self._pub[side].Write(msg)
+                self._publish(side, current)
+
+    def _publish(self, side, reference):
+        msg = self._new_command()
+        for i in range(7):
+            msg.motor_cmd[i].mode = 1
+            msg.motor_cmd[i].q = float(reference[i])
+            msg.motor_cmd[i].dq = 0.0
+            msg.motor_cmd[i].tau = 0.0
+            msg.motor_cmd[i].kp = self._kp
+            msg.motor_cmd[i].kd = self._kd
+        if self._pub[side].Write(msg) is False:
+            raise RuntimeError(f"Dex3 {side} publication failed")
+        self._published[side] = reference.copy()
+
+    def hold_tick(self):
+        """Republish only applied references, with protective easing and no grip advance."""
+        with self._lock:
+            if self._hold_reference is None:
+                self._hold_reference = {side: None if q is None else q.copy()
+                                        for side, q in self._published.items()}
+            for side, reference in self._hold_reference.items():
+                if reference is not None:
+                    self._target[side] = reference.copy()
+        observation_error = None
+        try:
+            self.refresh()
+        except Exception as exc:  # noqa: BLE001 -- retain the last valid bounded reference
+            observation_error = f"{type(exc).__name__}: {exc}"
+        published, errors = {}, {}
+        with self._lock:
+            for side, reference in self._hold_reference.items():
+                try:
+                    if reference is None:
+                        raise RuntimeError("No successfully published hand reference")
+                    safe = self._bounded_squeeze(side, reference.copy())
+                    direction = np.sign(np.asarray(g1.HAND_CLOSED[side]) - np.asarray(g1.HAND_OPEN))
+                    if np.any(direction * (safe - reference) > 1e-9):
+                        raise RuntimeError("Held reference conflicts with current lead bounds; refusing tighter closure")
+                    self._publish(side, safe)
+                    self._hold_reference[side] = safe.copy()
+                    self._command[side] = safe.copy()
+                    self._target[side] = safe.copy()
+                    published[side] = True
+                except Exception as exc:  # noqa: BLE001 -- one failed hand cannot stop the other publisher
+                    published[side] = False
+                    errors[side] = f"{type(exc).__name__}: {exc}"
+        return {"published": published, "observation_error": observation_error,
+                "publication_errors": errors}
 
     def _tau_trusted(self, side: str, tau) -> bool:
         """Whether this hand's `tau_est` reads as newton-metres; reported once when not."""
@@ -313,6 +355,19 @@ class Dex3Port:
                 "stamp": min(self._stamp.values()),
             }
 
+    def measured_state(self, *, require_both: bool = True) -> dict:
+        """Raw timestamped hand evidence; tau_est units require deployment calibration."""
+        self.refresh(require_both=require_both)
+        with self._lock:
+            return {side: {"joints": self._measured[side].copy(),
+                           "target": self._target[side].copy(),
+                           "tau_raw": None if self._tau[side] is None else self._tau[side].copy(),
+                           "contact_state": ("contact" if self._held(side) is HELD else
+                                             "empty" if self._held(side) is None else "unknown"),
+                           "motor_faults": self._fault[side].copy(),
+                           "captured_at": self._stamp[side]}
+                    for side in _SIDES if self._measured[side] is not None and self._target[side] is not None}
+
     def _held(self, side: str):
         if self._latched[side] is not None:
             return HELD
@@ -320,7 +375,7 @@ class Dex3Port:
         if target is None:
             return UNKNOWN
         if g1.grip_from_hand_q(target, side) < 0.05:
-            return None  # commanded open -> empty
+            return None
         measured = g1.grip_from_hand_q(self._measured[side], side)
         if self._latched_once[side]:
             # Verified on this close: empty only past the dropped closure.

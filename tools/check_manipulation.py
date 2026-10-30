@@ -229,28 +229,28 @@ def pick_object(step, session):
 def place_object(step, side, session):
     """Place on a visible support or drop at the step's release point, recording target.json
     first and standing still afterwards while the object settles."""
-    from homebody.skills.contract import Planning
-
     port, context, record = session.port, session.context, session.record
     frame = port.snapshot()
     context.check(frame.epoch)
     palm = frame.palm(context.arms[side], side)
     if step.release_map_xy_m is None:
-        planning = Planning(context.arms, context.jaw_samples, context.settings, context.carried,
-                            context.cancelled)
+        planning = context.planning()
+        refusals = PLACE_REFUSALS
         _, u, v, label, point = support_click(frame, step.label, palm, side, planning,
                                               session.place_candidates, record,
-                                              step.destination_label)
+                                              step.destination_label, refusals)
         arguments = {"point_normalized_1000": normalized(frame, u, v), "hand": side}
         record("place_selection.json", {"label": label, "pixel": [u, v],
                                         "visible_depth_point": point, "frame": frame.frame_id})
         target = step.evaluator_target or support_target(point)
     else:
         frame.target_points(step.destination_label)
-        arguments = drop_arguments(frame, palm, step.release_map_xy_m, side, step.release_delta_z_m)
+        release = step.release_map_xy_m
+        arguments = drop_arguments(frame, palm, release, side, step.release_delta_z_m)
         record("place_selection.json", {"label": step.destination_label, "frame": frame.frame_id,
                                         "static_release_map_xy_m": step.release_map_xy_m,
-                                        "arguments": arguments, "mode": "fixture_drop"})
+                                        "release_map_xy_m": release, "arguments": arguments,
+                                        "mode": "fixture_drop"})
         target = step.evaluator_target
     record("target.json", {"schema_version": 1, "frame": "ws_map",
                            "objects": {step.fixture_id: target}})
@@ -313,8 +313,9 @@ def support_options(frame, target_label, palm, destination_label=None):
 
 
 def support_click(frame, target_label, palm, side, planning, max_candidates, record,
-                  destination_label=None):
-    """The first support option the place planner accepts. Raises when none does."""
+                  destination_label=None, refusals=PLACE_REFUSALS):
+    """The first support option the place planner accepts, passing over those it refuses with a
+    code in REFUSALS. Raises when none is accepted."""
     from homebody.motion.carry import RecoveryPlan
     from homebody.primitives.observations import ObservationError
     from homebody.skills import place
@@ -343,7 +344,7 @@ def support_click(frame, target_label, palm, side, planning, max_candidates, rec
                 continue
             except SkillFailure as error:
                 attempt.update(status=error.code, message=str(error))
-                if error.code not in PLACE_REFUSALS:
+                if error.code not in refusals:
                     raise
                 continue
             if isinstance(plan, RecoveryPlan):
@@ -395,10 +396,18 @@ class ScriptedSession:
         self.arms = {side: Arm(root / "assets/robot/g1_29dof_with_hand.urdf", side)
                      for side in ("left", "right")}
         calibration = json.loads((root / "assets/robot/calibration.json").read_text())
+        policy, registry = {}, None
+        if args.real_policy:
+            from homebody.skills.manipulation_policy import REAL_MANIPULATION
+            from homebody.skills.navigate_real import task as navigate_real
+            from homebody.skills.registry import task_registry
+            policy = {"navigation": navigate_real, "manipulation": REAL_MANIPULATION,
+                      "navigation_evidence": backend.navigation_evidence}
+            registry = task_registry()
         self.context = Context(self.port, self.port, self.arms, settings,
                                jaw_samples=calibration["jaw_samples"], emit=self.emit,
-                               cancelled=lambda: time.monotonic() - start > args.wall_timeout)
-        self.runner = Runner(self.context)
+                               cancelled=lambda: time.monotonic() - start > args.wall_timeout, **policy)
+        self.runner = Runner(self.context, registry)
 
     def execute(self, name, arguments, frame, *, evidence_name=None):
         """Run one skill from `frame` and record it; return whether it succeeded."""
@@ -692,6 +701,9 @@ def parse_args(argv):
     parser.add_argument("--no-visuals", action="store_true",
                         help="Skip saved video and observer renders; "
                              "retain sensor observations and physics scoring")
+    parser.add_argument("--real-policy", action="store_true",
+                        help="Run the REAL task policy: checked navigation and strict one-object, "
+                             "target-or-refuse manipulation")
     parser.add_argument("--place-candidates", type=int, default=256,
                         help="Maximum distance-ranked visible supports checked by the "
                              "ordinary place planner")
@@ -753,6 +765,7 @@ def setup(args):
         "self_targets": args.self_targets,
         "place_candidate_limit": args.place_candidates, "settings": asdict(settings),
         "wall_timeout": args.wall_timeout, "saved_visuals": not args.no_visuals, "scene": str(scene),
+        "real_policy": args.real_policy,
         "camera": [settings.camera.width, settings.camera.height]})
     return root, attempt, settings, scene
 

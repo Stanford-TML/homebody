@@ -1,18 +1,19 @@
-# Agent context: HomeBody SIM and REAL2SIM
+# Agent context: HomeBody SIM, REAL2SIM and REAL
 
 A MuJoCo Unitree G1 that a vision-language model drives through skills in a real2sim
 kitchen (SIM), plus G1 exploration, capture and scene reconstruction (REAL2SIM). The
-README has the install and run commands; the real-robot backend comes with the REAL release.
+README has the install and run commands. REAL runs the task skills on a physical G1, only supervised;
+this preliminary release ships the vanilla open-source SuperOdometry, so REAL results can vary significantly.
 
 ## Layout
 
 | Path | What it is |
 | --- | --- |
-| `src/homebody/skills/` | The skills, each one module: prompt line, arguments, `prepare` / `execute` / `abort`, declared failure codes. `contract.py` is the protocol and Runner; `registry.py` lists the SIM skills (`navigate.py`, `pick.py`, `place.py`). |
+| `src/homebody/skills/` | The skills, each one module: prompt line, arguments, `prepare` / `execute` / `abort`, declared failure codes. `contract.py` is the protocol and Runner; `registry.py` registers the task skills for SIM and REAL. `navigate_sim.py` is the SIM navigator, `navigate_real/` the checked navigation of REAL2SIM and REAL. |
 | `src/homebody/motion/` | Shared robot motions: `arm.py` (servos, joint streams, the one arm reset `reset_arm`), `carry.py` (holding, tucking, recovery); `exploration/` is the G1 gait, drive math and localization checks. |
-| `src/homebody/helpers/` | Pure math shared by both releases: geometry, kinematics, collision, grasp, navigation, trajectories, `raster.py` (pixels, clicks, map transforms), `floor.py` (walkable-floor networks), `region.py` (task-region polygons). |
-| `src/homebody/primitives/` | The robot interface (`robot.py` `Robot`), observation records, action limits, `NotReleased`, and the live localization, camera and navigation primitives. |
-| `src/homebody/backends/` | `mujoco.py` implements `Robot` with physics; `real.py` is the real-G1 backend, not yet implemented, coming with the REAL release; `g1/` is the G1 driver for exploration. |
+| `src/homebody/helpers/` | Pure math shared by SIM, REAL and REAL2SIM: geometry, kinematics, collision, grasp, navigation, trajectories, `raster.py` (pixels, clicks, map transforms), `floor.py` (walkable-floor networks), `region.py` (task-region polygons), `volume.py` (column evidence for REAL docking). |
+| `src/homebody/primitives/` | The robot interface (`robot.py` `Robot`), observation records, action limits, and the live localization, camera and navigation primitives. |
+| `src/homebody/backends/` | `mujoco.py` implements `Robot` with physics; `real.py` composes calibrated observations and G1 commands for REAL tasks; `g1/` is the G1 driver for exploration and REAL. |
 | `src/homebody/vlm/` | Providers (Codex, Claude Code, two APIs), `catalog.py`, `agent_prompt.md`, what the model sees each turn (`observations.py`). |
 | `src/homebody/session/` | The decision loop (`session.py`), settings (`config.py` defaults; `configs/simulation.toml` and a scene's `settings.toml` override), recording; `exploration.py` is `ExplorationSession`, and `live_context.py` the context its skills run in, reading the explorer through `LiveWorld` (`skills/live.py`). |
 | `src/homebody/ui/` | The live console (viser). |
@@ -29,7 +30,7 @@ README has the install and run commands; the real-robot backend comes with the R
 ## Rules that hold the design together
 
 * **Skills reach the robot only through a declared surface:** `Robot` for SIM skills, `SURFACE` (the
-  live actions) for exploration skills. No skill imports a backend or the app: the click, raster, floor-network and region geometry both releases use lives in `helpers/`.
+  live actions) for exploration skills. No skill imports a backend or the app: the click, raster, floor-network and region geometry they share lives in `helpers/`.
 * **The model gets the prompt and the images, nothing else.** No live object poses,
   simulator state or evaluator targets reach a prompt or a skill. Scan labels, anchors and the
   scan's own portable judgement go in as initial-scene memory, for every entity alike.
@@ -41,6 +42,7 @@ README has the install and run commands; the real-robot backend comes with the R
   `configs/exploration.toml` and `--settings`. Unknown keys are refused.
 * **Where extensions go:** a SIM skill is one module plus a name in `SKILLS` (a skill
   with tunables also adds a settings group in `session/config.py` and `session/settings.py`);
+  `SKILLS` also feeds REAL through `task_registry` ([REAL composition](guides/architecture.md#real-task-composition));
   an exploration motion is one module plus a name in `LIVE_SKILLS` in `real2sim/exploration/skills.py`,
   and an exploration skill the model can call takes four places: that module, its name in
   `LIVE_SKILLS`, its branch in `vlm_pick.parse_decision` and its branch in `decision_interpretation.py`;
@@ -60,9 +62,8 @@ Capture timestamps (a frame's images, depth, joints and pose captured together, 
 capture; `advance` waits in real time), a deadman that stops the base when commands stop,
 one commander at a time (an operator stop starts a new epoch and refuses older commands),
 and calibration (arm limits, jaw samples, camera intrinsics and extrinsics). `__main__.py`
-constructs `MujocoBackend` directly, and the session records simulator-only state for the
-scorer, so a real backend needs those made optional first. Exploration runs its skills over an
-asynchronous live context instead ([architecture](guides/architecture.md)).
+selects `MujocoBackend` or `RealG1Backend`; simulator-only state is recorded for SIM scoring.
+Exploration runs its skills over an asynchronous live context ([architecture](guides/architecture.md)).
 
 ## Docs
 

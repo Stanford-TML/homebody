@@ -25,13 +25,15 @@ from homebody.primitives.navigation.errors import (
     Stopped,
     TaskScopeRefused,
 )
-from homebody.real2sim.exploration.settings import current
+from homebody.real2sim.exploration.settings import current as current_settings
+from homebody.skills.contract import SkillFailure
 
 from . import controller as drive
 
 RECOVERY_MEMORY_DISTANCE_M = 0.25
 RECOVERY_MEMORY_HEADING_RAD = 0.25
 RECOVERY_MEMORY_LIMIT = 16
+RECOVERY_OBSERVATION_RETRIES = 2
 
 
 @dataclass(frozen=True)
@@ -74,19 +76,20 @@ class NavigationPort:
     can_refresh_observations: bool
 
 
-def _retreat_corridor(art, obstacles, xy, yaw, remaining_m, radius_m, previous_xy=None,
-                     *, grids=None, execution_radius_m=None):
-    """Check actual swept motion and a planning-clear endpoint with stopping room."""
-    execution_radius_m = radius_m if execution_radius_m is None else execution_radius_m
-    # grids cached per map; callers reset them on a map change
-    grids = {} if grids is None else grids
+def _retreat_grids(art, obstacles, radius_m, execution_radius_m, grids):
+    """Cache the full and motion collision grids once per frozen map."""
     if "full" not in grids:
         grids["full"], _ = gait.occupancy_grid(art, radius_m, exact_footprint=True)
         grids["motion"], _ = gait.occupancy_grid(
             art, execution_radius_m, exact_footprint=True, obstacles=obstacles)
-        v, u = np.nonzero(art.occupancy)
-        blocked_xy = px_to_world(art.T_map_px, np.column_stack((u, v)))
-        grids["tree"] = cKDTree(blocked_xy) if len(v) else None
+
+
+def _retreat_corridor(art, obstacles, xy, yaw, remaining_m, radius_m, previous_xy=None,
+                     *, grids=None, execution_radius_m=None):
+    """Check actual swept motion and a planning-clear endpoint with stopping room."""
+    execution_radius_m = radius_m if execution_radius_m is None else execution_radius_m
+    grids = {} if grids is None else grids
+    _retreat_grids(art, obstacles, radius_m, execution_radius_m, grids)
     full, motion = grids["full"], grids["motion"]
     direction = np.array([math.cos(yaw), math.sin(yaw)])
     endpoint = np.asarray(xy) - remaining_m * direction
@@ -129,12 +132,15 @@ class Navigator:
             raise
 
     def drive(self, ctx, goal_xy, facing_xy, radius_m: float,
-              *, requested_radius_m=None) -> None:
+              *, requested_radius_m=None, arrival_tolerance_m=None,
+              stop_after_departure=False) -> dict | None:
         """Preserve one destination/deadline across replans and checked staging moves."""
         self.port.require_ready()
         epoch = self.port.epoch()
         staging = facing_xy is None
         args = {"goal_xy_m": list(goal_xy), "radius_m": float(radius_m), "snap": False}
+        if arrival_tolerance_m is not None:
+            args["arrival_tolerance_m"] = arrival_tolerance_m
         request = {} if requested_radius_m is None else {"requested_radius_m": requested_radius_m}
         if request:
             args.update(radius_m=requested_radius_m, planning_radius_m=radius_m)
@@ -161,19 +167,31 @@ class Navigator:
         planning_radius_m = radius_m
         started = ctx.now()
 
-        def unavailable(code, reason):
-            details = {"goal_xy": list(goal_xy), "route_xy": self.state._last_drive_route,
+        def failure_details(reason, cause_details=None):
+            return {"goal_xy": list(goal_xy), "route_xy": self.state._last_drive_route,
                        "original_reason": failures[0] if failures else reason,
                        "failures": failures, "attempts": attempts, "repairs": repairs,
                        "requested_radius_m": args["radius_m"], "active_radius_m": active_radius_m,
-                       "elapsed_s": ctx.now() - started, "remaining_s": ctx.deadline.remaining()}
+                       "elapsed_s": ctx.now() - started, "remaining_s": ctx.deadline.remaining(),
+                       **(cause_details or {})}
+
+        def unavailable(code, reason, cause_details=None):
+            details = failure_details(reason, cause_details)
             ctx.log("drive.action_refused", {"code": code, "reason": reason, **details})
             raise ActionRefused(reason, code=code, details=details)
+
+        def fresh(**kwargs):
+            try:
+                self.port.fresh(ctx, epoch, **kwargs)
+            except SkillFailure as error:
+                details = failure_details(str(error), error.details)
+                ctx.log("drive.handoff_refused", {"code": error.code, "reason": str(error), **details})
+                raise SkillFailure(error.code, str(error), details) from error
 
         while True:
             planning = True
             try:
-                self.port.fresh(ctx, epoch, require_map=True)
+                fresh(require_map=True)
                 if ctx.deadline.expired():
                     self.port.hold(ctx)
                     unavailable("TIMEOUT", "action deadline reached while held")
@@ -214,7 +232,7 @@ class Navigator:
                     raise DriveFailure("ARRIVAL_NOT_VERIFIED",
                                        "driver did not verify settled arrival")
                 if staging:
-                    self.port.fresh(ctx, epoch, require_map=True)
+                    fresh(require_map=True)
                     try:
                         settled = localizer.read(ctx, "base_pose", lambda: ctx.observe("base_pose"),
                             lambda: gait.hold(ctx, localizer.RETRY_S, 0., 0., 0.),
@@ -223,7 +241,7 @@ class Navigator:
                         raise DriveFailure("ARRIVAL_NOT_VERIFIED", str(exc)) from None
                     checker, _ = gait.occupancy_grid(ctx.observe("map"),
                         args.get("execution_radius_m", active_radius_m), exact_footprint=True)
-                    if (math.dist(settled[:2], goal_xy) > current().drive.tolerance_m
+                    if (math.dist(settled[:2], goal_xy) > args.get("arrival_tolerance_m", current_settings().drive.tolerance_m)
                             or not checker.is_safe(*settled[:2])):
                         raise DriveFailure("ARRIVAL_NOT_VERIFIED",
                                            "arrival changed during freshness check")
@@ -242,8 +260,9 @@ class Navigator:
                 code = getattr(failure, "code", type(failure).__name__)
                 detail = getattr(failure, "detail", str(failure))
                 cause = failure.__cause__ if isinstance(failure, DriveFailure) else failure
+                cause_details = getattr(cause, "details", {})
                 if isinstance(cause, TaskScopeRefused):
-                    unavailable(cause.code, str(cause))
+                    unavailable(cause.code, str(cause), cause_details)
                 ordinary = ((cause is None and code in {
                                 "NO_COLLISION_FREE_PATH", "ARRIVAL_NOT_VERIFIED", "NO_PROGRESS",
                                 "TIMEOUT"})
@@ -252,6 +271,8 @@ class Navigator:
                        "phase": "plan" if planning else "execute", "radius_m": args["radius_m"],
                        "requested_radius_m": args["radius_m"], "active_radius_m": active_radius_m,
                        "elapsed_s": ctx.now() - started}
+                if cause_details:
+                    row["cause_details"] = cause_details
                 failures.append(row)
                 ctx.log("drive.failure", row)
                 witness = getattr(failure, "collision_witness", None)
@@ -262,9 +283,9 @@ class Navigator:
                 if (isinstance(cause, ObservationUnavailable)
                         and not self.port.can_refresh_observations):
                     raise Stopped("cannot verify fresh observations after the refusal") from failure
-                self.port.fresh(ctx, epoch, require_map=True)
+                fresh(require_map=True)
                 if ctx.deadline.expired():
-                    unavailable("TIMEOUT", f"action deadline reached after {code}: {detail}")
+                    unavailable("TIMEOUT", f"action deadline reached after {code}: {detail}", cause_details)
                 geometric = ((cause is None and code == "NO_COLLISION_FREE_PATH")
                              or isinstance(cause, MapObstacleRefused))
                 if planning and geometric and repair_tiers:
@@ -280,13 +301,15 @@ class Navigator:
                                     and not planning and geometric and witness is not None
                                     and witness.get("check") == "pose_to_target")
                 check_retreat = (replanned and retreat_eligible and geometric and not repair_connector
-                                 and (staging or not retreated))
+                                 and not retreated)
                 if not replanned:
                     recovery_reason = "fresh same-goal replan first"
                 elif repair_connector:
                     recovery_reason = "fresh flat connector replan before retreat"
                 elif not retreat_eligible or not geometric:
                     recovery_reason = "no eligible geometric failure"
+                elif retreated:
+                    recovery_reason = "checked recovery already used for this destination"
                 else:
                     recovery_reason = "check reverse corridor"
                 ctx.log("drive.recovery_decision", {
@@ -322,9 +345,6 @@ class Navigator:
                                 self.port.planning_radius(requested_radius_m))
                         recovery_start = gait.pose(ctx)
                         try:
-                            if retreated:
-                                raise ActionRefused("reverse tried; checking another direction",
-                                                    code="RETREAT_UNAVAILABLE")
                             retreated = True
                             retreat_result = self._checked_retreat(ctx, recovery_radius)
                             if staging and retreat_result:
@@ -335,7 +355,9 @@ class Navigator:
                                                         code="RETREAT_UNAVAILABLE")
                                 retreat_result = retreat_result | continuation
                         except ActionRefused as refused:
-                            if not staging or refused.code.startswith("TASK_"):
+                            if (not staging or refused.code.startswith("TASK_")
+                                    or refused.details.get("recovery_check", {}).get("failed_stage")
+                                    == "sweep"):
                                 raise
                             failures.append({"code": refused.code, "detail": str(refused)})
                             self.port.guard(epoch)
@@ -351,12 +373,21 @@ class Navigator:
                     except ActionRefused as refused:
                         failures.append({"code": refused.code, "detail": str(refused)})
                         if not refused.code.startswith("TASK_"):
-                            self.port.fresh(ctx, epoch)
-                        unavailable(refused.code, f"checked retreat unavailable: {refused}")
+                            fresh()
+                        unavailable(refused.code, f"checked retreat unavailable: {refused}",
+                                    refused.details)
                     except (HardwareUnavailable, Refused, DriveFailure) as refused:
                         self.port.hold(ctx)
                         raise Stopped(f"checked retreat interrupted: {refused}") from refused
                     self.port.guard(epoch)
+                    if stop_after_departure and retreat_result:
+                        result = {"outcome": "departure_restored", "arrived": False,
+                                  "goal_xy": list(goal_xy), "departure": retreat_result,
+                                  "attempts": attempts, "repairs": repairs, "failures": failures,
+                                  "elapsed_s": ctx.now() - started}
+                        self.state._last_drive_result = result
+                        ctx.log("drive.departure_restored", result)
+                        return result
                     if (retreat_result and retreat_result.get("outcome")
                             == "repositioned_goal_unavailable"):
                         unavailable("RECOVERY_GOAL_UNAVAILABLE",
@@ -368,10 +399,10 @@ class Navigator:
                                             "kind": "after_checked_retreat",
                                             "remaining_s": ctx.deadline.remaining()})
                     continue
-                unavailable(code, f"action unavailable after local repair: {detail}")
+                unavailable(code, f"action unavailable after local repair: {detail}", cause_details)
             except ActionRefused:
                 raise
-            except Stopped as exc:
+            except (Stopped, SkillFailure) as exc:
                 ctx.log("drive.stopped", {"reason": str(exc), "failures": failures,
                                           "repairs": repairs})
                 self.port.hold(ctx)
@@ -423,17 +454,23 @@ class Navigator:
                   "execution_radius_m": geometry["execution_radius_m"]}
 
         def admitted(heading, turning=False):
+            if ctx.deadline.expired():
+                raise ActionRefused("recovery continuation deadline reached", code="TIMEOUT")
             guard = self.port.motion_refusal
             if not callable(guard):
                 return True
             vx, vy = ((0., 0.) if turning else
-                      (.15 * math.cos(heading-yaw), .15 * math.sin(heading-yaw)))
-            refused = guard(vx, vy)
+                      gait.planar_above_deadband(.15 * math.cos(heading-yaw),
+                                                .15 * math.sin(heading-yaw)))
+            bearing = math.atan2(math.sin(heading-yaw), math.cos(heading-yaw))
+            refused = guard(vx, vy, drive._turn_rate(bearing) if turning else 0.)
             if isinstance(refused, TaskScopeRefused):
                 raise ActionRefused(str(refused), code=refused.code,
                                     details=refused.details) from refused
             if isinstance(refused, ObservationUnavailable):
                 raise ActionRefused(str(refused), code="OBSERVATIONS_UNAVAILABLE")
+            if ctx.deadline.expired():
+                raise ActionRefused("recovery continuation deadline reached", code="TIMEOUT")
             return refused is None
 
         prepared = None
@@ -483,10 +520,10 @@ class Navigator:
             heading = math.atan2(target[1]-y, target[0]-x)
             bearing = abs(math.atan2(math.sin(heading-yaw), math.cos(heading-yaw)))
             tolerance = (drive.MIN_WALK_GAP_M if prepared["route"].clearance_margin_m
-                         else current().drive.waypoint_tol_m)
+                         else current_settings().drive.waypoint_tol_m)
             align = (drive._align_gate(math.dist(start, target), tolerance)
                      if len(path) > 2 else drive.LEG_ALIGN_RAD)
-            close_step = len(path) <= 2 and math.dist(start, target) <= current().drive.close_step_m
+            close_step = len(path) <= 2 and math.dist(start, target) <= current_settings().drive.close_step_m
             at_goal = math.dist(start, goal_xy) <= prepared["tolerance_m"]
             if not at_goal and not _grid_segment_free(checker, start, target):
                 result["departure_verdict"] = "first_connector_blocked"
@@ -513,6 +550,13 @@ class Navigator:
         self.port.stationary_guard(generation)
         if ctx.deadline.expired():
             raise ActionRefused("recovery continuation deadline reached", code="TIMEOUT")
+        if result["outcome"] != "no_usable_departure":
+            for record in self.state._escape_attempts:
+                if (record["suppressed"]
+                        and (record.get("check") or {}).get("failed_stage") == "sweep"):
+                    record["suppressed"] = False
+                    ctx.log("recovery.memory", {"reason": "verified_held_departure",
+                            "pose": result["pose"], "check": record["check"]})
         ctx.log("recovery.continuation", result)
         return result if result["outcome"] != "no_usable_departure" else None
 
@@ -522,6 +566,7 @@ class Navigator:
         request = {} if requested_radius_m is None else {"requested_radius_m": requested_radius_m}
         epoch = self.port.epoch()
         continuation_pending = False
+        observation_failures = 0
         while True:
             self.port.guard(epoch)
             if ctx.deadline.expired():
@@ -538,6 +583,11 @@ class Navigator:
                 if exc.code != "OBSERVATIONS_UNAVAILABLE":
                     raise
                 self.port.hold(ctx)
+                observation_failures += 1
+                if observation_failures > RECOVERY_OBSERVATION_RETRIES:
+                    raise ActionRefused("recovery observations repeatedly unavailable; holding",
+                                        code="OBSERVATIONS_UNAVAILABLE",
+                                        details={"failures": observation_failures}) from exc
                 self.port.fresh(ctx, epoch, require_map=True)
                 continuation_pending = True
                 continue
@@ -558,20 +608,27 @@ class Navigator:
         candidates, grid_cache = [], {}
         history = self._escape_history(ctx, epoch, (x, y), art, obstacles, version,
                                        grids=grid_cache)
+        for record in history:
+            if (record["suppressed"]
+                    and (record.get("check") or {}).get("failed_stage") == "sweep"):
+                raise ActionRefused(
+                    "previous measured recovery sweep remains blocked; holding",
+                    code="RETREAT_UNAVAILABLE", details={"recovery_check": record["check"]})
 
         execution_radius = self.capabilities.execution_radius_m
         grids = grid_cache.setdefault((radius_m, execution_radius), {})
         initial = _retreat_corridor(art, obstacles, (x, y), yaw, 0., radius_m,
                                    grids=grids, execution_radius_m=execution_radius)
+        v, u = np.nonzero(art.occupancy)
+        blocked_xy = px_to_world(art.T_map_px, np.column_stack((u, v)))
+        tree = cKDTree(blocked_xy) if len(v) else None
         for offset in (math.pi, 0., math.pi / 2, -math.pi / 2,
                        math.pi / 4, -math.pi / 4, 3 * math.pi / 4, -3 * math.pi / 4):
             heading = yaw + offset
             failures = [r for r in history if r["suppressed"] and abs(math.atan2(
                 math.sin(heading-r["heading"]), math.cos(heading-r["heading"])))
                 < RECOVERY_MEMORY_HEADING_RAD]
-            # skip a heading refused other than by a sweep, or whose one sweep retry is used
-            if any((r.get("check") or {}).get("failed_stage") != "sweep"
-                   or r.get("sweep_retry_used", False) for r in failures):
+            if failures:
                 continue
             for distance in (1., .7, .4, .2):
                 self.port.guard(epoch)
@@ -586,7 +643,7 @@ class Navigator:
                 if any(math.dist(end, r["origin"]) < RECOVERY_MEMORY_DISTANCE_M
                        for r in history):
                     continue  # no return to a recent origin
-                clearance = grids["tree"].query(end)[0] if grids["tree"] is not None else 2.
+                clearance = tree.query(end)[0] if tree is not None else 2.
                 gain = 0. if goal_xy is None else math.dist((x, y), goal_xy)-math.dist(end, goal_xy)
                 score = min(float(clearance), 1.2) + .2 * gain - .1 * abs(math.sin(offset))
                 candidates.append((score, distance, heading, end))
@@ -621,20 +678,8 @@ class Navigator:
                 continue
             attempted.add(direction)
             self.port.fresh(ctx, epoch, require_map=True)
-            matching = [r for r in history if abs(math.atan2(
-                math.sin(heading-r["heading"]), math.cos(heading-r["heading"])))
-                < RECOVERY_MEMORY_HEADING_RAD]
-            retry = any(r["suppressed"] for r in matching)
-            used = retry or any(r.get("sweep_retry_used", False) for r in matching)
-            if retry:
-                for prior in matching:
-                    prior["sweep_retry_used"] = True
-                ctx.log("recovery.memory", {"reason": "current_corridor_sweep_retry",
-                        "episode_origin": self.state._escape_episode_origin,
-                        "pose": [x, y], "heading": heading, "map_version": version,
-                        "distance_m": distance, "sweep_retry_used": True})
             record = {"epoch": epoch, "origin": (x, y), "heading": heading,
-                      "suppressed": False, "sweep_retry_used": used}
+                      "suppressed": False}
             history.append(record)
             del history[:-RECOVERY_MEMORY_LIMIT]
             mode = "padding escape" if initial["margin_escape"] else "staging move"
@@ -645,29 +690,30 @@ class Navigator:
             except ActionRefused as exc:
                 ctx.log("recovery.candidate_refused", {"heading": heading, "reason": str(exc),
                         "code": exc.code, "details": exc.details})
-                if exc.code.startswith("TASK_"):
+                if (exc.code.startswith("TASK_")
+                        or exc.details.get("recovery_check", {}).get("failed_stage") == "sweep"):
                     raise
                 if exc.code == "OBSERVATIONS_UNAVAILABLE":
-                    self.port.fresh(ctx, epoch, require_map=True)
+                    raise  # The outer loop owns the bounded held observation retry.
                 # the measured pose after the refusal
                 current = ctx.observe("base_pose")
                 self.port.guard(epoch)
-                if exc.code != "OBSERVATIONS_UNAVAILABLE":
-                    if getattr(self.state, "_escape_episode_origin", None) is None:
-                        self.state._escape_episode_origin = tuple(current[:2])
-                    record.update(suppressed=True, failure_code=exc.code,
-                                  settled_pose=list(current),
-                                  check=exc.details.get("recovery_check"))
-                    ctx.log("recovery.memory", {"reason": "maneuver_refused",
-                            "episode_origin": self.state._escape_episode_origin,
-                            "origin": record["origin"], "heading": heading,
-                            "pose": list(current), "code": exc.code,
-                            "check": record["check"]})
+                if getattr(self.state, "_escape_episode_origin", None) is None:
+                    self.state._escape_episode_origin = tuple(current[:2])
+                record.update(suppressed=True, failure_code=exc.code,
+                              settled_pose=list(current),
+                              check=exc.details.get("recovery_check"))
+                ctx.log("recovery.memory", {"reason": "maneuver_refused",
+                        "episode_origin": self.state._escape_episode_origin,
+                        "origin": record["origin"], "heading": heading,
+                        "pose": list(current), "code": exc.code,
+                        "check": record["check"]})
                 if math.dist(current[:2], (x, y)) > 1e-6:
                     continuation = self._recovery_departure(ctx, radius_m, goal_xy, **request)
                     if continuation is not None:
                         return {"kind": "checked_staging", "heading": heading,
                                 "maneuver_reason": str(exc), **continuation}
+                if math.dist(current[:2], (x, y)) > localizer.SWAY_M:
                     history.append({"epoch": epoch, "origin": tuple(current[:2]),
                                     "heading": heading, "suppressed": False})
                     del history[:-RECOVERY_MEMORY_LIMIT]
@@ -682,7 +728,7 @@ class Navigator:
                     return result | {"kind": "checked_staging", "heading": heading,
                                      "maneuver_outcome": result["outcome"], **continuation}
                 current = gait.pose(ctx)
-                if math.dist(current[:2], (x, y)) > 1e-6:
+                if math.dist(current[:2], (x, y)) > localizer.SWAY_M:
                     history.append({"epoch": epoch, "origin": tuple(current[:2]),
                                     "heading": heading, "suppressed": False})
                     del history[:-RECOVERY_MEMORY_LIMIT]
@@ -690,6 +736,28 @@ class Navigator:
         raise ActionRefused("no further checked maneuver restores a usable departure",
                             code="RECOVERY_UNAVAILABLE")
 
+
+    def record_measured_sweep_failure(self, ctx, epoch, check, code):
+        """Record a measured sweep failure once per check in the epoch's bounded escape history."""
+        if self.state._escape_history_epoch != epoch:
+            self.state._escape_attempts = []
+            self.state._escape_history_epoch = epoch
+        if not any(r["suppressed"] and r.get("check") == check
+                   for r in self.state._escape_attempts):
+            while len(self.state._escape_attempts) >= RECOVERY_MEMORY_LIMIT:
+                removable = next((i for i, record in enumerate(self.state._escape_attempts)
+                    if not (record["suppressed"]
+                            and (record.get("check") or {}).get("failed_stage") == "sweep")), None)
+                if removable is None:
+                    ctx.log("recovery.memory", {"reason": "witness_capacity_invariant",
+                                               "check": check})
+                    raise RuntimeError("Measured recovery witness capacity was not reserved")
+                del self.state._escape_attempts[removable]
+            self.state._escape_attempts.append({"epoch": epoch,
+                "origin": tuple(check["previous_xy"]), "heading": check["yaw"] + math.pi,
+                "suppressed": True, "failure_code": code, "check": check})
+            self.state._escape_episode_origin = tuple(check["previous_xy"])
+            ctx.log("recovery.memory", {"reason": "measured_sweep_failed", "check": check})
 
     def _escape_history(self, ctx, epoch, xy, art, obstacles, version, *, grids=None):
         """Retire refused attempts after material progress or once their refused check is clear."""
@@ -702,20 +770,24 @@ class Navigator:
         moved = anchor is not None and math.dist(xy, anchor) >= RECOVERY_MEMORY_DISTANCE_M
         grids = {} if grids is None else grids
         for record in history:
-            if moved:
-                record["sweep_retry_used"] = False
             if not record["suppressed"]:
                 continue
             self.port.guard(epoch)
             if ctx.deadline.expired():
                 raise ActionRefused("recovery action deadline reached", code="TIMEOUT")
-            reason = "material_displacement" if moved else None
             check = record.get("check")
-            if not moved and check is not None:
-                current = _retreat_corridor(art, obstacles, check["xy"], check["yaw"],
-                    check["remaining_m"], check["radius_m"], check["previous_xy"],
-                    grids=grids.setdefault((check["radius_m"], check["execution_radius_m"]), {}),
-                    execution_radius_m=check["execution_radius_m"])
+            measured_failure = (check or {}).get("failed_stage") == "sweep"
+            reason = "material_displacement" if moved and not measured_failure else None
+            if reason is None and check is not None:
+                cached = grids.setdefault((check["radius_m"], check["execution_radius_m"]), {})
+                if check.get("allow_egress") is False and measured_failure:
+                    _retreat_grids(art, obstacles, check["radius_m"], check["execution_radius_m"], cached)
+                    current = {"sweep": cached["motion"].check_motion(
+                        check["previous_xy"], check["xy"], allow_egress=False)}
+                else:
+                    current = _retreat_corridor(art, obstacles, check["xy"], check["yaw"],
+                        check["remaining_m"], check["radius_m"], check["previous_xy"],
+                        grids=cached, execution_radius_m=check["execution_radius_m"])
                 if current.get(check["failed_stage"], {}).get("safe", False):
                     reason = "refused_geometry_now_clear"
             if reason is not None:
@@ -750,24 +822,28 @@ class Navigator:
         try:
             x0, y0, yaw0 = gait.pose(ctx)
             heading = yaw0 + math.pi if travel_heading is None else travel_heading
+            if any(r["suppressed"] and (r.get("check") or {}).get("failed_stage") == "sweep"
+                   for r in self.state._escape_attempts):
+                art, obstacles, version = self.port.recovery_map()
+                history = self._escape_history(ctx, epoch, (x0, y0), art, obstacles, version)
+                for record in history:
+                    if (record["suppressed"]
+                            and (record.get("check") or {}).get("failed_stage") == "sweep"):
+                        raise ActionRefused(
+                            "previous measured recovery sweep remains blocked; holding",
+                            code="RETREAT_UNAVAILABLE", details={"recovery_check": record["check"]})
             hx, hy = math.cos(heading), math.sin(heading)
             previous_xy = (x0, y0)
             observer = getattr(ctx, "observe", None)
             generation = getattr(observer, "recovery_generation", 0)
             waits = ctx.gate.waits
-            ctx.log("recovery.request", {"pose": [x0, y0, yaw0], "distance_m": requested_distance,
-                                         "speed_mps": speed, "radius_m": radius_m,
-                                         "planning_radius_m": radius_m,
-                                         "motion": "recovery translation",
-                                         "execution_radius_m": execution_radius})
-            while True:
+
+            def checked_pose():
                 self.port.guard(epoch)
                 x, y, yaw = gait.pose(ctx)
                 if (ctx.gate.waits != waits
                         or getattr(observer, "recovery_generation", 0) != generation):
                     raise Stopped("checked retreat localization changed; holding for a fresh plan")
-                dx, dy = x - x0, y - y0
-                along = hx * dx + hy * dy
                 if self.port.stopped():
                     raise Stopped("checked retreat interrupted")
                 if ctx.deadline.expired():
@@ -776,9 +852,27 @@ class Navigator:
                 if abs(yaw_error) > math.radians(10):
                     raise ActionRefused("checked retreat exceeded its heading bound",
                                         code="RETREAT_UNAVAILABLE")
+                dx, dy = x - x0, y - y0
+                along = hx * dx + hy * dy
                 if along < -localizer.SWAY_M or along > distance + past:
                     raise ActionRefused("checked retreat exceeded its progress or time bound",
                                         code="RETREAT_UNAVAILABLE")
+                return x, y, yaw, dx, dy, along
+
+            ctx.log("recovery.request", {"pose": [x0, y0, yaw0], "distance_m": requested_distance,
+                                         "speed_mps": speed, "radius_m": radius_m,
+                                         "planning_radius_m": radius_m,
+                                         "motion": "recovery translation",
+                                         "execution_radius_m": execution_radius})
+            while True:
+                self.port.guard(epoch)
+                art, obstacles, map_version = self.port.recovery_map()
+                blocked = art.occupancy
+                if map_version is None or map_version != grid_version:
+                    grids, grid_version = {}, map_version
+                # Full-map construction must precede the execution pose acquisition.
+                _retreat_grids(art, obstacles, radius_m, execution_radius, grids)
+                x, y, yaw, dx, dy, along = checked_pose()
                 if ctx.now() - started > time_limit and not settled:
                     if along <= 0:
                         raise ActionRefused("checked recovery made no progress in time",
@@ -792,10 +886,6 @@ class Navigator:
                     raise ActionRefused(
                         "checked retreat did not retain its progress after stopping",
                         code="RETREAT_UNAVAILABLE")
-                art, obstacles, map_version = self.port.recovery_map()
-                blocked = art.occupancy
-                if map_version is None or map_version != grid_version:
-                    grids, grid_version = {}, map_version
                 if first_check:
                     # the longest clear distance, chosen once
                     candidates = []
@@ -850,6 +940,21 @@ class Navigator:
                     ctx.log("recovery.corridor", {**check, "pose": [x, y, yaw],
                                                  "travel_heading": heading,
                                                  "witness": witness})
+                if not check["error"]:
+                    # Selection/logging may take time. Reobserve, then check the actual sweep
+                    # with the already-built geometry.
+                    x, y, yaw, dx, dy, along = checked_pose()
+                    remaining = 0. if partial else max(0., distance - along)
+                    check = _retreat_corridor(art, obstacles, (x, y), heading-math.pi,
+                        remaining, radius_m, previous_xy, grids=grids,
+                        execution_radius_m=execution_radius)
+                    self.port.guard(epoch)
+                    if ctx.deadline.expired():
+                        raise ActionRefused("checked retreat action deadline reached", code="TIMEOUT")
+                    if settled and (along <= 0 if partial else along < distance):
+                        raise ActionRefused(
+                            "checked retreat did not retain its progress after stopping",
+                            code="RETREAT_UNAVAILABLE")
                 if check["error"]:
                     failed_stage = next(key for key in ("sweep", "corridor", "stopping")
                                         if key in check and not check[key]["safe"])
@@ -858,6 +963,8 @@ class Navigator:
                             "previous_xy": list(previous_xy), "remaining_m": remaining,
                             "radius_m": radius_m, "execution_radius_m": execution_radius,
                             "failed_stage": failed_stage}})
+                if ctx.now() - started > time_limit and not settled:
+                    continue
                 first_check = False
                 previous_xy = (x, y)
                 if along >= distance or partial:
@@ -883,6 +990,9 @@ class Navigator:
                     vx, vy = gait.planar_above_deadband(vx, vy)
                 gait.hold(ctx, 0.1, vx, vy, 0.0)
         except (Stopped, Refused, DriveFailure, HardwareUnavailable) as exc:
+            check = exc.details.get("recovery_check") if isinstance(exc, ActionRefused) else None
+            if check is not None and check["failed_stage"] == "sweep":
+                self.record_measured_sweep_failure(ctx, epoch, check, exc.code)
             ctx.log("recovery.refused", {"error": str(exc)})
             if isinstance(exc, ActionRefused):
                 raise
@@ -893,7 +1003,7 @@ class Navigator:
                 raise ActionRefused(str(exc), code="OBSERVATIONS_UNAVAILABLE") from exc
             if isinstance(cause, MotionBlocked):
                 raise ActionRefused(f"checked retreat refused: {exc}",
-                                    code="RETREAT_UNAVAILABLE") from exc
+                                    code="RETREAT_UNAVAILABLE", details=cause.details) from exc
             raise Stopped(f"checked retreat refused: {exc}") from exc
         finally:
             try:

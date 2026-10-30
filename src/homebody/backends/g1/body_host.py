@@ -1,4 +1,4 @@
-"""The body host: the one process that owns the G1's legs, a 250 Hz loop with the kernel, the
+"""The body host: the one process that owns the G1's legs, a 50 Hz loop with the kernel, the
 AMO policy on CPU, both arm gates and the remote. Clients send intent over UDP JSON
 (127.0.0.1:29400) and read state back; a lost client stands the robot, a stop damps it.
 
@@ -45,7 +45,7 @@ PIDFILE = Path("/tmp/homebody-body-host.pid")
 HOST_LEASE = Path("/tmp/homebody-g1-body-host.lock")
 LOGFILE = Path("/tmp/homebody-body-host.log")
 UNIT = "homebody-body-host"
-CONTROL_HZ = 250.0  # control loop rate
+CONTROL_HZ = 50.0  # host loop; AMO keeps its own 20 ms policy period
 AMO_PERIOD_S = 0.02
 LOOP_RESYNC_S = 0.05
 TWIST_DEADMAN_S = 0.2
@@ -54,17 +54,18 @@ LISTENER_RETENTION_S = 5.0  # a silent client still receives state this long
 STATE_RECOVERY_S = 3.0
 SIT_CONFIRM_S = 3.0
 START_MAX_TILT_DEG = 25.0
-AUTO_ARM_TICKS = 25  # changing states seen before the host arms itself
+AUTO_ARM_TICKS = round(0.1 * CONTROL_HZ)  # 100 ms of changing states before the host arms itself
 HALT_DAMP_S = 1.0
-LINK_STALE_TICKS = 25  # 100 ms of changing lowstate
+LINK_STALE_TICKS = round(0.1 * CONTROL_HZ)  # 100 ms of changing lowstate
 STATE_STALE_S = 0.5  # the client's view: a host silent this long is gone
-READ_FAILS_STOP = 50  # 200 ms of failed lowstate reads
+READ_FAILS_STOP = round(0.2 * CONTROL_HZ)  # 200 ms of failed lowstate reads
 MAX_DATAGRAMS_PER_TICK = 64
 STIFFNESS_LEVELS = (0.5, 1.2)
 RT_PRIORITY = 60
 CPU_THREADS = 2
 INTENT_KEYS = ("arms", "torso", "walk", "vel", "cmd")
 ENV_PREFIXES = ("PYTHON", "CYCLONE", "LD_LIBRARY", "UNITREE", "ROS_", "MUJOCO")
+COMPUTE_ENV = ("OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "OMP_NUM_THREADS", "OMP_WAIT_POLICY")
 EVENTS_KEPT = 32
 
 
@@ -899,7 +900,8 @@ def start(args) -> int:
     common = ["--unit", UNIT, "--collect", f"--working-directory={REPO}"]
     common += [f"--setenv=HOMEBODY_ROOT={REPO}"]
     common += ["-p", "StandardOutput=journal", "-p", "StandardError=journal"]
-    common += [f"--setenv={k}={v}" for k, v in os.environ.items() if k.startswith(ENV_PREFIXES)]
+    common += [f"--setenv={k}={v}" for k, v in os.environ.items()
+               if k.startswith(ENV_PREFIXES) or k in COMPUTE_ENV]
     base_env = ("PATH", "HOME", "USER")
     common += [f"--setenv={k}={os.environ[k]}" for k in base_env if os.environ.get(k)]
     use_sudo = args.use_sudo and (
@@ -913,7 +915,7 @@ def start(args) -> int:
         unit += ["-p", "ManagedOOMPreference=omit"]
         mode = "system unit: SCHED_FIFO, OOM-exempt, survives logout"
     elif args.no_systemd:
-        unit, mode = [], "setsid child (development only: dies with its session scope)"
+        unit, mode = [], "setsid child (unsupervised: dies with its session scope)"
     else:
         unit = ["systemd-run", "--user", *common]
         mode = (
@@ -998,6 +1000,16 @@ class BodyClient:
         fields["claim"], fields["hb"] = self.claim, time.time()
         with contextlib.suppress(OSError):
             self.sock.sendto(json.dumps(fields, separators=(",", ":")).encode(), self.addr)
+
+    def set_arms(self, arm14) -> None:
+        """Keep a validated arm reference alive through this client's existing heartbeat."""
+        values = np.asarray(arm14, dtype=float)
+        if values.shape != (14,) or not np.isfinite(values).all():
+            raise ValueError("Arm heartbeat requires fourteen finite joint angles")
+        self.require_fresh()
+        with self._lock:
+            self._arms = values.tolist()
+            self.send(arms=self._arms)
 
     def _heartbeat(self) -> None:
         while not self.closed.is_set():

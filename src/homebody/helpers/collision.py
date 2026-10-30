@@ -173,7 +173,7 @@ class Clearance:
     scene and, when loaded, its held object's last observed bounds. The torso is not checked."""
 
     def __init__(self, frame, arms, side, settings, exclude_labels=(), carried=None, exempt_start=False,
-                 fingers=None):
+                 fingers=None, other_arm_boxes=None):
         self.settings = settings
         self.initial_joints = frame.arm_joints(side)
         self.arm = arms[side]
@@ -181,7 +181,8 @@ class Clearance:
         self.geometry = self.arm.collision
         self.fingers = frame.hands[side].joints if fingers is None else fingers
         other = "left" if side == "right" else "right"
-        self.other = _arm_boxes(arms[other], frame, other)
+        self.other = (_arm_boxes(arms[other], frame, other) if other_arm_boxes is None
+                      else other_arm_boxes)
         own = _arm_boxes(self.arm, frame, side)
         self.observed_points = _sensed_points(frame, exclude_labels)
         self.points = self.observed_points[first_per_voxel(self.observed_points, settings.voxel_size)]

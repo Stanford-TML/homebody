@@ -28,7 +28,7 @@
 |---|---|---|---|
 | October 5, 2026 | **SIM** | Simulation environment with navigation and pick-and-place. | Released |
 | October 16, 2026 | **REAL2SIM** | Exploration and scene-reconstruction pipeline. | Released |
-| October 23, 2026 | **REAL** | Real-world deployment code and setup instructions. | Planned |
+| October 26, 2026 | **REAL** | Real-world deployment code and setup instructions. | Released |
 
 ## Installation
 
@@ -83,6 +83,16 @@ bash hardware/g1/install.sh          # or: --robot unitree@192.168.123.164 --pas
 
 The [exploration guide](guides/exploration.md) and the [phone guide](guides/phone-camera.md)
 have the details.
+
+**For REAL**, also install the `real` extra and download the tracking weights, which are not in the
+repository (run from the checkout root):
+```bash
+pip install -e '.[real]'
+mkdir -p .cache/models
+curl -fL -o .cache/models/sam2.1_hiera_tiny.pt https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt
+echo "7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69  .cache/models/sam2.1_hiera_tiny.pt" | sha256sum -c -
+```
+The head camera's depth engine is built for your GPU as the [head RGB-D guide](guides/head-rgbd.md) describes.
 
 ## Usage
 
@@ -180,12 +190,40 @@ The coding agent reconstructs the scene from the capture on its own, following t
 describes the scene package it delivers. Settings are the `[group]` tables in `configs/exploration.toml`,
 overridden by `--settings my.toml`.
 
-\*This release is an initial version of REAL2SIM, built on the vanilla open-source SuperOdometry; the real-world
-rollouts use the full version with Amazon FAR's SuperOdometry.
+\*Our REAL2SIM results use an internal SuperOdometry version with a better localization stack. This release ships
+the vanilla open-source SuperOdometry, so REAL2SIM results can vary significantly; we will push updates that improve it.
 
 ### 🚀 REAL
 
-Coming soon!
+The HomeBody agent runs the same skills (navigate, pick, place, and the `remember`/`recall` photo
+memory) on a physical Unitree G1 with its Dex3 hands and head D435i camera, through the same console as SIM.
+
+**Start the body host**, with the robot supported:
+```bash
+homebody real2sim explore setup --iface enp3s0   # your robot Ethernet interface
+```
+
+**Stand the robot.** On the G1 remote, press **Y** to initialize the pose and, after the ramp, **A** for
+standing mode, where the walking policy balances the robot.
+
+**Run a task.** Check the local files and start the console, then open http://127.0.0.1:8080, type a task and
+press **Start task**; **Pause**, **STOP task** and **End session** leave the robot standing:
+```bash
+homebody check --backend real --real-config configs/real.local.json   # local files only; starts nothing
+homebody run --backend real --real-config configs/real.local.json --memory kitchen
+```
+
+**Stop.** The legs keep running after a task, **STOP task** or **End session**, so the robot stays balanced.
+Support the robot, press **B** (or **L1+R1**) to stop the policy and damp every joint, and only then
+disconnect the Ethernet.
+
+The [REAL guide](guides/real-long-horizon.md) covers setup, calibration, `configs/real.local.json` and
+the supervised qualification steps.
+
+\*Our REAL long-horizon results and demos use an internal SuperOdometry version with a better localization
+stack. This preliminary release ships the vanilla open-source SuperOdometry, so REAL results can vary
+significantly; we will push updates that improve it. Run REAL only supervised, with the robot supported and
+the remote in hand.
 
 ## Contributing
 
@@ -196,7 +234,9 @@ grow, and every pull request and bug report helps.
 <summary>How do I add a skill?</summary>
 
 Write one module in `src/homebody/skills/`, for example `push.py`, and add its name to
-`SKILLS` in `skills/registry.py`. The module declares
+`SKILLS` in `skills/registry.py`. The SIM registry and the REAL task registry both come from
+this list; the REAL composition adds checked navigation, strict one-object manipulation and
+memory. The module declares
 
 - `PROMPT`, one line starting with `push: ` that tells the model what the skill does and
   what arguments it takes
@@ -206,7 +246,7 @@ Write one module in `src/homebody/skills/`, for example `push.py`, and add its n
 - `execute(plan, ctx)`, which runs the plan and returns a `Result` (and `abort`, if it must
   undo something)
 
-`navigate.py`, `pick.py` and `place.py` are full examples, and `tests/test_custom_skill.py`
+`navigate_sim.py`, `pick.py` and `place.py` are full examples, and `tests/test_custom_skill.py`
 builds a new skill, `wave`, from scratch and runs it. A skill with tunable numbers also adds a
 settings group in `session/config.py` and `session/settings.py`. A SIM skill talks to the robot
 only through `Robot`, so it runs unchanged on a real backend, and its prompt line describes the
@@ -246,8 +286,8 @@ it does not certify a new scene's geometry or physics.
 
 Implement the `Robot` protocol in `src/homebody/primitives/robot.py`, nine members covering
 time, camera frames, measurements and commands to the base, arms and hands.
-`backends/mujoco.py` is the full simulator version; `backends/real.py` is an empty
-placeholder. The G1 exploration driver lives in `backends/g1/`. A hardware backend also needs
+`backends/mujoco.py` implements the simulator; `backends/real.py` composes calibrated
+observations and G1 commands for REAL tasks. The G1 driver lives in `backends/g1/`. A hardware backend also needs
 capture timestamps, a deadman that stops the base, an operator stop and calibration
 ([CLAUDE.md](CLAUDE.md) has the list).
 </details>
@@ -266,7 +306,7 @@ you can, the replay video from `tools/compose_cockpit.py`.
 | Path | What it is |
 |---|---|
 | `src/homebody/session/` | The decision loop, settings and recording, for SIM and for exploration |
-| `src/homebody/skills/` | The SIM skills (`navigate`, `pick`, `place`) and the skills exploration runs on the G1 |
+| `src/homebody/skills/` | The task skills (`navigate`, `pick`, `place`; navigation in `navigate_sim.py` for SIM and `navigate_real/` for REAL2SIM and REAL) and the skills exploration runs on the G1 |
 | `src/homebody/primitives/` | The `Robot` interface, observation records and the live sensor and navigation primitives |
 | `src/homebody/vlm/` | The model providers and the prompt |
 | `src/homebody/backends/` | The MuJoCo robot and the G1 driver |

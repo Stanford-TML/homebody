@@ -9,6 +9,7 @@ from scipy.spatial import cKDTree
 from homebody.helpers.collision import HAND_END_LINKS, Clearance
 from homebody.helpers.geometry import inverse, points_in, rotation_error, wrap
 from homebody.helpers.grasp import Shape, candidates, visible_shape
+from homebody.helpers.navigation import body_frame
 from homebody.helpers.target import TargetTrack, arm_occlusion_evidence
 from homebody.helpers.trajectory import approach_path
 from homebody.motion.arm import close_or_open, move_path, reset_arm, servo
@@ -21,20 +22,26 @@ from homebody.motion.carry import (
     recover,
     recovery_result,
 )
-from homebody.primitives.observations import Frame, FreshEvidence
+from homebody.primitives.actions import ActionRejected
+from homebody.primitives.observations import Frame, FreshEvidence, ObservationError, frozen_array
 
-from . import navigate
-from .contract import Result, SkillFailure, click_argument, side_argument
+from . import navigate_sim
+from .contract import Result, SkillFailure, click_argument, refusal_code, side_argument
 
 NEEDS = ("base_velocity", "arm_target", "grip", "advance", "stop")
 
-FAILURES = ("HAND_OCCUPIED", "CALIBRATION_MISSING", "NO_GRASP", "UNREACHABLE",
-            "TARGET_MOVED", "ARM_NOT_REACHED", "LIFT_NOT_VERIFIED") + RECOVERY_FAILURES + navigate.FAILURES
+GRASP_FAILURES = ("HAND_OCCUPIED", "CALIBRATION_MISSING", "NO_GRASP", "UNREACHABLE",
+                  "TARGET_MOVED", "ARM_NOT_REACHED", "LIFT_NOT_VERIFIED") + RECOVERY_FAILURES
+PROMPT_FAILURES = GRASP_FAILURES + navigate_sim.FAILURES
+FAILURES = PROMPT_FAILURES + ("FOOTPRINT_UNAVAILABLE",)
 PROMPT = ('pick: point_normalized_1000 [x, y], a pixel in the middle of the object\'s body in image 1; '
           'hand "right" (default) or "left". Walks to a grasp stance when needed, grasps the object and '
           'lifts it into a carry pose in front of the body; OK means it is held. A held object keeps the '
           'robot farther from furniture. With both hands loaded the robot may be unable to turn or back '
           'out, and a held object can be dragged out of the hand.')
+REAL_PROMPT = PROMPT[:PROMPT.index('With both hands loaded')] + (
+    'Only one object may be carried at a time, in either hand. Place or hand over the current object '
+    'before selecting another; uncertain retention must be resolved before transport.')
 RETRIED_APPROACH_FAILURES = ("COLLISION", "TARGET_LOST")
 
 
@@ -56,12 +63,32 @@ class ApproachPlan:
     epoch: int
     side: str
     label: int
-    drive_plan: navigate.Plan
+    drive_plan: navigate_sim.Plan
+
+
+@dataclass(frozen=True)
+class DockPlan:
+    """One checked straight approach to the captured target before grasp planning."""
+    epoch: int
+    side: str
+    label: int
+    points: np.ndarray
+
+    def __post_init__(self):
+        object.__setattr__(self, "points", frozen_array(self.points))
 
 
 def prepare(arguments, selected, current, planning):
     """A recheck of a carried target, a walk-in to a grasp stance, or a grasp from here."""
     side = side_argument(arguments)
+    limit = planning.manipulation.max_carried_objects
+    if limit is not None and side not in planning.carried and len(planning.carried) >= limit:
+        raise SkillFailure("HAND_OCCUPIED", "Place or hand over the carried object before picking another")
+    if limit is not None and any(hand not in planning.carried and state.closure > .15
+                                 for hand, state in current.hands.items()):
+        raise SkillFailure("HOLD_UNCERTAIN", "A closed hand has no verified carry record; resolve it before a new pick")
+    if planning.target_selector is not None:
+        selected, current = planning.target_selector(selected, current, arguments.get("point_normalized_1000"))
     label, _ = click_argument(arguments, selected)
     if side in planning.carried:
         return RecoveryPlan(current.epoch, side, label,
@@ -76,8 +103,23 @@ def prepare(arguments, selected, current, planning):
 def execute(plan, ctx):
     if isinstance(plan, RecoveryPlan):
         return recheck(plan, ctx)
+    if isinstance(plan, DockPlan):
+        try:
+            plan = dock_in(plan, ctx)
+        except (SkillFailure, ObservationError, ActionRejected) as error:
+            code = (error.code if isinstance(error, SkillFailure) else
+                    "TARGET_LOST" if isinstance(error, ObservationError) else refusal_code(error))
+            return Result("pick", code, str(error),
+                          {**getattr(error, "details", {}), "pick_phase": "dock_in", "grasp_started": False})
     if isinstance(plan, ApproachPlan):
-        plan = walk_in(plan, ctx)
+        try:
+            plan = walk_in(plan, ctx)
+        except SkillFailure as error:
+            if not ctx.manipulation.target_or_refuse:
+                raise
+            # Navigation may fold empty arms; a failed walk-in has no grasp to unwind.
+            return Result("pick", error.code, str(error),
+                          {**error.details, "pick_phase": "walk_in", "grasp_started": False})
     return grasp(plan, ctx)
 
 
@@ -144,24 +186,104 @@ def approach_stance(side, label, current, planning):
     """An ApproachPlan to a square stance at grasp range, or None when already there."""
     if not planning.jaw_samples.get(side):
         return None
-    points = current.target_points(label)
-    shape = visible_shape(points, planning.settings.grasp.shape_quantiles)
-    centre = shape.center[:2]
-    ahead, left = navigate.body_frame(current.base_pose, centre - current.base_pose[:2])
+    centre, ahead, toward_hand, reach = grasp_offset(side, label, current, planning)
+    current_ahead = ahead
     bounds = planning.settings.grasp
-    toward_hand = -left if side == "right" else left
-    reach = grasp_distance(side, shape, current, planning)
-    if ahead <= 0 or (reach - bounds.approach_short <= ahead <= reach + bounds.approach_long and
-                      bounds.approach_across <= toward_hand <= bounds.approach_side):
+    if ahead <= 0 or in_grasp_range(ahead, toward_hand, reach, bounds):
         return None
     stance = {"goal_xy_m": current.base_pose[:2].tolist(), "facing_xy_m": centre.tolist(),
               "snap": True, "hand": side}
-    walk = navigate.prepare(stance, current, current, planning, reach=reach)
+    navigation = planning.navigation or navigate_sim
+    walk = navigation.prepare(stance, current, current, planning, reach=reach)
     ahead = (centre - walk.goal) @ np.array([np.cos(walk.yaw), np.sin(walk.yaw)])
     if ahead > reach + bounds.approach_long:
+        if (callable(getattr(navigation, "dock_floor_clear", None))
+                and callable(getattr(navigation, "dock", None))
+                and _dock_distance(current, planning, current_ahead, toward_hand, reach) is not None):
+            return DockPlan(current.epoch, side, label, current.target_points(label))
         raise SkillFailure("UNREACHABLE", f"The nearest clear stance leaves the object {ahead:.2f} m "
                                           f"ahead; the arm's grasp range is {reach:.2f} m")
     return ApproachPlan(current.epoch, side, label, walk)
+
+
+def _dock_distance(current, planning, ahead, toward_hand, reach):
+    """An empty-handed straight approach within the reach and docking bounds."""
+    grasp = planning.settings.grasp
+    if (planning.carried or any(hand.closure > .15 or hand.retained(grasp)
+                               for hand in current.hands.values())):
+        return None
+    distance = ahead - reach
+    if (np.isfinite([ahead, toward_hand, reach, distance]).all() and ahead > 0
+            and grasp.approach_across <= toward_hand <= grasp.approach_side
+            and 0 < distance <= planning.settings.motion.dock_distance):
+        return float(distance)
+    return None
+
+
+def dock_in(plan, ctx):
+    """Dock once under live component checks, then admit the same target from a fresh held view."""
+    ctx.check(plan.epoch)
+    grasp = ctx.settings.grasp
+    track = TargetTrack(plan.points, grasp.shape_quantiles, grasp.target_surface_tolerance,
+                        grasp.target_shift)
+
+    def supported(current):
+        points = current.target_points(plan.label) if current.visible(plan.label) else np.empty((0, 3))
+        match = track.update(points)
+        if match.mode == "moved":
+            raise SkillFailure("TARGET_MOVED", "Supported target geometry moved beyond the capture range")
+        if match.mode != "supported":
+            raise SkillFailure("TARGET_LOST", "Pre-grasp docking requires supported captured target geometry")
+
+    current = ctx.observe(plan.epoch)
+    supported(current)
+    planning = ctx.planning()
+    _, ahead, toward_hand, reach = grasp_offset(plan.side, plan.label, current, planning)
+    distance = _dock_distance(current, planning, ahead, toward_hand, reach)
+    if distance is None:
+        raise SkillFailure("UNREACHABLE", "Current ownership or target geometry no longer admits straight pre-grasp docking")
+    if not ctx.navigation.dock_floor_clear(ctx, current, distance, 0.):
+        raise SkillFailure("ACTION_REJECTED", "The floor footprint refuses pre-grasp docking")
+    ctx.stage("Docking toward the grasp stance")
+    _, refused = ctx.navigation.dock(ctx, plan.epoch, distance, 0.)
+    if refused is not None:
+        raise SkillFailure("ACTION_REJECTED", "Pre-grasp docking was refused", {"refused_command": refused})
+    ctx.check(plan.epoch)
+    ctx.actions.stop(plan.epoch)
+    held_at = ctx.observations.time
+    before = ctx.observe(plan.epoch)
+    ctx.advance(plan.epoch, ctx.settings.servo.perception_period)
+    current = ctx.observe(plan.epoch)
+    packets = FreshEvidence(plan.epoch)
+    packets.update(before, True)
+    if packets.update(current, True) is None or current.time <= held_at:
+        raise SkillFailure("STALE_OBSERVATION", "Pre-grasp docking requires a newer post-stop frame")
+    supported(current)
+    planning = ctx.planning()
+    _, ahead, toward_hand, reach = grasp_offset(plan.side, plan.label, current, planning)
+    if (planning.carried or any(hand.closure > .15 or hand.retained(grasp)
+                               for hand in current.hands.values())
+            or not in_grasp_range(ahead, toward_hand, reach, grasp)):
+        raise SkillFailure("UNREACHABLE", "The settled target or ownership is outside the original grasp conditions")
+    ctx.stage("Planning grasp from the docked stance")
+    result = plan_target(plan.side, plan.label, current, planning)
+    ctx.check(plan.epoch)
+    ctx.emit({"type": "skill_prepared", "skill": "pick", "plan": result, "docked_in": True})
+    return result
+
+
+def grasp_offset(side, label, current, planning):
+    """The object's visible centre, how far it sits ahead of the base and toward the hand, and
+    the hand's grasp distance."""
+    shape = visible_shape(current.target_points(label), planning.settings.grasp.shape_quantiles)
+    centre = shape.center[:2]
+    ahead, left = body_frame(current.base_pose, centre - current.base_pose[:2])
+    return centre, ahead, -left if side == "right" else left, grasp_distance(side, shape, current, planning)
+
+
+def in_grasp_range(ahead, toward_hand, reach, bounds):
+    return (reach - bounds.approach_short <= ahead <= reach + bounds.approach_long and
+            bounds.approach_across <= toward_hand <= bounds.approach_side)
 
 
 def grasp_distance(side, shape, current, planning):
@@ -183,13 +305,82 @@ def grasp_distance(side, shape, current, planning):
 def walk_in(plan, ctx):
     """Walk to the grasp stance, then plan the grasp from the new view."""
     ctx.stage("Walking to the grasp stance")
-    navigate.execute(plan.drive_plan, ctx)
+    navigation = ctx.navigation or navigate_sim
+    try:
+        result = navigation.execute(plan.drive_plan, ctx)
+        if ctx.navigation is not None and not result.ok:
+            raise SkillFailure(result.code, result.message, result.details)
+    except SkillFailure as error:
+        if (not ctx.manipulation.target_or_refuse or error.code != "ARRIVAL_NOT_VERIFIED" or
+                error.details.get("verification_phase") != "settled_pose" or
+                not callable(getattr(navigation, "check_held_footprint", None))):
+            raise
+        return _plan_after_arrival_refusal(plan, ctx, navigation, error)
     ctx.advance(plan.epoch)
     current = ctx.observe(plan.epoch)
+    if hasattr(navigation, "refine"):
+        current = close_into_range(plan, ctx, navigation, current)
     ctx.stage("Planning grasp from the new stance")
     result = plan_target(plan.side, plan.label, current, ctx.planning())
     ctx.emit({"type": "skill_prepared", "skill": "pick", "plan": result, "walked_in": True})
     return result
+
+
+def _plan_after_arrival_refusal(plan, ctx, navigation, failure):
+    """One held grasp preparation; the failed navigation remains unverified."""
+    evidence = {"code": failure.code, "message": str(failure), "details": failure.details}
+    ctx.emit({"type": "pick_arrival_unverified", "navigation_failure": evidence})
+    try:
+        ctx.check(plan.epoch)
+        ctx.actions.stop(plan.epoch)
+        held_at = ctx.observations.time
+        before = ctx.observe(plan.epoch)
+        ctx.advance(plan.epoch, ctx.settings.servo.perception_period)
+        current = ctx.observe(plan.epoch)
+        packets = FreshEvidence(plan.epoch)
+        packets.update(before, True)
+        if packets.update(current, True) is None or current.time <= held_at:
+            raise SkillFailure("STALE_OBSERVATION", "Grasp re-admission requires a newer post-stop frame")
+        navigation.check_held_footprint(plan.drive_plan, ctx, current)
+        if not current.visible(plan.label):
+            raise SkillFailure("TARGET_LOST", "The owned target is not visible from the held pose")
+        ctx.stage("Planning grasp from the held current view")
+        result = plan_target(plan.side, plan.label, current, ctx.planning())
+        ctx.check(plan.epoch)
+        latest = ctx.observe(plan.epoch)
+        admitted = navigation.check_held_footprint(plan.drive_plan, ctx, latest)
+        if not PickTarget(result, ctx).supported(latest):
+            raise SkillFailure("TARGET_LOST", "The latest view does not support the freshly planned target")
+        ctx.check(plan.epoch)
+    except SkillFailure as error:
+        raise SkillFailure(error.code, str(error),
+                           {**error.details, "navigation_failure": evidence}) from error
+    except (ObservationError, ActionRejected) as error:
+        code = "STALE_OBSERVATION" if isinstance(error, ObservationError) else refusal_code(error)
+        raise SkillFailure(code, str(error), {"navigation_failure": evidence}) from error
+    ctx.emit({"type": "skill_prepared", "skill": "pick", "plan": result,
+              "navigation_arrived": False, "navigation_failure": evidence,
+              "frame_id": latest.frame_id, "held_footprint": admitted})
+    return result
+
+
+def close_into_range(plan, ctx, navigation, current):
+    """For a navigation that verifies arrival more loosely than the grasp band: up to close_rounds
+    tighter closes onto the walk-in stance, each judged from a new view of the object."""
+    for _ in range(ctx.settings.motion.close_rounds):
+        if not current.visible(plan.label):
+            break
+        _, ahead, toward_hand, reach = grasp_offset(plan.side, plan.label, current, ctx.planning())
+        inside = in_grasp_range(ahead, toward_hand, reach, ctx.settings.grasp)
+        ctx.emit({"type": "grasp_range", "ahead_m": ahead, "toward_hand_m": toward_hand,
+                  "reach_m": reach, "inside": inside})
+        if inside:
+            break
+        ctx.stage("Closing onto the grasp stance")
+        navigation.refine(plan.drive_plan, ctx)
+        ctx.advance(plan.epoch)
+        current = ctx.observe(plan.epoch)
+    return current
 
 
 def plan_target(side, label, current, planning):

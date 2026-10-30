@@ -1,7 +1,8 @@
 # Architecture
 
-SIM and REAL2SIM share one skill contract, one Runner and the model providers in `vlm/`. Everything else is separate,
-so neither release changes the other or inherits its retry, step-limit or recording policy.
+SIM and REAL2SIM share the skill contract, Runner, model providers and common geometry.
+Their task loops have separate retry, step-limit and recording policies. REAL task
+composition uses the shared Session with the capabilities described below.
 
 | | SIM | REAL2SIM |
 |---|---|---|
@@ -23,11 +24,36 @@ A skill module in `src/homebody/skills/` declares `PROMPT`, `NEEDS`, `FAILURES`,
 region geometry lives in `helpers/`): SIM skills reach `Robot`, exploration skills only their declared live actions
 (`SURFACE = LiveActions`) and the explorer's `LiveWorld` in `skills/live.py`.
 
+## REAL task composition
+
+`homebody run --backend real --real-config ... --memory ...` selects `session/real.py`: Session and Runner on
+`RealG1Backend` with checked navigation, strict one-object manipulation and the `remember` and `recall` skills, where
+the SIM launcher uses `skills/navigate_sim.py` and permissive manipulation. `session/real_sim.py`, used by the
+REAL-policy tests, runs the REAL task policy on MuJoCo; both compose through `session/task.py` (calibration loading,
+map-bound memory, persistent Session assembly), with backend adapters for map binding, navigation evidence, target
+selection and readiness. `tools/check_manipulation.py --real-policy` runs the scripted sequence with REAL navigation and
+manipulation, without Session or memory.
+
+Adding a task skill to `SKILLS` (`skills/registry.py`) makes it available in both; `task_registry` binds REAL navigation
+(`skills/navigate_real/task.py`) and adds memory skills when the composition requests them, and the session's
+manipulation policy selects each skill's prompt and refusal list. REAL2SIM keeps its independent `LIVE_SKILLS`.
+
+Skills never import the concrete REAL pieces: `primitives/localization/mapped.py` (registered SuperOdom evidence on an
+explicit deployment map), `primitives/cameras/rgbd.py` (calibrated RGB-D with capture-time state), `tracking.py`
+(measured visual target identities) and `backends/g1/task_motion.py` (bounded commands through the body host and guarded
+Dex3 transport). The Session owns provider requests, historical-image attachments, task recording and the STOP/Pause/End
+lifecycle; memory storage owns map binding, persistence and removal. The REAL scene view consumes frozen frames and
+cannot query hardware.
+
 ## Checked navigation and sensors
 
-Checked navigation (`skills/navigate_real/`, separate from the SIM `navigate` skill) walks exploration routes:
+Checked navigation (`skills/navigate_real/`) walks REAL task routes and exploration routes:
 `controller.py` prepares and follows them; `navigation.py` rechecks them, recovers a blocked departure, settles,
 verifies arrival and checks facing, consuming primitives, never a backend (tunables: the `drive` and `gait` groups).
+`skills/navigate_real/task.py`, the REAL navigate skill, binds task Robot observations and
+commands to this controller; SIM tasks use `skills/navigate_sim.py`, and
+neither navigator imports the other. REAL supplies registered localization and LiDAR obstacles; MuJoCo supplies
+measured pose, rendered depth and rendered segmentation labels for the REAL policy.
 `pick_point` resolves the requested map coordinates and checks the current permission; a rejected destination stays
 rejected even when recovery restores a usable departure. Primitives own acquisition and bounded motion:
 

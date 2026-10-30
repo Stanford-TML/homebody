@@ -1,7 +1,8 @@
-"""The phone colour stream subscriber: one JPEG per frame, newest wins.
+"""Colour stream subscriber (HSCOLOR1): one JPEG per frame, newest wins.
 
 Each message is one zmq part (``b"HSCOLOR1" | uint32 LE header length | header JSON | JPEG``);
-the header carries the sequence, capture time, timestamp kind and camera name.
+the header carries the sequence, capture time, timestamp kind and camera name, and for the head
+camera its geometry (K_ir, baseline, colour intrinsics, IR1->colour extrinsic).
 """
 from __future__ import annotations
 
@@ -21,6 +22,9 @@ class ColorFrame:
     image: np.ndarray
     captured_at: float
     generation: int
+    capture_timestamp_basis: str | None = None
+    camera_serial: str | None = None
+    sdk_receive_realtime_ns: int | None = None
 
 
 MAGIC = b"HSCOLOR1"
@@ -60,7 +64,10 @@ def decode(message: ColorMessage) -> ColorFrame:
         raise ColorStreamError("HSCOLOR1 JPEG did not decode")
     header = message.header
     return ColorFrame(image=image, captured_at=float(header["capture_realtime_ns"]) / 1e9,
-                      generation=int(header["sequence"]))
+                      generation=int(header["sequence"]),
+                      capture_timestamp_basis=header.get("capture_timestamp_basis"),
+                      camera_serial=header.get("camera_serial"),
+                      sdk_receive_realtime_ns=header.get("sdk_receive_realtime_ns"))
 
 
 class LatestColorClient:
@@ -78,6 +85,7 @@ class LatestColorClient:
         self._poller = zmq.Poller()
         self._poller.register(self._socket, zmq.POLLIN)
         self._lock = threading.Lock()
+        self.geometry: dict | None = None
         self.last_error: str = ""
         self.received = 0
 
@@ -95,6 +103,7 @@ class LatestColorClient:
         except (ColorStreamError, KeyError, ValueError) as exc:
             self.last_error = str(exc)
             return None
+        self.geometry = dict(message.header.get("geometry") or {})
         self.received += 1
         return frame
 

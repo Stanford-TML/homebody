@@ -69,6 +69,11 @@ def describe(frame, topdown_settings=None) -> dict:
         "images": ["current head RGB", "current metric depth preview: white=near, black=invalid",
                    "static occupancy: dark=obstacle, light=free, blue=robot and heading"],
     }
+    for side, hand in frame.hands.items():
+        if not getattr(hand, "effort_available", True):
+            result["hands"][side]["finger_effort_fraction"] = None
+            result["hands"][side]["contact_state"] = hand.contact_state
+            result["hands"][side]["contact_source"] = "dex3_position_contact"
     if topdown_settings is not None:
         result["topdown"] = metadata(topdown_settings)
         result["topdown"]["world_from_torso"] = frame.world_torso.tolist()

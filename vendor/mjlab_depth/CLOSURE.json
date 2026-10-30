@@ -1,0 +1,75 @@
+{
+ "source": "https://github.com/JummerCloth/mjlab_holosoma",
+ "revision": "c8ef6a2f0ca7ce04a1c3d39f23e88e35edaf97be",
+ "license": "Apache-2.0",
+ "what": "the G1 depth node's workstation half (Fast-FoundationStereo TensorRT server, relay, HMDPTH01 client) and the robot capture package, byte-for-byte except the files under modified, each of which carries a HomeBody modification notice; run as subprocesses with PYTHONPATH=vendor/mjlab_depth; homebody never imports the package in-process (its top-level name clashes with vendor/holosoma_inference) and loads only the stdlib-only fast_stereo/calibration.py by file path",
+ "files": {
+  "holosoma_inference/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "holosoma_inference/run_depth_vision.py": "a3ad556b63514a97893fff9c153d25777ee3c24110b52ff17b6fc9106e53b12b",
+  "holosoma_inference/fast_stereo/__init__.py": "00095100f483ac6a50ec5bdf853456ba81d9f616023cdbf6a17de81bf1ed3fbf",
+  "holosoma_inference/fast_stereo/calibration.py": "0e312511fd212e93bab230294af3fa891c13ff3e9d7732e591e240c660a60e75",
+  "holosoma_inference/fast_stereo/capture_core.py": "46b66b10fe682a0e9b51ecfb9e2ac8be8ee0fb0cdf26770410c685b122987ab7",
+  "holosoma_inference/fast_stereo/g1_capture.py": "40b11142b075bb96da83fdeec680e051ba8ebae34df6f7a1e2d6f7c8ad421aff",
+  "holosoma_inference/fast_stereo/native_depth_recorder.py": "2f2a8f8929c2e6b31a029c2f3b6a6940f973685431e703ea1c619aae90231d6f",
+  "holosoma_inference/fast_stereo/pair_protocol.py": "1b25b0d28ba11cdd98433bb056e8d937aea9412b655663e10cf07958ff3ea88a",
+  "holosoma_inference/fast_stereo/pair_recorder.py": "4f12e3e027e292e6b2dd77b7dd6364b5ea029b8eb800628d11947c5cb1c6c8f0",
+  "holosoma_inference/fast_stereo/publisher.py": "758bbd94f91a9f31552d26afb2dcf1b03af35451cf798879cf66c51bb601f192",
+  "holosoma_inference/runtime/__init__.py": "4c75d725ba61413370cc57cfc0df7ed07c17fe468e14fd3d5d629ac50336b1c1",
+  "holosoma_inference/runtime/ffs_stream_server.py": "924107e574b0c3601d21393f012d132d2f77a622dc8b6c0067c6154dee295652",
+  "holosoma_inference/runtime/trt_ffs_runner.py": "04bda9ecbee42e398bea1c1ce361e5e514911fffcc5490d2b1c3059377a78b12",
+  "holosoma_inference/runtime/depth_vision_relay.py": "f0545033669122be6dbe1fe5a7a6a5b4b1c23beb5e25eb7fe2ee295e05b4b9f0",
+  "holosoma_inference/runtime/metric_depth.py": "bd80a9995c58cc28edce52e1f46ffa089b01ff2dba2485b0e2ab1071756deec8",
+  "build_ffs_engine.py": "bb7836382f6fd12b1f501ddb6e01a31c3528fc99a653e16f933fed4fa356413f",
+  "LICENSE": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b"
+ },
+ "modified": {
+  "holosoma_inference/run_depth_vision.py": {
+   "upstream_sha256": "565bdc9d40b1eba358053495386739389c4e7967c6fda25dcc50adf71c54f375",
+   "differs": "Module docstring wording."
+  },
+  "holosoma_inference/fast_stereo/capture_core.py": {
+   "upstream_sha256": "54a1cb1c793e89d1b8436af19bffb1b944fc33748e33d7bb75713bec6a20a339",
+   "differs": "Optional jpeg_quality: each Y8 image is sent JPEG-encoded as PIXEL_FORMAT_JPEG with its encoded payload size; raw Y8 remains the default."
+  },
+  "holosoma_inference/fast_stereo/g1_capture.py": {
+   "upstream_sha256": "7ef389e92ca1b7312580698cd440c593ef2db7d8315f8a602a5c04d777e73032",
+   "differs": "--jpeg-quality option, passed to the capture core. Docstring, comment and help wording."
+  },
+  "holosoma_inference/fast_stereo/pair_protocol.py": {
+   "upstream_sha256": "2aee3615bfac79833062a1e8d86d81f3eb892134c8fe1c0cfeb65eaae207b2c5",
+   "differs": "PIXEL_FORMAT_JPEG = 2, accepted when each payload is no larger than the raw image. Docstring, comment and help wording."
+  },
+  "holosoma_inference/runtime/__init__.py": {
+   "upstream_sha256": "c4dc4f79ad63af50e5fabcba4d5aa4e1fc061ff0bb91520161a641bb851f25a0",
+   "differs": "Module docstring only; no lazy exports of modules outside this closure."
+  },
+  "holosoma_inference/runtime/ffs_stream_server.py": {
+   "upstream_sha256": "cbe9f9c23dcf8538c7b43de082b16091d41ec8dae497a65686a408480f44633a",
+   "differs": "Decodes PIXEL_FORMAT_JPEG pairs as well as raw Y8; docstrings describe only depth capture and serving. Docstring, comment and help wording."
+  },
+  "holosoma_inference/runtime/trt_ffs_runner.py": {
+   "upstream_sha256": "94e85799a1353524144272b3b0d29867de4705e3e649d870f72a017a2897027b",
+   "differs": "Module docstring wording; the engine rebuild error names vendor/mjlab_depth/build_ffs_engine.py."
+  },
+  "holosoma_inference/runtime/metric_depth.py": {
+   "upstream_sha256": "e1cf1bc3758d29875f8764be597c9eb79a2f1382b8acbdac3bf7a6404ae962a2",
+   "differs": "Docstrings describe only the relay and the HMDPTH01 wire contract. The age_ms alias is removed."
+  },
+  "build_ffs_engine.py": {
+   "upstream_sha256": "3b14cea555e094d444ed319af071da151131d8ed8e7308c9a2cc466cefe518ea",
+   "differs": "Docstring describes engine building only, with placeholder paths in its example. Docstring, comment and help wording."
+  },
+  "holosoma_inference/fast_stereo/calibration.py": {
+   "upstream_sha256": "8fad8c61dd375ed67121549fad730119bf0669839b1c6a85c376562d9583c2cd",
+   "differs": "DEFAULT_CAMERA_SERIAL name; docstring and message wording."
+  },
+  "holosoma_inference/fast_stereo/pair_recorder.py": {
+   "upstream_sha256": "b4e9f9a0c13a10132baa4697c66edb71704ca5f0915aee1c6fdfeee905aa129d",
+   "differs": "Docstring, comment and help wording."
+  },
+  "holosoma_inference/runtime/depth_vision_relay.py": {
+   "upstream_sha256": "fbffc7d0ccb722891fa4a6c0701d70c06dcdc2b693c12446a9c9f64ebea28bf6",
+   "differs": "Docstring, comment and help wording."
+  }
+ }
+}

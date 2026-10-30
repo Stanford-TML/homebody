@@ -213,24 +213,54 @@ def pose(ctx) -> tuple[float, float, float]:
     return (float(p[0]), float(p[1]), float(p[2]))
 
 
-def hold(ctx, seconds: float, vx: float, vy: float, wz: float) -> int:
-    """Stream one body-frame twist for `seconds` in walk state; returns the ticks sent."""
+def hold(ctx, seconds: float, vx: float, vy: float, wz: float, *, select=None,
+         on_applied=None) -> int:
+    """Stream a body-frame twist; an optional selector checks each unsent tick's twist."""
     ticks = max(1, round(seconds * TICK_HZ))
     # bounded by the clock as well as the tick count
     t0 = float(ctx.now())
     sent = 0
+    previous = None
+    feedback = False
     while sent < ticks and (sent == 0 or float(ctx.now()) - t0 < seconds - 1e-9):
-        step_base(ctx, LowerBody(vx=vx, vy=vy, wz=wz, state="walk"))
+        if select is None:
+            began = float(ctx.now())
+            applied = step_base(ctx, LowerBody(vx=vx, vy=vy, wz=wz, state="walk"))
+            if applied is not None or feedback:
+                if not feedback and sent:
+                    ctx.gate.commanded(vx, vy, wz, max(sent / TICK_HZ, began - t0), began)
+                actual = (vx, vy, wz) if applied is None else (applied.vx, applied.vy, applied.wz)
+                now = float(ctx.now())
+                ctx.gate.commanded(*actual, max(1. / TICK_HZ, now - began), now)
+                feedback = True
+        else:
+            selecting = float(ctx.now())
+            try:
+                actual = select(vx, vy, wz)
+            finally:
+                elapsed = float(ctx.now()) - selecting
+                if previous is not None and elapsed > 0.:
+                    ctx.gate.commanded(*previous, elapsed, float(ctx.now()))
+            began = float(ctx.now())
+            applied = step_base(ctx, LowerBody(vx=actual[0], vy=actual[1], wz=actual[2], state="walk"))
+            if applied is not None:
+                actual = (applied.vx, applied.vy, applied.wz)
+            now = float(ctx.now())
+            ctx.gate.commanded(*actual, max(1. / TICK_HZ, now - began), now)
+            previous = actual
+        if on_applied is not None:
+            on_applied(applied)
         sent += 1
     now = float(ctx.now())
-    ctx.gate.commanded(vx, vy, wz, max(sent / TICK_HZ, now - t0), now)
+    if select is None and not feedback:
+        ctx.gate.commanded(vx, vy, wz, max(sent / TICK_HZ, now - t0), now)
     return sent
 
 
-def step_base(ctx, command) -> None:
+def step_base(ctx, command) -> LowerBody | None:
     """Send one lower_body command; a driver refusal raises DriveFailure CONTROLLER_REFUSED."""
     try:
-        ctx.step("lower_body", command)
+        return ctx.step("lower_body", command)
     except Refused as refused:
         raise DriveFailure("CONTROLLER_REFUSED", f"base command refused: {refused}") from refused
 
@@ -261,7 +291,7 @@ def announce(ctx, motion: str, why: str, tag: str, seconds: float, vel=None) -> 
 
 def burst(ctx, log_kind: str, tag: str, seconds: float, vel, *,
           settle_s: float = SETTLE_S, why: str = "",
-          announced: bool = False) -> tuple[int, float, float]:
+          announced: bool = False, on_applied=None) -> tuple[int, float, float]:
     """One open-loop walk or turn plus its settle, logged under `log_kind`; a turn over the burst
     cap is refused. Returns (ticks, moved metres, turned radians)."""
     def refuse_overlong_turn(duration_s: float, yaw_rate: float) -> None:
@@ -278,7 +308,7 @@ def burst(ctx, log_kind: str, tag: str, seconds: float, vel, *,
     if not announced:
         announce(ctx, motion, why, tag, seconds, (vx, vy, wz))
     x0, y0, a0 = pose(ctx)
-    ticks = hold(ctx, seconds, vx, vy, wz)
+    ticks = hold(ctx, seconds, vx, vy, wz, on_applied=on_applied)
     if settle_s > 0.0:
         ticks += hold(ctx, settle_s, 0.0, 0.0, 0.0)
     x1, y1, a1 = pose(ctx)
@@ -344,6 +374,13 @@ def final_turns(ctx, log_kind: str, aim, gate_rad: float = TURN_GATE_RAD,
     cruise = turn_speed()
     gain_hz = current().gait.final_turn_gain_hz
     target_yaw = None
+    applied = None
+    effective_wz = 0.0
+
+    def applied_turn(command):
+        nonlocal applied
+        applied = command
+
     for k in range(FINAL_TURN_MAX_SLICES):
         if ctx.deadline.expired():
             break
@@ -354,7 +391,7 @@ def final_turns(ctx, log_kind: str, aim, gate_rad: float = TURN_GATE_RAD,
         slice_at = now
         # steering uses the lag-corrected stride mean, the gate the raw heading
         yaw_now = yaw
-        yaw = wrap(stride.read(yaw) + wz * (STRIDE_SAMPLES - 1) / 2.0 * slice_s)
+        yaw = wrap(stride.read(yaw) + effective_wz * (STRIDE_SAMPLES - 1) / 2.0 * slice_s)
         drift = math.hypot(x - x0, y - y0)
         if max_translation_m is not None and drift > max_translation_m:
             ctx.log(f"{log_kind}.final_turn_capped", {
@@ -391,9 +428,12 @@ def final_turns(ctx, log_kind: str, aim, gate_rad: float = TURN_GATE_RAD,
         wanted = gain_hz * turn
         wanted = math.copysign(max(abs(wanted), cruise), turn)
         wz = _turn_servo_velocity(wz, wanted, cruise)
+        applied = None
         t, _, _ = burst(ctx, log_kind, f"final.turn{k}", step_s,
                         (0.0, 0.0, _above_wz_deadband(wz)), settle_s=0.0, why=why,
-                        announced=True)
+                        announced=True, on_applied=applied_turn)
+        # Predict stride lag from the command sent; preserve the requested slew/ramp-down.
+        effective_wz = wz if applied is None else float(applied.wz)
         ticks += t
         turns += 1
         if after_turn is not None:

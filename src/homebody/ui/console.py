@@ -7,12 +7,12 @@ from dataclasses import dataclass, replace
 from html import escape
 from itertools import pairwise
 from queue import Empty, Queue
-from threading import Condition, Event, Lock, Thread
+from threading import Condition, Event, Lock, RLock, Thread
 
 import numpy as np
 
 from homebody.session.settings import Topdown
-from homebody.skills import navigate, pick, place
+from homebody.skills import navigation_goal, pick, place
 from homebody.skills.contract import SkillFailure
 from homebody.ui.selection import (
     Pen,
@@ -59,6 +59,93 @@ def thought_bubble(message="", *, thinking=False, model=""):
             f'<div class="hb-message">{escape(text)}</div></div>')
 
 
+def real_workflow_summary(state):
+    """Escaped operator status from supplied snapshots, never robot reads."""
+    rows = []
+    for label, value in (state.get("readiness") or {}).items():
+        if isinstance(value, dict):
+            ready = value.get("ready")
+            text = "Ready" if ready is True else "Not ready" if ready is False else "Unknown"
+            reason = value.get("reason", value.get("message", ""))
+            if reason:
+                text += ": " + str(reason)
+            age = value.get("age_s")
+            if isinstance(age, (int, float)) and np.isfinite(age):
+                text += f" · {age:.1f} s old"
+        else:
+            text = "Ready" if value is True else "Not ready" if value is False else str(value)
+        rows.append(f'<div><strong>{escape(str(label))}</strong>: {escape(text)}</div>')
+    if not rows:
+        rows.append("<div>Waiting for readiness checks.</div>")
+    carried = state.get("carried") or {}
+    if carried:
+        for side, item in carried.items():
+            description = item.get("state", "uncertain") if isinstance(item, dict) else str(item)
+            rows.append(f'<div><strong>{escape(str(side).capitalize())} hand</strong>: '
+                        f'{escape(str(description))}</div>')
+    else:
+        rows.append("<div><strong>Carry</strong>: no held object recorded</div>")
+    retention = state.get("retention")
+    if retention is not None:
+        description = ("held or uncertain" if retention.get("retained_or_unknown")
+                       else "no retained load reported")
+        reason = str(retention.get("reason", "")).replace("_", " ")
+        rows.append(f'<div><strong>Hand retention</strong>: {description}'
+                    f'{" · " + escape(reason) if reason else ""}</div>')
+    memory = state.get("memory")
+    if memory:
+        rows.append(f'<div><strong>Memory</strong>: {escape(str(memory.get("name", "")))} · '
+                    f'{escape(str(memory.get("records", 0)))} views · '
+                    f'{escape(str(memory.get("removed", 0)))} removed</div>')
+    else:
+        rows.append("<div><strong>Memory</strong>: no named set selected</div>")
+    if "recording" in state:
+        rows.append(f'<div><strong>Recording</strong>: {escape(str(state["recording"]))}</div>')
+    return ('<div class="hb-stage" role="status" aria-live="polite" '
+            'style="overflow-wrap:anywhere">' + "".join(rows) + "</div>")
+
+
+def sensor_evidence_summary(metadata, now):
+    """Age the last accepted capture; no live health claim or backend read."""
+    if not metadata:
+        return note("Waiting for timestamped sensor evidence.")
+    rows = ["<strong>Last accepted sensor evidence</strong>"]
+    limits = metadata.get("age_limits_s", {})
+    samples = [(label, metadata.get(key), limits.get(key)) for label, key in
+               (("RGB", "color_time"), ("Depth", "depth_time"), ("Localization", "pose_time"),
+                ("Body", "body_time"), ("Obstacles", "obstacle_time"))]
+    samples += [(f"{side.capitalize()} hand", stamp, limits.get("hand_times"))
+                for side, stamp in metadata.get("hand_times", {}).items()]
+    for label, stamp, limit in samples:
+        if metadata.get("clock") != "unix_seconds" or not isinstance(stamp, (int, float)):
+            detail = "timestamp unavailable"
+        else:
+            age = now - stamp
+            state = ("clock mismatch" if age < 0 else
+                     "fresh" if isinstance(limit, (int, float)) and age <= limit else "stale")
+            detail = f"{age:.2f} s old · {state}"
+        rows.append(f"<div>{escape(label)}: {escape(detail)}</div>")
+    health = metadata.get("localization_health", "health not supplied")
+    rows.append(f"<div>Localization: {escape(str(health))}</div>")
+    rows.append(f"<div>Map frame: {escape(str(metadata.get('map_frame', 'unknown')))}</div>")
+    return '<div class="hb-stage" style="overflow-wrap:anywhere">' + "".join(rows) + "</div>"
+
+
+def historical_caption(hit):
+    """A recalled photo's provenance, explicitly separated from current sensor evidence."""
+    rows = ["Historical photograph — verify current presence before acting."]
+    if hit.get("content"):
+        rows.append(str(hit["content"]))
+    pose = hit.get("pose")
+    if pose is not None:
+        rows.append(f"Map pose: {pose}")
+    if hit.get("time") is not None:
+        rows.append(f"Recorded sensor time: {hit['time']} s")
+    if hit.get("record_id"):
+        rows.append(f"Record: {hit['record_id']}")
+    return note("\n".join(rows))
+
+
 def stage_progress(skill, stages, result=None, *, durations=None, simulated=None):
     """The stage panel's HTML for the reached stages and, once finished, the result."""
     count = len(stages)
@@ -99,6 +186,7 @@ class Progress:
 class Command:
     name: str
     text: str = ""
+    confirmation: str | None = None
 
 
 class Controls:
@@ -106,10 +194,21 @@ class Controls:
         self.queue = Queue()
         self.cancel = Event()
         self.closing = Event()
+        self.paused = Event()
+        self.pause_requested = Event()
+        self.end_requested = Event()
+        self.task_lock = RLock()
+        self.task_generation = 0
 
     def submit(self, text: str):
+        if self.end_requested.is_set() or self.closing.is_set():
+            return
         if text.strip():
-            self.queue.put(Command("task", text.strip()))
+            with self.task_lock:
+                if self.end_requested.is_set() or self.closing.is_set():
+                    return
+                self.task_generation += 1
+                self.queue.put(Command("task", text.strip()))
 
     def stop(self):
         """Cancel the running task and drop tasks that have not started."""
@@ -123,6 +222,38 @@ class Controls:
     def reset(self):
         self.cancel.set()
         self.queue.put(Command("reset"))
+
+    def pause(self):
+        """Latch interruption until Session has held and discarded the current action."""
+        self.paused.set()
+        self.pause_requested.set()
+
+    def resume(self):
+        self.paused.clear()
+
+    def end(self):
+        with self.task_lock:
+            if self.closing.is_set():
+                return
+            self.end_requested.set()
+            with self.queue.mutex:
+                if any(command.name == "end" for command in self.queue.queue):
+                    return
+            self.stop()
+            self.queue.put(Command("end"))
+
+    def finish_end(self, accepted):
+        """Only the retention decision may reopen submission after a refused End."""
+        with self.task_lock:
+            if accepted:
+                self.closing.set()
+            else:
+                self.end_requested.clear()
+                self.cancel.clear()
+
+    def handover(self, confirmation):
+        """The operator confirms the object was removed; no gripper command is implied."""
+        self.queue.put(Command("handover", confirmation=confirmation))
 
     def next(self):
         try:
@@ -138,6 +269,12 @@ def palm_path(arm, frame, plan):
         waypoints = [(frame.world_torso @ arm.forward(q)[0])[:3, 3] for q in plan.approach_joints]
         return np.array([start, *waypoints, plan.pre[:3, 3], plan.palm[:3, 3]])
     return np.array([start, plan.pre[:3, 3], plan.palm[:3, 3]])
+
+
+def navigation_plan(plan):
+    """Both navigation algorithms expose the same display-only route fields."""
+    route = getattr(plan, "drive_plan", plan)
+    return route if all(hasattr(route, key) for key in ("waypoints", "goal", "yaw", "departure_goal")) else None
 
 
 class Overlays:
@@ -166,7 +303,7 @@ class Overlays:
         self.selection = Selection.from_decision(decision, frame)
         if decision.skill == "navigate":
             try:
-                goal, facing, _, _ = navigate.goal_arguments(decision.arguments, frame.navigation)
+                goal, facing, _, _ = navigation_goal.goal_arguments(decision.arguments, frame.navigation)
             except SkillFailure:
                 return
             self.marks = {"goal": goal} if facing is None else {"goal": goal, "facing": facing}
@@ -174,8 +311,8 @@ class Overlays:
     def prepared(self, plan):
         """Add a prepared plan's overlays; returns the observation they are drawn against."""
         frame = self.captured if self.latest is None else self.latest
-        route = getattr(plan, "drive_plan", plan)
-        if isinstance(route, navigate.Plan):
+        route = navigation_plan(plan)
+        if route is not None:
             points = route.waypoints
             if route.departure_goal is not None:
                 points = [frame.base_pose[:2], route.departure_goal, *points]
@@ -191,6 +328,37 @@ class Overlays:
     def returning(self, event):
         """Clear the approach path once the arm starts its return."""
         self.palm_path = None
+
+    def navigation(self, event):
+        """Use the executed route, including checked connector and localization repairs."""
+        if "stance" not in self.marks:
+            return False
+        kind, details = event["kind"], event["details"]
+        if kind == "drive.route":
+            if (details.get("phase") != "execute"
+                    and not details.get("code", "").startswith("REPLANNED")
+                    and details.get("code") != "PATH_READY_AFTER_BACKUP"):
+                return False
+        elif kind == "drive.route_rejoin":
+            if details.get("phase") not in ("start", "complete"):
+                return False
+        elif kind != "drive.route_revalidated":
+            return False
+        try:
+            points = np.asarray(details.get("route_world_xy", details.get("remaining_world_xy", ())),
+                                dtype=float)
+        except (TypeError, ValueError):
+            return False
+        if points.ndim != 2 or points.shape[1] != 2 or not len(points) or not np.isfinite(points).all():
+            return False
+        points = points.tolist()
+        if kind == "drive.route_revalidated":
+            prior = self.marks.get("route", ())
+            joins = [i for i, point in enumerate(prior) if tuple(point) == tuple(points[-1])]
+            if joins:
+                points += list(prior[joins[-1] + 1:])
+        self.marks = {**self.marks, "route": points}
+        return True
 
     def ego_rgb(self, frame):
         """RGB with the selected segment, its click and the palm path."""
@@ -237,23 +405,55 @@ class Overlays:
 class Console:
     def __init__(self, controls: Controls, *, host="127.0.0.1", port=8080, initial_task="",
                  scene_name="Simulation", model_name="", topdown_settings: Topdown | None = None,
-                 render_in_background=False):
+                 render_in_background=False, workflow="sim"):
         """With RENDER_IN_BACKGROUND the live view and map are drawn on a UI thread from the newest frame."""
+        if workflow not in ("sim", "real"):
+            raise ValueError("Console workflow must be sim or real")
         claim(host, port)
-        self.server = open_server(host, port, scene_name, "sim")
+        self.workflow = workflow
+        self.server = open_server(host, port, scene_name, workflow)
         self.scene_view = None
         self.model_name = model_name
         self.overlays = Overlays(topdown_settings if topdown_settings is not None else Topdown())
         self._detail_skill = None
-        self.server.gui.add_html(section("Ego view"))
-        self.ego = self.server.gui.add_image(blank(480, 640), label="Live camera", format="jpeg")
+        if workflow == "sim":
+            self.server.gui.add_html(section("Ego view"))
+            self.ego = self.server.gui.add_image(blank(480, 640), label="Live camera", format="jpeg")
         self.task = self.server.gui.add_text("Instruction", initial_value=initial_task, multiline=True)
         self.submit_button = self.server.gui.add_button("Start task", icon="player-play", disabled=True)
-        self.stop_button = self.server.gui.add_button("Stop", color="gray", icon="player-stop")
-        self.status = self.server.gui.add_markdown("Loading the simulation. You can edit the instruction.")
+        self.stop_button = self.server.gui.add_button("STOP task" if workflow == "real" else "Stop",
+                                                      color="red" if workflow == "real" else "gray",
+                                                      icon="player-stop")
+        self.status = self.server.gui.add_markdown(
+            "Checking real-robot readiness. You can edit the instruction." if workflow == "real" else
+            "Loading the simulation. You can edit the instruction.")
+        self._workflow_snapshot, self._task_active = {}, False
+        self._sensor_metadata = None
+        self._recall_handles = []
+        if workflow == "real":
+            self.pause_button = self.server.gui.add_button("Pause", icon="player-pause", disabled=True)
+            self.end_button = self.server.gui.add_button("End session", icon="logout")
+            self.server.gui.add_html(note("STOP task preserves the session and grip. End session "
+                                          "requires placement or a confirmed handover."))
+            self.server.gui.add_html(section("Ego view"))
+            self.ego = self.server.gui.add_image(blank(480, 640), label="Live camera", format="jpeg")
+            self.server.gui.add_html(section("Robot and memory"))
+            self.runtime = self.server.gui.add_html(real_workflow_summary({}))
+            self.sensor_status = self.server.gui.add_html(sensor_evidence_summary(None, time.time()))
+            self.map_live = self.server.gui.add_image(blank(240, 960), label="Navigation map")
+            with self.server.gui.add_folder("Operator handover", expand_by_default=False):
+                self.handover_confirm = self.server.gui.add_checkbox(
+                    "I have physically taken the held object", initial_value=False, disabled=True)
+                self.handover_button = self.server.gui.add_button("Confirm handover", disabled=True)
+                self.server.gui.add_html(note("Confirm only after the task is stopped and you have "
+                                              "the object. This does not open the hand."))
+            self.recall_folder = self.server.gui.add_folder("Recalled photographs", expand_by_default=True)
+            with self.recall_folder:
+                self.recall_status = self.server.gui.add_html(note("No historical photographs recalled."))
         self.server.gui.add_html(section("Agent thoughts"))
-        self.thought = self.server.gui.add_html(thought_bubble("Waiting for the simulation to load.",
-                                                              model=self.model_name))
+        self.thought = self.server.gui.add_html(thought_bubble(
+            "Waiting for verified observations." if workflow == "real" else
+            "Waiting for the simulation to load.", model=self.model_name))
         self._bubble_message = ""
         self.stage = self.server.gui.add_html("")
         self._progress = Progress()
@@ -266,6 +466,11 @@ class Console:
         self.controls, self._starting = controls, Lock()
         self.submit_button.on_click(self._start)
         self.stop_button.on_click(lambda _: controls.stop())
+        if workflow == "real":
+            self.pause_button.on_click(self._pause_resume)
+            self.end_button.on_click(lambda _: controls.end())
+            self.handover_confirm.on_update(lambda _: self._refresh_handover())
+            self.handover_button.on_click(self._handover)
         self._pending, self._latest, self._closing = Condition(), None, False
         self._render_failed = False
         self._renderer = Thread(target=self._render_newest, name="console-render", daemon=True) \
@@ -279,7 +484,84 @@ class Console:
             if self.submit_button.disabled or not self.task.value.strip():
                 return
             self.submit_button.disabled = True
+            if self.workflow == "real":
+                self._task_active = True
+                self.handover_confirm.value = False
+                self._refresh_handover()
         self.controls.submit(self.task.value)
+
+    def _pause_resume(self, _):
+        if self.pause_button.disabled:
+            return
+        if self.controls.paused.is_set():
+            self.controls.resume()
+            self.pause_button.label = "Pause"
+        else:
+            self.controls.pause()
+            self.pause_button.label = "Resume"
+
+    def _refresh_handover(self):
+        retention = self._workflow_snapshot.get("retention") or {}
+        retained = retention.get("retained_or_unknown", False)
+        eligible = ((bool(self._workflow_snapshot.get("carried")) or retained)
+                    and bool(retention.get("handover_token")) and not self._task_active)
+        if not eligible:
+            self.handover_confirm.value = False
+        self.handover_confirm.disabled = not eligible
+        self.handover_button.disabled = not eligible or not self.handover_confirm.value
+
+    def _handover(self, _):
+        self._refresh_handover()
+        if self.handover_button.disabled:
+            return
+        self.controls.handover(self._workflow_snapshot["retention"]["handover_token"])
+        self.handover_confirm.value = False
+        self._refresh_handover()
+
+    def workflow_state(self, state):
+        """Render a Session-owned snapshot; controls never infer readiness from hardware."""
+        if self.workflow != "real":
+            return
+        def identity(snapshot):
+            carry = tuple((side, str(record.get("label")), str(record.get("state")))
+                          for side, record in sorted(snapshot.get("carried", {}).items()))
+            retention = snapshot.get("retention") or {}
+            hands = tuple((side, record.get("retained_or_unknown"), record.get("calibrated_retention"),
+                           record.get("contact_state"), record.get("retention_source"))
+                          for side, record in sorted(retention.get("hands", {}).items()))
+            return carry, retention.get("retained_or_unknown"), hands, retention.get("handover_token")
+        if identity(state) != identity(self._workflow_snapshot):
+            self.handover_confirm.value = False
+        self._workflow_snapshot = state
+        self.runtime.content = real_workflow_summary(state)
+        self._refresh_sensors()
+        self._task_active = bool(state.get("task_active", self._task_active))
+        paused = bool(state.get("paused", self.controls.paused.is_set()))
+        self.pause_button.label = "Resume" if paused else "Pause"
+        self.pause_button.disabled = not self._task_active and not paused
+        self._refresh_handover()
+
+    def recalled(self, hits):
+        """Display supplied verified RGB arrays and provenance, with no file or backend reads."""
+        if self.workflow != "real":
+            return
+        prepared = []
+        for hit in hits:
+            rgb = np.asarray(hit["rgb"])
+            if rgb.ndim != 3 or rgb.shape[2] != 3 or rgb.dtype != np.uint8 or not rgb.size:
+                raise ValueError("Recalled photo requires an RGB uint8 array")
+            prepared.append((rgb.copy(), historical_caption(hit)))
+        for handle in self._recall_handles:
+            handle.remove()
+        self._recall_handles = []
+        self.recall_status.content = note(
+            f"{len(prepared)} historical photographs. These are not the live camera." if prepared else
+            "No historical photographs recalled.")
+        with self.recall_folder:
+            for index, (rgb, caption) in enumerate(prepared, 1):
+                self._recall_handles.append(self.server.gui.add_image(
+                    rgb, label=f"Historical photograph {index}", format="jpeg"))
+                self._recall_handles.append(self.server.gui.add_html(caption))
 
     @property
     def arms(self):
@@ -303,12 +585,16 @@ class Console:
         """Draw the newest frame shown since the last drawing, skipping any shown meanwhile."""
         while True:
             with self._pending:
-                self._pending.wait_for(lambda: self._latest is not None or self._closing)
+                self._pending.wait_for(lambda: self._latest is not None or self._closing,
+                                       timeout=.25 if self.workflow == "real" else None)
                 if self._closing:
                     return
                 frame, self._latest = self._latest, None
             try:
-                self.render(frame)
+                if frame is None:
+                    self._refresh_sensors()
+                else:
+                    self.render(frame)
             except Exception:  # noqa: BLE001 -- one bad frame must not freeze the live view
                 if not self._render_failed:
                     self._render_failed = True
@@ -316,10 +602,21 @@ class Console:
                           file=sys.stderr)
                     traceback.print_exc()
 
+    def _refresh_sensors(self):
+        if self.workflow == "real":
+            self.sensor_status.content = sensor_evidence_summary(self._sensor_metadata, time.time())
+
     def render(self, frame):
-        self._refresh_stage(simulation_time=frame.time)
+        self._refresh_stage(simulation_time=frame.time if self.workflow == "sim" else None)
         self.ego.image = self.overlays.ego_rgb(frame)
         self.ego.label = "Live camera"
+        if self.workflow == "real":
+            self._sensor_metadata = getattr(frame, "sensor_metadata", None)
+            self._refresh_sensors()
+            self.map_live.image = self.overlays.map(frame)
+            self.map_live.label = f"Navigation map · sensor time {frame.time:.1f} s"
+            if self.scene_view is not None:
+                self.scene_view.show(frame)
         if self._detail_skill == "navigate":
             self.map.image = self.overlays.map(frame)
             self.map.label = f"Navigation map: {frame.time:.1f} s"
@@ -367,10 +664,17 @@ class Console:
             self.click.visible = True
         if self.scene_view is not None and selection is not None:
             self.scene_view.show_selection(selection.point)
+        elif self.workflow == "real" and self.scene_view is not None and "goal" in self.overlays.marks:
+            self.scene_view.show_selection(self.overlays.marks["goal"])
 
     def skill_event(self, event):
         kind = event["type"]
-        if kind == "skill_stage":
+        if kind == "navigation":
+            if self._progress.result is None and self.overlays.navigation(event):
+                if self.overlays.latest is not None:
+                    self.render(self.overlays.latest)
+                self._show_route()
+        elif kind == "skill_stage":
             now, sim = time.monotonic(), event.get("simulation_time")
             progress = self._progress
             self._progress = replace(
@@ -392,6 +696,9 @@ class Console:
             self._progress = replace(progress, result=event["result"], finished_at=now,
                                      sim_now=event.get("simulation_time", progress.sim_now))
             self._refresh_stage(now=now)
+            if (self.workflow == "real" and self.scene_view is not None
+                    and event["result"].code != "OK" and "goal" in self.overlays.marks):
+                self.scene_view.show_rejection(self.overlays.marks["goal"])
 
     def _refresh_stage(self, *, now=None, simulation_time=None):
         """Redraw the stage panel from one snapshot of the progress."""
@@ -406,7 +713,7 @@ class Console:
             now = progress.finished_at
         durations = [max(0., end - start) for start, end in pairwise(progress.times)]
         durations.append(max(0., now - progress.times[-1]))
-        simulated = (None if progress.sim_start is None or sim_now is None else
+        simulated = (None if self.workflow != "sim" or progress.sim_start is None or sim_now is None else
                      max(0., sim_now - progress.sim_start))
         skill = progress.result.skill if progress.result is not None else progress.skill
         if progress is not self._progress:  # a reset or new decision replaced it meanwhile
@@ -422,13 +729,23 @@ class Console:
             self.topdown.image = overlays.topdown()
         if self.scene_view is None:
             return
-        if isinstance(plan, (navigate.Plan, pick.ApproachPlan)):
-            self.scene_view.show_route(overlays.marks["route"], overlays.marks["stance"][2])
+        if navigation_plan(plan) is not None:
+            self._show_route()
         if isinstance(plan, (pick.Plan, place.Plan)) and overlays.palm_path is not None:
             self.scene_view.show_arm_path(overlays.palm_path)
 
+    def _show_route(self):
+        if self.scene_view is not None:
+            marks = self.overlays.marks
+            self.scene_view.show_route(marks["route"], marks["stance"][2], goal=marks["stance"][:2])
+
     def update(self, status: str, text: str = ""):
         self.status.content = STATUS.get(status, status)
+        if self.workflow == "real":
+            self._task_active = status in ("Thinking", "Executing", "Paused")
+            self.pause_button.disabled = not self._task_active
+            self.pause_button.label = "Resume" if self.controls.paused.is_set() else "Pause"
+            self._refresh_handover()
         if status == "Thinking":
             self.ego.label = "Last camera frame (agent thinking)"
         elif status == "Executing":

@@ -10,6 +10,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
+from homebody.primitives.navigation.task import NavigationEvidence
 from homebody.primitives.observations import Frame, HandState, NavigationMap
 from homebody.session.config import Agent
 from homebody.session.recorder import Recorder
@@ -51,10 +52,17 @@ class Backend:
                      np.zeros((16, 16, 3), dtype=np.uint8), np.ones((16, 16)),
                      np.array([[10, 0, 8], [0, 10, 8], [0, 0, 1]]), np.eye(4), np.eye(4),
                      np.zeros(3), np.zeros(29),
-                     {"right": HandState(np.zeros(7), 0.0, np.zeros(3), np.zeros(3))},
+                     {side: HandState(np.zeros(7), 0.0, np.zeros(3), np.zeros(3))
+                      for side in ("left", "right")},
                      np.ones((16, 16), dtype=np.int32),
                      NavigationMap(np.zeros((20, 20)),
                                    np.array([[0.1, 0, -1], [0, -0.1, 1], [0, 0, 1]]), 0.1))
+
+    def navigation_evidence(self):
+        frame = self.measure()
+        return NavigationEvidence(self.epoch, self.time, self.time, self.time, self.time,
+                                  frame.base_pose, frame.navigation, np.empty((0, 3)),
+                                  1., "test-room", "test-map", self.epoch, "test-sensors", True, True)
 
     def base_velocity(self, epoch, forward, lateral, yaw):
         assert epoch == self.epoch
@@ -123,13 +131,18 @@ def build(tmp_path):
     sessions = []
 
     def create(provider, *, settings=None, observer_frame=None, backend=None, controls=None, ui=None,
-               scene_update=None):
+               scene_update=None, checked=False):
+        from homebody.skills.navigate_real import task as navigate_real
+        from homebody.skills.registry import task_registry
+
         settings = settings or Settings(agent=Agent(done_settle_seconds=0.))
         backend, controls = backend or Backend(), controls or Controls()
         recorder = ImageOnlyRecorder(tmp_path / "source", settings, tmp_path / "runs")
+        navigation = ({"navigation": navigate_real, "registry": task_registry(),
+                       "navigation_evidence": backend.navigation_evidence} if checked else {})
         session = Session(backend, provider, settings, recorder, controls,
                           arms={}, jaw_samples={}, observer_frame=observer_frame, ui=ui,
-                          scene_update=scene_update)
+                          scene_update=scene_update, **navigation)
         sessions.append(session)
         return session
 
@@ -212,7 +225,7 @@ def test_provider_receives_only_the_current_views_and_the_scene_memory(build):
 ])
 def test_structured_visual_click_uses_normal_runner_and_captured_frame(
         build, monkeypatch, skill, arguments):
-    from homebody.skills import navigate, place
+    from homebody.skills import navigate_sim, place
     from homebody.skills.contract import Result, Runner, click_argument
     from homebody.skills.registry import REGISTRY
 
@@ -231,7 +244,7 @@ def test_structured_visual_click_uses_normal_runner_and_captured_frame(
         assert current.sequence > selected.sequence and current.time > selected.time
         assert provider.images[0][0].parent.name == f"{selected.epoch:03d}-{selected.sequence:08d}"
         if skill == "navigate":
-            resolved = navigate.goal_arguments(proposed, selected.navigation)
+            resolved = navigate_sim.goal_arguments(proposed, selected.navigation)
         elif skill == "place":
             resolved = place.destination(proposed, selected, planning.settings)
         else:
@@ -357,7 +370,7 @@ def test_each_click_argument_names_the_attachment_the_recorder_sends(build):
 
 
 def test_map_click_from_world_inverts_the_drive_map_click():
-    from homebody.skills.navigate import map_point
+    from homebody.skills.navigation_goal import map_point
     from homebody.vlm.observations import model_observation
     navigation = NavigationMap(np.zeros((1024, 768)),
                                np.array([[0.0172, 0, -2.94], [0, -0.0172, 8.39], [0, 0, 1]]), 0.0172)
@@ -663,6 +676,7 @@ class ScriptedControls(Controls):
 class Display:
     def __init__(self):
         from types import SimpleNamespace
+        self.workflow = "sim"
         self.status = SimpleNamespace(content="Ready")
         self.explanation = SimpleNamespace(content="")
         self.thought = SimpleNamespace(content="")
@@ -757,10 +771,11 @@ def test_provider_heartbeat_failure_is_recorded_and_reset_resumes_tasks(build):
     assert len(provider.prompts) == 2
 
 
-def test_skill_physics_failure_preserves_typed_terminal_and_reset_latch(build):
+@pytest.mark.parametrize("checked", [False, True])
+def test_skill_physics_failure_preserves_typed_terminal_and_reset_latch(build, checked):
     backend = InvalidPhysicsBackend()
     provider = Provider([Decision("Hold current stance", "navigate", {"x": 0., "y": 0.})], ticks=0)
-    session = build(provider, backend=backend)
+    session = build(provider, backend=backend, checked=checked)
     assert session.run_task("Verify stance")["status"] == "physics_invalid"
     assert session.requires_reset
     events = [json.loads(line) for line in (session.recorder.path / "events.jsonl").read_text().splitlines()]

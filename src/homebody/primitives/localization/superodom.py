@@ -56,6 +56,7 @@ class SuperOdomLocalization:
                            for kind in ("odom", "scan")}
         self._scans: deque = deque(maxlen=20)
         self._last_points = np.zeros((0, 3))
+        self._registered_scan = (None, None)
         self.ring_hits = np.zeros((0, 3))
         self.ring_m, self.ring_t = float("inf"), 0.0
         self._zero = None
@@ -336,7 +337,8 @@ class SuperOdomLocalization:
             return
         floor_z = float(T[2, 3]) - LIDAR_HEIGHT_M  # re-grounded per scan: odometry z drifts
         # one self filter for the ring and the live map
-        start = self._ws_to_start(drop_self_points(pts_ws, T, floor_z), floor_z, zero)
+        registered = drop_self_points(pts_ws, T, floor_z)
+        start = self._ws_to_start(registered, floor_z, zero)
         origin = self._ws_to_start(T[:3, 3][None, :], floor_z, zero)[0]
         # the learned self mask: points fixed in the body frame while moving
         yaw = math.atan2(T[1, 0], T[0, 0]) - zero[2]
@@ -344,9 +346,10 @@ class SuperOdomLocalization:
         dx, dy = start[:, 0] - origin[0], start[:, 1] - origin[1]
         bx, by = c * dx - s * dy, s * dx + c * dy
         learner.observe(bx, by, start[:, 2], (float(origin[0]), float(origin[1])))
-        start = start[~learner.mask(bx, by, start[:, 2])]
+        keep = ~learner.mask(bx, by, start[:, 2])
+        start, registered = start[keep], registered[keep]
         distance = ring_min(start, float(origin[0]), float(origin[1]))
-        start.flags.writeable = origin.flags.writeable = False
+        start.flags.writeable = origin.flags.writeable = registered.flags.writeable = False
         with self.lock:
             # drop the cloud when the start frame changed while it was filtered
             if self.frame_reset or self._zero is not zero:
@@ -363,6 +366,7 @@ class SuperOdomLocalization:
             self.scan_times.append(time.time())
             self.ring_m, self.ring_t = distance, observed_at
             self._last_points = start
+            self._registered_scan = (registered, observed_at)
             # The map takes the same self-filtered cloud the ring trusts.
             if len(self._scans) == self._scans.maxlen:
                 self._ingestion["map_queue_dropped"] += 1
@@ -370,6 +374,11 @@ class SuperOdomLocalization:
             self._ingestion["map_queue_max"] = max(
                 self._ingestion["map_queue_max"], len(self._scans))
             self._freshness_admission("scan", accepted_at=observed_at)
+
+    def registered_scan(self):
+        """Last admitted self-filtered cloud in ws_map, with its capture time."""
+        with self.lock:
+            return self._registered_scan
 
     def _freshness_received(self, kind, stamp, now):
         sample = self._freshness[kind]
@@ -447,7 +456,7 @@ class SuperOdomLocalization:
 
     def _ws_to_start(self, pts: np.ndarray, floor_z: float, zero=None) -> np.ndarray:
         zero = self._zero if zero is None else zero
-        if zero is None:  # a typed refusal, not a TypeError
+        if zero is None:
             raise RuntimeError("no start frame: the SLAM restart cleared it")
         x0, y0, yaw0 = zero
         c, s = math.cos(-yaw0), math.sin(-yaw0)
@@ -486,6 +495,7 @@ class SuperOdomLocalization:
             self.self_learner = SelfLearner()
             self._freshness["scan"]["accepted_at"] = None
             self._last_points = np.zeros((0, 3))
+            self._registered_scan = (None, None)
             self.ring_m, self.ring_t = float("inf"), 0.0
             self.frame_reset, self.frame_reset_why = False, ""
 
@@ -566,6 +576,7 @@ class SuperOdomLocalization:
             self._dr, self._cmd, self._dr_gyro0 = [0.0, 0.0, 0.0], (0.0, 0.0, 0.0, 0.0), None
             self._scans.clear()
             self._last_points = np.zeros((0, 3))
+            self._registered_scan = (None, None)
             self.ring_m, self.ring_t = float("inf"), 0.0
             self.frame_reset, self.frame_reset_why = False, ""
 

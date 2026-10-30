@@ -2,6 +2,7 @@
 lifting, verifying, compacting and monitoring a carry from hand and visual evidence."""
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import product
 
 import numpy as np
 from scipy.spatial import ConvexHull, QhullError, cKDTree
@@ -14,6 +15,8 @@ from homebody.helpers.trajectory import joint_rows
 from homebody.motion.arm import follow_rows, live_check, servo_best_effort, servo_unchecked
 from homebody.primitives.observations import FreshEvidence
 from homebody.skills.contract import Result, SkillFailure
+
+_CORNERS = np.array(list(product((-1., 1.), repeat=3)))
 
 RECOVERY_FAILURES = ("CARRY_CLEARED", "HOLD_UNCERTAIN", "RETRY_REQUIRED")
 
@@ -164,11 +167,8 @@ def evidence(frame, arm, side, record, settings):
     """What one observation says about the carry."""
     hand = frame.hands[side]
     retained = hand.retained(settings)
-    efforts = hand.finger_effort_fraction > settings.hold_effort_fraction
-    opposed = bool(efforts[0] and np.any(efforts[1:]))
-    closed_empty = (hand.closure >= 1. - settings.hold_closure_gap and
-                    bool(np.all(hand.finger_closure_gap <= settings.hold_closure_gap)))
-    if not retained and not opposed and closed_empty:
+    contact = hand.contact_supported(settings)
+    if not retained and not contact and hand.closed_empty(settings):
         return Evidence.LOST
     if not frame.visible(record["label"]):
         return Evidence.UNKNOWN
@@ -178,7 +178,7 @@ def evidence(frame, arm, side, record, settings):
     in_payload = points_in(inverse(record["palm_to_payload"]), local)
     outside = np.maximum(np.abs(in_payload) - record["payload_half"], 0.0)
     separated = np.min(np.linalg.norm(outside, axis=1)) > settings.recovery_separation
-    if not retained and not opposed and separated:
+    if not retained and not contact and separated:
         return Evidence.LOST
     shape = visible_shape(points, settings.shape_quantiles)
     if record.get("lift_verified", False):
@@ -187,7 +187,7 @@ def evidence(frame, arm, side, record, settings):
     else:
         residual = cKDTree(record["local_points"]).query(local)[0]
         near = np.quantile(residual, settings.shape_quantiles[1]) <= settings.target_shift
-    if near and opposed:
+    if near and contact:
         lifted = record.get("lift_verified", False) or (
             shape.upper[2] - record["baseline_upper"] >= settings.lift_evidence and
             palm[2, 3] - record["baseline_palm_height"] >= settings.lift_evidence)
@@ -245,6 +245,50 @@ def _capture_yaw(points):
     rotation = np.eye(3)
     rotation[:2, :2] = rotations[index]
     return rotation
+
+
+def robot_boxes(state, arms, carried):
+    """World (center, rotation, half) boxes of both arms' links and fingers at STATE's measured
+    joints, and of each retained payload."""
+    boxes = []
+    for side, arm in arms.items():
+        joints = state.arm_joints(side)
+        for center, rotation, half in (*arm.collision.boxes(arm, joints),
+                                       *arm.collision.hand_boxes(arm, joints, state.hands[side].joints)):
+            boxes.append((points_in(state.world_torso, center), state.world_torso[:3, :3] @ rotation, half))
+    for side, record in carried.items():
+        pose = state.palm(arms[side], side) @ record["palm_to_payload"]
+        boxes.append((pose[:3, 3], pose[:3, :3], np.asarray(record["payload_half"], float)))
+    return boxes
+
+
+def robot_part_names(arms, carried):
+    """Names of robot_boxes' boxes, in its order."""
+    names = []
+    for side, arm in arms.items():
+        children = [joint.find("child").get("link") for joint in (*arm.chain, *arm.collision.finger_joints)]
+        names += [f"{side} {child}" for child in children if child in arm.collision.bounds]
+    return names + [f"{side} payload" for side in carried]
+
+
+def sweep_radius(frame, arms, carried, minimum):
+    """Radius containing measured arm, finger and retained payload boxes in the map plane."""
+    radius = max(.24, minimum)
+    points = []
+    for side, arm in arms.items():
+        joints = frame.arm_joints(side)
+        boxes = [*arm.collision.boxes(arm, joints),
+                 *arm.collision.hand_boxes(arm, joints, frame.hands[side].joints)]
+        points.extend(points_in(frame.world_torso, (_CORNERS * half) @ rotation.T + center)
+                      for center, rotation, half in boxes)
+    for side, record in carried.items():
+        pose = frame.palm(arms[side], side) @ record["palm_to_payload"]
+        points.append(points_in(pose, _CORNERS * record["payload_half"]))
+    for world in points:
+        if not np.isfinite(world).all() or not np.isfinite(frame.base_pose).all():
+            raise SkillFailure("FOOTPRINT_UNAVAILABLE", "Measured sweep geometry is not finite")
+        radius = max(radius, float(np.linalg.norm(world[:, :2] - frame.base_pose[:2], axis=1).max()))
+    return radius
 
 
 def prepare_compact(frame, side, arms, record, settings):

@@ -1,0 +1,45 @@
+{
+  "schema": "homebody.g1_head_calibration.v1",
+  "rot_vec_deg": [
+    -0.35,
+    0.35,
+    0.05
+  ],
+  "translation_m": [
+    -0.027,
+    0.004,
+    -0.009
+  ],
+  "depth_scale": 1.0,
+  "depth_bias_m": 0.0,
+  "convention": "T_cam_base maps left-IR optical coordinates into the torso and includes the measured correction to the URDF camera attachment.",
+  "measured_source": "Measured on one G1 head mount against the shipped URDF; verify or re-measure on your robot before use.",
+  "urdf": "assets/robot/g1_29dof_with_hand.urdf",
+  "urdf_sha256": "ff42042eea4041f6f8a4c06330dec849d87f2b2aa03aa257c5dd78353d048c1e",
+  "T_cam_base": [
+    [
+      0.0008913113603387143,
+      -0.742558511418884,
+      0.6697806078735261,
+      0.0306235
+    ],
+    [
+      -0.9999809615308775,
+      -0.004751462282221845,
+      -0.003937027046194639,
+      0.02153
+    ],
+    [
+      0.006105910238512852,
+      -0.6697643471591719,
+      -0.742548609273903,
+      0.42086999999999997
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

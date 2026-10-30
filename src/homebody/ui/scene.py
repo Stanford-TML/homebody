@@ -175,11 +175,14 @@ class SceneView:
     def clear_arm_path(self):
         self._drop(self._arm_handles)
 
-    def show_route(self, waypoints, yaw=None):
-        """Display a base route just above the floor, ending at the stance and, given `yaw`, its heading."""
+    def show_route(self, waypoints, yaw=None, *, goal=None):
+        """Display the checked route and final stance, which may extend beyond its run-in."""
         self._drop(self._route_handles)
         points = np.asarray(waypoints, dtype=float)
         if points.ndim != 2 or points.shape[1] != 2 or not len(points) or not np.isfinite(points).all():
+            return
+        stance = points[-1] if goal is None else np.asarray(goal, dtype=float)
+        if stance.shape != (2,) or not np.isfinite(stance).all():
             return
         model, data = self.backend.model, self.backend.data
         floors = np.flatnonzero(model.geom_type == mujoco.mjtGeom.mjGEOM_PLANE)
@@ -199,10 +202,10 @@ class SceneView:
             self._route_handles.append(self._path("/guides/route", world, ROUTE))
             self._route_handles.extend(self._dot(f"/guides/route-wp-{i}", point, ROUTE, .035)
                                        for i, point in enumerate(world[1:], 1))
-        self._route_handles.append(self._dot("/guides/stance", world[-1], STANCE))
+        self._route_handles.append(self._dot("/guides/stance", raised(stance[None])[0], STANCE))
         if yaw is not None and np.isfinite(yaw):
-            tip = points[-1] + HEADING * np.array([np.cos(yaw), np.sin(yaw)])
-            self._route_handles.append(self._path("/guides/stance-heading", raised(np.array([points[-1], tip])),
+            tip = stance + HEADING * np.array([np.cos(yaw), np.sin(yaw)])
+            self._route_handles.append(self._path("/guides/stance-heading", raised(np.array([stance, tip])),
                                                   STANCE))
 
     def update(self):

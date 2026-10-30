@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "upstream": {
+    "remote": "https://github.com/yangchris11/samurai.git",
+    "commit": "76ba195984892b0d1e3db5d9c9f90bb62175680a",
+    "licence": "Apache-2.0"
+  },
+  "not_vendored": [
+    "__pycache__",
+    "csrc"
+  ],
+  "modified": {
+    "sam2/modeling/sam2_base.py": {
+      "upstream_sha256": "5f86907ad50418249722b5ea9a6f1ce95e80b293de24c3f9f0ca99ffeae9963a",
+      "differs": "No `from loguru import logger`, which upstream imports without using; carries a HomeBody modification notice."
+    }
+  },
+  "members": [
+    {
+      "path": "vendor/samurai/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "bytes": 11357
+    },
+    {
+      "path": "vendor/samurai/sam2/__init__.py",
+      "sha256": "b87ca1e95cd54b81766e8c74acf0e937952639529e40d2b4088693286f49419e",
+      "bytes": 395
+    },
+    {
+      "path": "vendor/samurai/sam2/build_sam.py",
+      "sha256": "bc49ac8e9ebf871790fa2e5f0e70bd5734e010966eff66af0c350ceaf14f3f1e",
+      "bytes": 6160
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2/sam2_hiera_b+.yaml",
+      "sha256": "bfc8204754ae5686d7618cc4b10e6b62ce04de1b0132d1af6465cfe54d12955b",
+      "bytes": 3548
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2/sam2_hiera_l.yaml",
+      "sha256": "60585839767537de53e9eaf574fd6fd904a339b4ed8f9824b6f1b629806261ba",
+      "bytes": 3696
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2/sam2_hiera_s.yaml",
+      "sha256": "4e32b6bae4788c68c1ea7b0984ade5d68b819b94102e540b3f7d32e866708d41",
+      "bytes": 3659
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2/sam2_hiera_t.yaml",
+      "sha256": "4902dbe10270628d58cd7dc238074ec5b6bd3c9c4cddd8b85b037383fcf94dda",
+      "bytes": 3753
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2.1/sam2.1_hiera_b+.yaml",
+      "sha256": "e73f9e9547b305040552ee943ebd3a34cee5727a76fc2ab88b87f7b28b430754",
+      "bytes": 3650
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2.1/sam2.1_hiera_l.yaml",
+      "sha256": "545e4325aa5c19a1615d43c946b07276ed4c57214eacf1437e38fa3d9374f636",
+      "bytes": 3798
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2.1/sam2.1_hiera_s.yaml",
+      "sha256": "632e5cd0104f5ab6cd4f9d2dfd80a8e7240e481ad7960a13cad2ae3504b88dbd",
+      "bytes": 3761
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/sam2.1/sam2.1_hiera_t.yaml",
+      "sha256": "43e114f609a1af7efede061f5c186119d498acd31f118f300c07acf57d4a5eca",
+      "bytes": 3855
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/samurai/sam2.1_hiera_b+.yaml",
+      "sha256": "2da3ccea01b3b4f4a0a356979f1d6a03d4152986c62aab1c931a269359c9a836",
+      "bytes": 3903
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/samurai/sam2.1_hiera_l.yaml",
+      "sha256": "7f0d3abf7befacfa9c504f5938184e9ea9cdd3f7ee5cfc697c4d38eafb968093",
+      "bytes": 4050
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/samurai/sam2.1_hiera_s.yaml",
+      "sha256": "32be8d97793fd484f0e8262547938316870a7d77ea955bff4fed8e4d9653d13b",
+      "bytes": 4013
+    },
+    {
+      "path": "vendor/samurai/sam2/configs/samurai/sam2.1_hiera_t.yaml",
+      "sha256": "f062d0b72401407ae25acdc5cba7e62eaf6f1463dadea9377efa7bb93feeab8f",
+      "bytes": 4107
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/__init__.py",
+      "sha256": "34bd8069c54764e7b8d73a78905dbe6467140a2f73170875128f6ca4d8cdd0aa",
+      "bytes": 197
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/backbones/__init__.py",
+      "sha256": "34bd8069c54764e7b8d73a78905dbe6467140a2f73170875128f6ca4d8cdd0aa",
+      "bytes": 197
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/backbones/hieradet.py",
+      "sha256": "03785581ca304d0451ae0df7a08ee0bf1e1dbe66fad285066e6b9ffc0d88d64f",
+      "bytes": 10003
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/backbones/image_encoder.py",
+      "sha256": "16eaad232220386f510ca8dfab8655e63699977149a4daf9ce9c6f374e6777a9",
+      "bytes": 4706
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/backbones/utils.py",
+      "sha256": "84bd48cda1ad468fb8c231d0c2eb83ad53386633d6e63ddaa6ed929c5521bdba",
+      "bytes": 3053
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/memory_attention.py",
+      "sha256": "07358cb7f58ec3788e88ff4e6415f8a9d628a3963529d6e2c915494a5347c8e2",
+      "bytes": 5509
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/memory_encoder.py",
+      "sha256": "73f7089ae5fdacdfcaaf3deca1ca6d9f84d89e7deb9cf97589622a9ef17ba42f",
+      "bytes": 5657
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/position_encoding.py",
+      "sha256": "14ae89d7ae68f61e2ffcba09eb171d8df9a7298332d4da99036d703294f89ec1",
+      "bytes": 8361
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam/__init__.py",
+      "sha256": "34bd8069c54764e7b8d73a78905dbe6467140a2f73170875128f6ca4d8cdd0aa",
+      "bytes": 197
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam/mask_decoder.py",
+      "sha256": "ca3523c58365574faddf1bfb54f374e4b4beba05127185ea2b17d22b916e099a",
+      "bytes": 12657
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam/prompt_encoder.py",
+      "sha256": "486596f5ba976cb9ced3836d65f1793dae586be2180567a451098f96c45ae401",
+      "bytes": 7016
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam/transformer.py",
+      "sha256": "17aac13abc8f73023f6be4b78af708df9f9f254964729421b1ba60e72a9011c1",
+      "bytes": 12870
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam2_base.py",
+      "sha256": "a67433a60310055194e634e6ff1db8175fbaf2eea1cce9ef37098c7dfd74aa5f",
+      "bytes": 56124
+    },
+    {
+      "path": "vendor/samurai/sam2/modeling/sam2_utils.py",
+      "sha256": "e35bbf13bc2e544a0272cd3f9539af38a752676ac3cd744be31cd8220afee804",
+      "bytes": 13173
+    },
+    {
+      "path": "vendor/samurai/sam2/sam2_image_predictor.py",
+      "sha256": "f13e5f9d94e5c8d9d2c3622dab20c8f334c089ef2ee5ea8e199da7d332b029ba",
+      "bytes": 19937
+    },
+    {
+      "path": "vendor/samurai/sam2/sam2_video_predictor.py",
+      "sha256": "c7c141fe1b5fe83120b7117c5cfbce715b0c01fd5d478fba4dda5eca0f2891e7",
+      "bytes": 58995
+    },
+    {
+      "path": "vendor/samurai/sam2/utils/__init__.py",
+      "sha256": "34bd8069c54764e7b8d73a78905dbe6467140a2f73170875128f6ca4d8cdd0aa",
+      "bytes": 197
+    },
+    {
+      "path": "vendor/samurai/sam2/utils/kalman_filter.py",
+      "sha256": "301121f50b943d0acd61570559a03dcfd0d1ce5b05924f28b3b33d3de5879f30",
+      "bytes": 11219
+    },
+    {
+      "path": "vendor/samurai/sam2/utils/misc.py",
+      "sha256": "13bd30e7ec1d38db6e62e117dfe1fc3459e11771bc5f879fc1554039e7a21635",
+      "bytes": 13092
+    },
+    {
+      "path": "vendor/samurai/sam2/utils/transforms.py",
+      "sha256": "ba3a64f4600c62f209206a6df3b40e3fcf133edae32fad658831bb0c2a6d1146",
+      "bytes": 4885
+    }
+  ],
+  "totals": {
+    "members": 35,
+    "bytes": 311750
+  }
+}

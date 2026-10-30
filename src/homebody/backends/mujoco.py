@@ -1,6 +1,7 @@
 """The MuJoCo implementation of Robot. Only this object owns simulation state."""
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -10,6 +11,7 @@ import numpy as np
 
 from homebody.helpers.geometry import transform
 from homebody.primitives.actions import ActionLimits, PhysicsInvalid
+from homebody.primitives.navigation.sim_task import SimNavigationEvidence
 from homebody.primitives.observations import Frame, HandState, Measurement, NavigationMap
 
 from .controller import SIDES, Controller
@@ -49,6 +51,18 @@ def hand_state(joints, target, ray, forces, ceilings, names):
                      np.array([gaps[finger] for finger in groups]))
 
 
+def same_measurement(a, b):
+    """Consecutive complete acquired states; time alone misses same-tick hand commands."""
+    return (a is not None and a.epoch == b.epoch and a.time == b.time
+            and all(np.array_equal(getattr(a, field), getattr(b, field))
+                    for field in ("world_camera", "world_torso", "base_pose", "joints"))
+            and a.hands.keys() == b.hands.keys()
+            and all(a.hands[side].closure == b.hands[side].closure
+                    and all(np.array_equal(getattr(a.hands[side], field), getattr(b.hands[side], field))
+                            for field in ("joints", "finger_effort_fraction", "finger_closure_gap"))
+                    for side in a.hands))
+
+
 class MujocoBackend:
     def __init__(self, root: Path, settings, *, scene: Path | None = DEFAULT_SCENE, render=True,
                  spawns=None):
@@ -73,6 +87,7 @@ class MujocoBackend:
         self.epoch += 1
         self.sequence = 0
         self._frame_cache = None
+        self._measurement = None
         self._valid = True
         self.model, self.data = load(self.root, self.settings, self.scene)
         for identity, spawn in self.spawns.items():
@@ -101,6 +116,11 @@ class MujocoBackend:
             self.navigation = NavigationMap(np.zeros((200, 200), dtype=bool),
                 np.array([[.025, 0, -2.5], [0, -.025, 2.5], [0, 0, 1]]), .025)
             self._objects = {}
+        plane = (*self._floor_normal, -float(self._floor_normal @ self._floor_point))
+        frame_id = "sim-" + (self.scene.name if self.scene is not None else "flat-floor") + "-world"
+        self._navigation_evidence = SimNavigationEvidence(
+            self, self.navigation, frame_id=frame_id,
+            floor_height_m=float(self._floor_point[2]), floor_plane=plane)
         self._hulls = {identity: self._hull(identity) for identity in self._objects}
         self._camera = self.model.camera("ego").id
         self._torso = self.model.body("torso_link").id
@@ -110,9 +130,15 @@ class MujocoBackend:
         focal = c.width / (2 * math.tan(math.radians(c.horizontal_fov) / 2))
         self._intrinsics = np.array([[focal, 0, (c.width - 1)/2],
                                      [0, focal, (c.height - 1)/2], [0, 0, 1]])
+        self._calibration_hash = hashlib.sha256(self._intrinsics.tobytes()
+            + self.model.cam_pos[self._camera].tobytes()
+            + self.model.cam_quat[self._camera].tobytes()).hexdigest()
         for _ in range(10 * self.settings.physics.control_hz):
             self.controller.velocity()
             self._tick()
+
+    def navigation_evidence(self):
+        return self._navigation_evidence()
 
     def _hull(self, identity):
         """IDENTITY's collision geom id and its mesh vertices in the geom's frame."""
@@ -242,17 +268,25 @@ class MujocoBackend:
         state = self.measure()
         self._frame_cache = Frame(state.epoch, state.sequence, state.time, rgb, depth, self._intrinsics,
                                  state.world_camera, state.world_torso, state.base_pose, state.joints,
-                                 state.hands, labels, self.navigation)
+                                 state.hands, labels, self.navigation,
+                                 sensor_metadata={"registered_pose": True,
+                                     "depth_rays_from_world_camera": True,
+                                     "navigation_generation": state.epoch,
+                                     "calibration_hash": self._calibration_hash,
+                                     "map_frame": self._navigation_evidence.frame_id,
+                                     "map_sha256": self._navigation_evidence.map_hash})
         return self._frame_cache
 
     def measure(self):
         camera_rotation = self.data.cam_xmat[self._camera].reshape(3, 3) @ np.diag([1, -1, -1])
-        self.sequence += 1
-        return Measurement(self.epoch, self.sequence, self.time,
+        current = Measurement(self.epoch, self.sequence + 1, self.time,
                            transform(self.data.cam_xpos[self._camera], camera_rotation),
                            transform(self.data.xpos[self._torso], self.data.xmat[self._torso].reshape(3, 3)),
                            np.r_[self.data.qpos[:2], self._base_yaw()], self.data.qpos[self.controller.port.q],
                            {side: self._hand(side) for side in ("left", "right")})
+        if not same_measurement(self._measurement, current):
+            self.sequence, self._measurement = current.sequence, current
+        return self._measurement
 
     def _hand(self, side):
         """SIDE's HandState."""

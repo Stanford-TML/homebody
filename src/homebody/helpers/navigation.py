@@ -172,3 +172,41 @@ def square_stance(navigation, facing, goal, reach, standoff, lateral, free):
     if stance is None:
         return None
     return stance, math.atan2(-normal[1], -normal[0])
+
+
+def snapped_goal(navigation, free, goal, start, max_distance, slack):
+    """GOAL when free, else the free cell nearest START among those within SLACK of the nearest
+    to GOAL. None when none lies within MAX_DISTANCE."""
+    if cell_free(free, pixel(navigation, goal)):
+        return goal
+    cells = np.argwhere(free)
+    points = np.column_stack((cells[:, ::-1], np.ones(len(cells)))) @ navigation.T_map_px.T
+    points = points[:, :2] / points[:, 2, None]
+    distance = np.linalg.norm(points - goal, axis=1)
+    nearby = distance <= max_distance
+    if not nearby.any():
+        return None
+    nearby &= distance <= distance[nearby].min() + slack
+    choices = points[nearby]
+    return choices[np.argmin(np.linalg.norm(choices - start, axis=1))]
+
+
+def body_frame(pose, delta):
+    """The map offset DELTA in the frame of the base at POSE: (ahead, left)."""
+    c, s = math.cos(pose[2]), math.sin(pose[2])
+    return np.array([c * delta[0] + s * delta[1], -s * delta[0] + c * delta[1]])
+
+
+def run_in_point(navigation, free, goal, yaw, origin, settings):
+    """The point run_in_distance behind the stance. None without a heading, from an origin
+    already nearer, or when the straight leg to the stance is not free."""
+    if yaw is None or np.linalg.norm(goal - origin) <= settings.run_in_distance:
+        return None
+    run_in = goal - settings.run_in_distance * np.array([math.cos(yaw), math.sin(yaw)])
+    return run_in if checked_segment(navigation, free, run_in, goal) else None
+
+
+def checked_segment(navigation, free, start, end):
+    """Whether the straight segment START-END lies in free cells of the inflated map."""
+    cells = (pixel(navigation, start), pixel(navigation, end))
+    return all(cell_free(free, cell) for cell in cells) and line_free(*cells, free)

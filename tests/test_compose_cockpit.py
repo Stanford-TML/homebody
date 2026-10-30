@@ -8,7 +8,7 @@ from PIL import Image
 
 from homebody.helpers.geometry import transform
 from homebody.session.recorder import json_value
-from homebody.skills import navigate, pick
+from homebody.skills import navigate_sim, pick
 from homebody.ui.theme import ACCENT, MASK, PLAN, RELEASE
 from tools import compose_cockpit
 
@@ -114,11 +114,11 @@ def test_a_replay_that_fails_midway_closes_the_video_it_started(tmp_path, monkey
 
 
 def test_recorded_walk_in_plan_is_rebuilt_with_its_drive_plan_and_unknown_records_are_skipped():
-    walk = navigate.Plan(1, np.array([1., .5]), .3, [np.array([0., 0.]), np.array([1., .5])],
-                      requested_goal=np.array([0., 0.]))
+    walk = navigate_sim.Plan(1, np.array([1., .5]), .3, [np.array([0., 0.]), np.array([1., .5])],
+                             requested_goal=np.array([0., 0.]))
     recorded = json.loads(json.dumps(pick.ApproachPlan(1, "right", 7, walk), default=json_value))
     rebuilt = compose_cockpit.plan(recorded)
-    assert isinstance(rebuilt, pick.ApproachPlan) and isinstance(rebuilt.drive_plan, navigate.Plan)
+    assert isinstance(rebuilt, pick.ApproachPlan) and isinstance(rebuilt.drive_plan, navigate_sim.Plan)
     np.testing.assert_allclose(rebuilt.drive_plan.waypoints, [[0., 0.], [1., .5]])
     assert rebuilt.drive_plan.departure_goal is None and rebuilt.label == 7
     assert compose_cockpit.plan({"epoch": 1, "unknown": []}) is None

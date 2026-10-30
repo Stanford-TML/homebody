@@ -1,11 +1,14 @@
 """Append-only evidence bundles; failures retain their original sensor and provider data."""
 import hashlib
+import io
 import json
+import os
 import platform
 import subprocess
 import time
 import uuid
 from collections import Counter
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, is_dataclass
 from datetime import UTC, datetime
@@ -49,6 +52,8 @@ def source_digest(source: Path) -> str:
 
 
 def json_value(value):
+    if isinstance(value, Mapping):
+        return dict(value)
     if is_dataclass(value):
         return asdict(value)
     if isinstance(value, np.ndarray):
@@ -74,11 +79,14 @@ def write_frame(folder, frame, rgb, depth, nav, topdown):
                         world_torso=frame.world_torso, base_pose=frame.base_pose,
                         joints=frame.joints,
                         **{f"{side}_hand_joints": hand.joints for side, hand in frame.hands.items()})
-    write_json(folder / "state.json", describe(frame, topdown))
+    state = describe(frame, topdown)
+    if frame.sensor_metadata is not None:
+        state["sensor_metadata"] = frame.sensor_metadata
+    write_json(folder / "state.json", state)
 
 
 class Recorder:
-    def __init__(self, root: Path, settings, output: Path):
+    def __init__(self, root: Path, settings, output: Path, *, backend="mujoco", provenance=None):
         self.settings = settings
         stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         self.path = output / f"session-{stamp}-{uuid.uuid4().hex[:8]}"
@@ -106,15 +114,44 @@ class Recorder:
         if not source.is_dir():
             source = Path(__file__).resolve().parents[1]
         write_json(self.path / "provenance.json", {
-            "schema_version": 1, "backend": "mujoco", "created_utc": stamp, "revision": revision(root),
+            "schema_version": 1, "backend": backend, "created_utc": stamp, "revision": revision(root),
             "source_sha256": source_digest(source),
             "assets_sha256": directory_digest(root / "assets") if (root / "assets").is_dir() else None,
             "settings": settings_dict, "packages": packages, "python": platform.python_version(),
             "model": settings.agent.model, "model_id": settings.agent.model_id,
             "provider": settings.agent.provider,
             "video": ("each video plays its samples at their recording rate (settings.recording); "
-                      "every frame's simulation time is in events.jsonl"),
+                      + ("captured sensor timestamps are in each frame's sensor_metadata and events.jsonl"
+                         if backend == "real" else "every frame's simulation time is in events.jsonl")),
         })
+        if provenance is not None:
+            write_json(self.path / "deployment.json", provenance)
+
+    def historical_image(self, hit, rgb):
+        """Retain the exact recalled pixels separately from current sensor observations."""
+        folder = self.path / "memory"
+        folder.mkdir(exist_ok=True)
+        path = folder / (hit["image"]["sha256"] + ".png")
+        encoded = io.BytesIO()
+        Image.fromarray(rgb).save(encoded, format="PNG")
+        data = encoded.getvalue()
+        digest = hashlib.sha256(data).hexdigest()
+        if not path.exists() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+            try:
+                with temporary.open("xb") as stream:
+                    stream.write(data)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, path)
+            finally:
+                temporary.unlink(missing_ok=True)
+        self.event("historical_image", path=path.relative_to(self.path),
+                   source_sha256=hit["image"]["sha256"], historical=True,
+                   encoded_sha256=digest,
+                   record_id=hit.get("record_id"),
+                   pose=hit.get("pose"), time=hit.get("time"), frame_id=hit.get("frame_id"))
+        return path
 
     @property
     def recording(self) -> bool:
@@ -185,7 +222,8 @@ class Recorder:
                                                 self.settings.topdown)
         self.event("frame", epoch=frame.epoch, sequence=frame.sequence,
                    simulation_time=frame.time, video_frame=len(self._frames),
-                   path=folder.relative_to(self.path))
+                   path=folder.relative_to(self.path),
+                   **({"sensor_metadata": frame.sensor_metadata} if frame.sensor_metadata is not None else {}))
         self._frames[key] = (rgb, depth, nav)
         self._append_video(frame.rgb, "observations", 1 / self.settings.recording.frame_period)
         return self._frames[key]

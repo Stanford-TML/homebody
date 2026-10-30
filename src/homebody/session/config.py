@@ -74,6 +74,11 @@ class Collision:
     voxel_size: float = 0.01
     min_hit_voxels: int = 1
     joint_step: float = 0.04
+    # Component sweeps use measured boxes; optional padding is separate from depth noise.
+    # Sample column_spacing apart using the returns of the last column_seconds.
+    column_margin: float = 0.0
+    column_spacing: float = 0.02
+    column_seconds: float = 30.0  # support history across pick/carry/aim; not live sensor freshness
 
 @dataclass(frozen=True)
 class Topdown:
@@ -190,6 +195,9 @@ class Navigate:
     stall_timeout: float = 6.0
     progress_distance: float = 0.03
     tick: float = 0.10
+    # How far the gait coasts after a docking command stops, and the longest straight docking.
+    stopping_distance: float = 0.05
+    dock_distance: float = 0.60
 
 
 @dataclass(frozen=True)
@@ -291,6 +299,12 @@ class Placement:
     support_height_tolerance: float = 0.06
     still_distance: float = 0.01
     stable_frames: int = 3
+    # A docking place first lifts the payload and the holding arm's parts over the destination
+    # this far over its observed top (more than collision.column_margin), at most
+    # max_carry_raise; the release must solve this far beyond its target.
+    carry_clearance: float = 0.06
+    max_carry_raise: float = 0.20
+    dock_reach_margin: float = 0.04
 
     def rest_arm(self, side):
         return np.asarray(self.rest_arm_left if side == "left" else self.rest_arm_right, dtype=float)

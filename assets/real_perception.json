@@ -1,0 +1,16 @@
+{
+  "schema": "homebody.real_perception.v1",
+  "artifacts": [
+    {
+      "id": "g1-sam2-tiny",
+      "family": "sam2",
+      "role": "video_object_segmentation",
+      "relative_path": ".cache/models/sam2.1_hiera_tiny.pt",
+      "source_uri": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
+      "revision": "sam2.1-2024-09-29",
+      "license": "Apache-2.0",
+      "size_bytes": 156008466,
+      "sha256": "7402e0d864fa82708a20fbd15bc84245c2f26dff0eb43a4b5b93452deb34be69"
+    }
+  ]
+}

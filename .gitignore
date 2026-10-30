@@ -13,4 +13,6 @@ runs/
 .DS_Store
 *.map
 CLAUDE.local.md
+configs/*.local.json
+configs/local/
 MUJOCO_LOG.TXT

@@ -71,13 +71,21 @@ class Arm:
         jacobian = np.vstack((np.cross(axes, pose[:3, 3] - centers).T, np.array(axes).T))
         return pose, jacobian
 
-    def solve(self, target, seed, *, iterations=150, position_only=False, restarts=True):
+    def solve(self, target, seed, *, iterations=150, position_only=False, restarts=True,
+              point_in_palm=None):
         """Joints reaching the torso-frame TARGET from SEED, trying fixed restarts when
-        RESTARTS, or None when it does not solve or the pose is beyond reach."""
-        if not np.isfinite(target).all() or np.linalg.norm(target[:3, 3] - self.shoulder) > self.reach:
+        RESTARTS, or None when it does not solve or the pose is beyond reach.
+        POINT_IN_PALM makes TARGET's translation refer to that attached point."""
+        reach = self.reach
+        if point_in_palm is not None:
+            point_in_palm = np.asarray(point_in_palm, dtype=float)
+            if point_in_palm.shape != (3,) or not np.isfinite(point_in_palm).all():
+                raise ValueError("point_in_palm must be a finite 3D point")
+            reach += np.linalg.norm(point_in_palm)
+        if not np.isfinite(target).all() or np.linalg.norm(target[:3, 3] - self.shoulder) > reach:
             return None
         for start in (seed, *(self.restarts if restarts else ())):
-            result = self._descend(target, start, iterations, position_only)
+            result = self._descend(target, start, iterations, position_only, point_in_palm)
             if result is not None:
                 return result
         return None
@@ -100,10 +108,14 @@ class Arm:
             settled = pulled
         return settled if np.abs(settled - joints).max() <= SETTLE_LIMIT else joints
 
-    def _descend(self, target, seed, iterations, position_only=False):
+    def _descend(self, target, seed, iterations, position_only=False, point_in_palm=None):
         joints = np.clip(np.asarray(seed, dtype=float), self.lower + LIMIT_MARGIN, self.upper - LIMIT_MARGIN)
         for _ in range(iterations):
             pose, jacobian = self.forward(joints)
+            if point_in_palm is not None:
+                shift = pose[:3, :3] @ point_in_palm
+                pose[:3, 3] += shift
+                jacobian[:3] -= skew(shift) @ jacobian[3:]
             error = np.r_[target[:3, 3] - pose[:3, 3],
                           rotation_error(target[:3, :3], pose[:3, :3])]
             if np.linalg.norm(error[:3]) < POSITION_TOLERANCE and (

@@ -9,6 +9,7 @@ from homebody.primitives.actions import ActionRejected, PhysicsInvalid
 from homebody.primitives.observations import ObservationError
 from homebody.primitives.robot import Robot
 from homebody.session.settings import Settings
+from homebody.skills.manipulation_policy import ManipulationPolicy
 
 if TYPE_CHECKING:  # annotations only: the arm kinematics load trimesh
     from homebody.helpers.kinematics import Arm
@@ -44,6 +45,11 @@ class Planning:
     settings: Settings
     carried: Mapping[str, dict]
     cancelled: Callable[[], bool] = lambda: False
+    memory: object | None = None
+    navigation: object | None = None
+    manipulation: ManipulationPolicy = field(default_factory=ManipulationPolicy)
+    target_selector: Callable | None = None
+    navigation_evidence: Callable | None = None
 
 
 @dataclass
@@ -57,6 +63,15 @@ class Context:
     cancelled: Callable[[], bool] = lambda: False
     emit: Callable[[dict], None] = lambda event: None
     carried: dict = field(default_factory=dict)
+    memory: object | None = None
+    navigation: object | None = None
+    manipulation: ManipulationPolicy = field(default_factory=ManipulationPolicy)
+    target_selector: Callable | None = None
+    navigation_evidence: Callable | None = None
+    paused: Callable[[], bool] | None = None
+    authority: Callable[[], None] | None = None
+    navigation_state: object | None = None
+    navigation_history: object | None = None
     _skill_name: str | None = field(default=None, init=False, repr=False)
     _stage_name: str | None = field(default=None, init=False, repr=False)
 
@@ -69,7 +84,10 @@ class Context:
         return stopped(self, epoch, result)
 
     def planning(self):
-        return Planning(self.arms, self.jaw_samples, self.settings, self.carried, self.cancelled)
+        return Planning(self.arms, self.jaw_samples, self.settings, self.carried, self.cancelled,
+                        memory=self.memory, navigation=self.navigation,
+                        manipulation=self.manipulation, target_selector=self.target_selector,
+                        navigation_evidence=self.navigation_evidence)
 
     def stage(self, name):
         """Emit a stage event, once per distinct name."""
@@ -81,12 +99,19 @@ class Context:
         """End the skill as CANCELLED or STALE_EPOCH unless it may go on."""
         if self.cancelled():
             raise SkillFailure("CANCELLED", "Operator cancelled the skill")
+        if self.paused is not None and self.paused():
+            raise SkillFailure("PAUSED", "Operator paused; resume requires fresh preparation")
         if epoch != self.observations.epoch:
             raise SkillFailure("STALE_EPOCH", "Scene changed; prepare a new action")
+        if self.authority is not None:
+            self.authority()
 
     def observe(self, epoch):
         """A current frame of EPOCH, or STALE_OBSERVATION."""
         frame = self._current(epoch, self.observations.snapshot)
+        observe_frame = getattr(self.navigation, "observe_frame", None)
+        if callable(observe_frame):
+            observe_frame(self, frame)
         self.emit({"type": "observation", "frame": frame})
         return frame
 
@@ -98,10 +123,13 @@ class Context:
         self.check(epoch)
         packet = read()
         self.check(epoch)
-        if packet.epoch != epoch or not 0 <= self.observations.time - packet.time <= (
-            self.settings.motion.observation_age
-        ):
-            raise SkillFailure("STALE_OBSERVATION", "Current sensor evidence is stale")
+        now, limit = self.observations.time, self.settings.motion.observation_age
+        age = now - packet.time
+        if packet.epoch != epoch or not 0 <= age <= limit:
+            raise SkillFailure("STALE_OBSERVATION", "Current sensor evidence is stale",
+                               {"observed_at": now, "captured_at": packet.time,
+                                "age_s": age, "max_age_s": limit,
+                                "packet_epoch": packet.epoch, "expected_epoch": epoch})
         return packet
 
     def advance(self, epoch, seconds=None):
@@ -129,6 +157,8 @@ def declared(name, skill):
                             f"commands: {commands!r}")
     if not isinstance(skill.FAILURES, tuple):
         raise TypeError(f"Skill {name!r}: FAILURES must be a tuple of result codes")
+    if getattr(skill, "PASSIVE", False) and (skill.NEEDS or getattr(skill, "OPTIONAL", ())):
+        raise TypeError(f"Skill {name!r}: passive skills cannot declare actuation")
     if not skill.PROMPT.startswith(f"{name}: "):
         raise TypeError(f"Skill {name!r}: PROMPT must start with {name + ': '!r}")
     return skill
@@ -191,6 +221,8 @@ class Attempt:
         self.ctx, self.name, self.selected, self.epoch = ctx, name, selected_frame, selected_frame.epoch
         self.skill = skill
         self.declared = COMMON_FAILURES + (() if self.skill is None else self.skill.FAILURES)
+        if getattr(ctx, "paused", None) is not None:
+            self.declared += ("PAUSED",)
         self.plan, self.executing, self.aborting = None, False, False
         self.finished, self.result = False, None
 
@@ -232,16 +264,33 @@ class Attempt:
         return result
 
     def finish(self, result):
-        """Abort if needed, hold or stop the base, and always emit the terminal event."""
-        ctx = self.ctx
+        """Abort if needed, then always try to hold or stop the base, and emit one terminal
+        event. An unexpected abort or settle fault ends the attempt as ERROR, keeping the attempt's
+        code in details["original_code"], and is raised after the terminal event."""
+        ctx, faults = self.ctx, []
         try:
             if self.aborting and hasattr(self.skill, "abort"):
-                result = aborted(self.skill, self.plan, ctx, result)
-            if self.executing and ctx.observations.epoch == self.epoch:
-                result = ctx.settle(self.epoch, result)
+                try:
+                    result = aborted(self.skill, self.plan, ctx, result)
+                except Exception as error:  # noqa: BLE001 -- the base is settled before re-raising
+                    faults.append(error)
         finally:
-            self.finished, self.result = True, result
-            ctx.emit({"type": "skill_finished", "result": result})
+            try:
+                if (self.executing and not getattr(self.skill, "PASSIVE", False)
+                        and ctx.observations.epoch == self.epoch):
+                    result = ctx.settle(self.epoch, result)
+            except Exception as error:  # noqa: BLE001 -- one terminal event before re-raising
+                faults.append(error)
+            finally:
+                if faults:
+                    result = Result(result.skill, "ERROR", f"{result.message}; cleanup: " + "; ".join(
+                        f"{type(error).__name__}: {error}" for error in faults),
+                        {**result.details, "original_code": result.code,
+                         "traceback": "".join(traceback.format_exception(faults[0]))})
+                self.finished, self.result = True, result
+                ctx.emit({"type": "skill_finished", "result": result})
+        if faults:
+            raise faults[0]
         return result
 
 

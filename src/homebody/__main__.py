@@ -5,7 +5,9 @@ import json
 import math
 import os
 import shutil
+import signal
 import sys
+import threading
 import time
 import uuid
 from dataclasses import replace
@@ -20,17 +22,21 @@ from homebody.vlm.provider import ProviderError
 
 
 def parser():
-    value = argparse.ArgumentParser(prog="homebody", description="HomeBody SIM: a model drives a simulated G1 "
-                                                                 "in a scanned environment")
+    value = argparse.ArgumentParser(prog="homebody", description="HomeBody: shared G1 skills in SIM or an explicitly configured REAL session")
     value.add_argument("command", nargs="?", choices=("run", "check", "provider-check"),
                        default="run")
     value.add_argument("--root", type=Path,
                        help="Release root containing assets and configs")
+    value.add_argument("--backend", choices=("sim", "real"), default="sim",
+                       help="Task engine (default sim); REAL connects to already-running services")
+    value.add_argument("--real-config", type=Path, help="Explicit REAL connection, map and calibration JSON")
+    value.add_argument("--memory", help="Persistent named photo-memory set for REAL tasks")
+    value.add_argument("--memory-root", type=Path, help="Named-memory storage (default XDG state/homebody/memory)")
     value.add_argument("--env", help="The environment by name, a folder of assets/real2sim/ "
                                      f"(default: {DEFAULT_ENV})")
     value.add_argument("--scene", type=Path, help="An environment folder by path, instead of --env")
     value.add_argument("--settings", type=Path,
-                       help="TOML of only the values to change, over configs/simulation.toml and the scene's")
+                       help="TOML overrides for the selected workflow; SIM also loads simulation and scene settings")
     value.add_argument("--model", choices=tuple(MODELS), help="The model (default astra)")
     value.add_argument("--task", help="Explicit initial task; ordinary launch waits for input")
     value.add_argument("--place-object", action="append", default=[], metavar="NAME=X,Y,YAW",
@@ -175,6 +181,146 @@ def run(args, settings, output):
         recorder.close()
 
 
+def check_real(args):
+    """Validate local deployment files without opening sensor or command connections."""
+    from homebody.backends.real_config import RealConfig
+    try:
+        config = RealConfig.from_file(args.real_config, args.root)
+        checks = config.offline_checks(root=args.root)
+        for name, result in checks.items():
+            state = {True: "OK", False: "MISSING", None: "UNTESTED"}[result["ok"]]
+            print(f"{state} {name}: {result['detail']}")
+        print("Local files only: no robot connection, service startup, camera stream or provider request.")
+        print("Physical calibration, hand retention and loaded motion remain supervised qualification gates.")
+        return int(any(result["ok"] is False for result in checks.values()))
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        print(f"REAL configuration invalid: {error}", file=sys.stderr)
+        return 1
+
+
+def _fault_hold(guard, controls, error):
+    """Keep the healthy host client alive while an operator resolves a retained load."""
+    try:
+        guard.recorder.event("retention_fault", retention=guard.status())
+    except (Exception, KeyboardInterrupt) as record_error:  # noqa: BLE001 -- evidence failure cannot release ownership
+        print(f"Fault evidence unavailable: {record_error}. Live client retained.", file=sys.stderr)
+    try:
+        guard.backend.stop(guard.backend.epoch)
+    except (Exception, KeyboardInterrupt) as hold_error:  # noqa: BLE001 -- retain unconfirmed grip ownership
+        print(f"Hold is unconfirmed: {hold_error}. Live client retained; operator intervention required.", file=sys.stderr)
+    try:
+        guard.update("Stopped", f"{error} Object state retained. Complete a supervised handover before End session.")
+    except (Exception, KeyboardInterrupt) as display_error:  # noqa: BLE001 -- display failure cannot release
+        print(f"Fault display unavailable: {display_error}", file=sys.stderr)
+    while not controls.closing.is_set():
+        try:
+            command = controls.next()
+            if command is None:
+                time.sleep(.02)
+            elif command.name == "handover":
+                guard.handover(command.confirmation)
+            elif command.name == "end":
+                guard.end()
+            elif command.name == "task":
+                guard.update("Stopped", "This fault requires a new validated session after handover.")
+        except KeyboardInterrupt:
+            controls.end()
+        except Exception as command_error:  # noqa: BLE001 -- retain ownership after a failed hold or evidence write
+            print(f"Fault recovery command failed: {command_error}. Session remains open.", file=sys.stderr)
+
+
+def run_real(args, settings, output):
+    """Connect explicit primitives; Session remains the only task/provider owner."""
+    from homebody.backends.real import RealG1Backend
+    from homebody.backends.real_config import RealConfig
+    from homebody.session.real import compose
+    from homebody.session.recorder import Recorder
+    from homebody.session.retention import RetentionGuard
+    from homebody.ui.console import Console, Controls
+
+    backend = ui = session = guard = None
+    recorder = Recorder(args.root, settings, output, backend="real")
+    controls = Controls()
+    failed = False
+    previous_interrupt = None
+    if threading.current_thread() is threading.main_thread():
+        previous_interrupt = signal.signal(signal.SIGINT, lambda signum, frame: controls.end())
+    try:
+        config = RealConfig.from_file(args.real_config, args.root)
+        missing = [name for name, check in config.offline_checks(root=args.root).items() if check["ok"] is False]
+        if missing:
+            raise ValueError("Missing REAL prerequisites: " + ", ".join(missing))
+        ui = Console(controls, host=args.host, port=args.port, initial_task=args.task or "",
+                     scene_name=config.map_frame, model_name=model_label(settings.agent),
+                     topdown_settings=settings.topdown, render_in_background=True, workflow="real")
+        backend = RealG1Backend(args.root, settings, config=config)
+        def startup_update(status, message=""):
+            ui.update(status, message)
+            ui.workflow_state({"carried": {}, "task_active": False, "paused": False,
+                               "recording": str(recorder.path), "memory": None,
+                               "readiness": backend.readiness(), "retention": guard.status()})
+        guard = RetentionGuard(backend, recorder, controls, carried=dict, update=startup_update)
+        backend.require_manipulation()
+        from homebody.ui.real_scene import RealSceneView
+        ui.scene_view = RealSceneView(ui.server, args.root,
+                                      navigation=backend.map_binding.navigation,
+                                      floor_height_m=config.map_floor_height_m)
+        recorder.event("deployment", **backend.provenance)
+        memory_root = args.memory_root or Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "homebody/memory"
+        session = compose(backend, make(settings.agent), settings, recorder, controls,
+                          root=args.root, memory_root=memory_root, memory_name=args.memory, ui=ui)
+        guard = session.retention
+        ui.arms = session.context.arms
+        session.heartbeat()
+        if session.status != "Waiting for sensors":
+            session.update("Ready", "Verified sensor capabilities. Start task authorizes its registered actions.")
+        print(f"Evidence: {recorder.path}\nMemory: {session.memory.path}")
+        print(f"Console: http://{ui.server.get_host()}:{ui.server.get_port()}")
+        if args.task:
+            controls.submit(args.task)
+        while not controls.closing.is_set():
+            try:
+                session.run()
+            except KeyboardInterrupt:
+                controls.stop()
+                recorder.event("interrupted", reason="KeyboardInterrupt", carried=session.context.carried.copy())
+                if not session.end_session():
+                    print("Object retained: session remains open for placement or confirmed handover.", file=sys.stderr)
+    except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 -- retain terminal evidence and uncertain loads
+        failed = True
+        try:
+            recorder.event("session_error", error=f"{type(error).__name__}: {error}")
+        except Exception as record_error:  # noqa: BLE001 -- disk failure must not bypass retained grip
+            print(f"Could not record session failure: {record_error}", file=sys.stderr)
+        print(f"REAL session failed: {error}\nEvidence: {recorder.path}", file=sys.stderr)
+        if guard is not None and guard.status()["retained_or_unknown"]:
+            _fault_hold(guard, controls, error)
+        elif args.task and session is None:
+            recorder.setup_failure(args.task, f"{type(error).__name__}: {error}")
+    finally:
+        # Includes failures before Session composition and interruptions during fault entry.
+        # A closing UI flag alone cannot authorize dropping an unknown load's command owner.
+        while guard is not None and guard.status()["retained_or_unknown"]:
+            controls.closing.clear()
+            try:
+                _fault_hold(guard, controls, "Shutdown is waiting for physical load resolution.")
+            except KeyboardInterrupt:
+                controls.end()
+        failures = []
+        for name, resource in (("backend", backend), ("console", ui), ("recorder", recorder)):
+            if resource is not None:
+                try:
+                    resource.close()
+                except Exception as error:  # noqa: BLE001 -- every owned resource must be closed
+                    failures.append(f"{name}: {error}")
+        if failures:
+            failed = True
+            print("REAL resources failed to close: " + "; ".join(failures), file=sys.stderr)
+        if previous_interrupt is not None:
+            signal.signal(signal.SIGINT, previous_interrupt)
+    return 1 if failed else 0
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv[:1] == ["real2sim"]:
@@ -190,6 +336,17 @@ def main(argv=None):
         if args.root is None:
             value.error("Run from the release folder or pass --root PATH containing assets/configs")
     args.root = args.root.resolve()
+    if args.backend == "real":
+        if args.real_config is None:
+            value.error("--backend real requires --real-config PATH")
+        if args.place_object:
+            value.error("--place-object is only available in SIM")
+        if args.command == "run" and args.headless:
+            value.error("REAL tasks require the persistent operator console; --headless is for SIM")
+        if args.command == "run" and not args.memory:
+            value.error("REAL tasks require an explicit persistent --memory NAME")
+    elif args.real_config or args.memory or args.memory_root:
+        value.error("REAL configuration and persistent memory flags require --backend real")
     environments = sorted(path.name for path in (args.root / "assets/real2sim").iterdir() if path.is_dir())
     if args.env and args.env not in environments:
         value.error(f"--env must be one of {', '.join(environments)}")
@@ -216,17 +373,20 @@ def main(argv=None):
             value.error(f"--place-object: no movable object {', '.join(unknown)}; "
                         f"this environment's are {', '.join(movable)}")
     try:
-        settings = Settings.load(args.root / "configs/simulation.toml", scene=args.scene, override=args.settings)
+        settings = Settings.load(args.root / "configs/simulation.toml" if args.backend == "sim" else None,
+                                 scene=args.scene if args.backend == "sim" else None, override=args.settings)
     except (ValueError, TypeError, KeyError, OSError) as error:
         value.error(f"settings: {error}")
     if args.model:
         settings = replace(settings, agent=replace(settings.agent, model=args.model))
     output = (args.output or args.root / "runs").resolve()
     if args.command == "check":
+        if args.backend == "real":
+            return check_real(args)
         return check(args.root, args.scene, settings)
     if args.command == "provider-check":
         return provider_check(settings, output)
-    return run(args, settings, output)
+    return run_real(args, settings, output) if args.backend == "real" else run(args, settings, output)
 
 
 if __name__ == "__main__":

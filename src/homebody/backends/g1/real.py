@@ -38,7 +38,7 @@ from homebody.helpers.geometry import wrap
 from homebody.primitives.navigation.contracts import HardwareUnavailable, Refused
 from homebody.real2sim.exploration.settings import current
 
-CONTROL_HZ = 250.0  # the body control loop rate
+CONTROL_HZ = 250.0  # this driver's in-process body control loop rate
 AMO_PERIOD_S = 0.02  # the walking policy's wall-clock period (50 Hz)
 LOOP_RESYNC_S = 0.05     # a loop this far behind its schedule restarts it instead of racing
 LOOP_RATE_WARN_HZ = 200.0
@@ -760,7 +760,7 @@ class RealBackend:
 
     def _start_host_client(self) -> None:
         """Arm through the body host, which writes the motors and reads the remote; this
-        process mirrors its state at 250 Hz and sends intent."""
+        process mirrors its state and sends intent; Dex3 keeps its own 250 Hz cadence."""
         client = self._host
         client.on_event = lambda text: self._body_event(f"host: {text}")
         client.send(cmd="arm")
@@ -849,23 +849,30 @@ class RealBackend:
         return self._host.last_interruption if self._host is not None else ""
 
     def _host_loop(self) -> None:
-        """One pass per body-host state: pose inputs, Dex3, trace and tick count; the host
-        drives the legs."""
+        """Mirror each new body state once and clock Dex3 independently in this thread."""
         client = self._host
         period = 1.0 / CONTROL_HZ
         seen = client.ticks
         last_tick = last_arm = time.monotonic()
+        next_hand = last_tick + period
         watch = stall_watch.StallWatch(self._diagnostics_dir)
         try:
             watch.arm()
             while not self._control_stop.is_set():
                 with client.tick:
+                    timeout = (max(0.0, next_hand - time.monotonic())
+                               if self._dex3 is not None else STATE_STALE_S)
                     client.tick.wait_for(lambda seen=seen: client.ticks != seen,
-                                         timeout=STATE_STALE_S)
+                                         timeout=timeout)
+                    new_state = client.ticks != seen
                     seen = client.ticks
                 if self._control_stop.is_set():
                     break
                 tick_at = time.monotonic()
+                hand_due = self._dex3 is not None and tick_at >= next_hand
+                if hand_due:
+                    # A delayed loop resumes from now; never replay missed hand writes.
+                    next_hand = tick_at + period
                 if tick_at - last_tick >= stall_watch.STALL_S:
                     watch.note_stall(tick_at - last_tick, "homebody-body-client-control")
                 last_tick = tick_at
@@ -882,6 +889,11 @@ class RealBackend:
                     continue
                 with self._control_lock:
                     self._lower_deadman()
+                    if not new_state:
+                        if hand_due and client.fresh():
+                            next_hand = time.monotonic() + period
+                            self._dex3.tick(period)
+                        continue
                     try:
                         state = self._port.read_state()
                     except HardwareUnavailable:
@@ -895,7 +907,8 @@ class RealBackend:
                     self._q_waist = tuple(float(v) for v in state.joint_positions[12:15])
                     self._note_body_flip(self._kernel.status)
                     self._loop_rate_hz = float(msg.get("loop_hz") or 0.0)
-                    if self._dex3 is not None:
+                    if hand_due:
+                        next_hand = time.monotonic() + period
                         self._dex3.tick(period)
                     self._last_state = state
                     self._term_stamp["qpos"] = self._term_stamp["arm_trace"] = time.time()

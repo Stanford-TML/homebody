@@ -5494,6 +5494,18 @@
    "sha256": "42cc80e918d892b2db1ba31d231290abeb0f1a150340d41c2abe4f5d076611b4",
    "bytes": 49584,
    "source": "Unitree G1 29-DoF visual mesh; BSD-3-Clause, assets/robot/LICENSE"
+  },
+  {
+   "path": "assets/calib/g1_head.json",
+   "sha256": "662f503d6c626b8ab9302cef3e2bfd8bc439ddcfb3ae23b68bb7d314e73b988b",
+   "bytes": 1037,
+   "source": "Measured camera calibration or perception model identity; see guides/real-long-horizon.md"
+  },
+  {
+   "path": "assets/real_perception.json",
+   "sha256": "d4b8b72bd8f17c68ef8c89a588063df0d0667cee63627a4b61d690a7871ce561",
+   "bytes": 521,
+   "source": "Measured camera calibration or perception model identity; see guides/real-long-horizon.md"
   }
  ],
  "generation_note": "SHA-256 and size of every shipped asset, checked by tools/verify_assets.py."

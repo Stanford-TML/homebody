@@ -985,7 +985,7 @@ def _capped(vx: float, vy: float) -> tuple[float, float]:
 
 
 def _leg_twist(ctx, target, line0, on, tolerance_m: float, speed_target=None, *, cap_mps=None):
-    """A driving leg's twist: forward plus the lateral that keeps it on its line, capped, no yaw."""
+    """Track the route line, with task-supplied heading feedback when required."""
     bearing, gap = _bearing_to(ctx, target)
     if speed_target is not None:
         gap = _bearing_to(ctx, speed_target)[1]
@@ -995,14 +995,15 @@ def _leg_twist(ctx, target, line0, on, tolerance_m: float, speed_target=None, *,
     if cap_mps is not None:
         scale = min(1., cap_mps / max(math.hypot(vx, vy), 1e-9))
         vx, vy = vx * scale, vy * scale
-    return (vx, vy, 0.0)
+    gain = getattr(ctx, "route_heading_gain_hz", 0.)
+    return (vx, vy, _drive_yaw(bearing, gain_hz=gain) if gain else 0.)
 
 
-def _drive_yaw(bearing: float) -> float:
+def _drive_yaw(bearing: float, *, gain_hz: float = DRIVE_YAW_GAIN_HZ) -> float:
     """The close-in heading correction, zero inside DRIVE_YAW_DEADBAND_RAD."""
     if abs(bearing) < DRIVE_YAW_DEADBAND_RAD:
         return 0.0
-    want = min(max(DRIVE_YAW_GAIN_HZ * abs(bearing), WZ_MIN_ACCEPT), DRIVE_YAW_MAX_RAD_S)
+    want = min(max(gain_hz * abs(bearing), WZ_MIN_ACCEPT), DRIVE_YAW_MAX_RAD_S)
     return math.copysign(want, bearing)
 
 
@@ -1258,6 +1259,14 @@ def _passed_waypoint(xy, start, target) -> bool:
     along = (xy[0] - target[0]) * dx + (xy[1] - target[1]) * dy
     across = abs((xy[0] - start[0]) * dy - (xy[1] - start[1]) * dx) / span
     return along >= 0 and across <= min(drive.waypoint_tol_m, LEG_CROSS_TRACK_M)
+
+
+def _straight_waypoint(start, target, following) -> bool:
+    """Resampled points on a straight segment do not define a corner to retain."""
+    dx, dy = target[0] - start[0], target[1] - start[1]
+    ex, ey = following[0] - target[0], following[1] - target[1]
+    return (dx * ex + dy * ey > 0.
+            and abs(dx * ey - dy * ex) <= 1e-6 * math.hypot(dx, dy) * math.hypot(ex, ey))
 
 
 def _collision_failure(detail, checker, check, points, **info):
@@ -1623,6 +1632,7 @@ def _walk_waypoints(ctx, waypoints, held: dict, ticks: int, *,
     leave_rad = math.radians(drive.leave_deg)
     if waypoint_tolerance_m is None:
         waypoint_tolerance_m = drive.waypoint_tol_m
+    pass_tolerance_m = waypoint_tolerance_m
     if clearance_margin_m:
         waypoint_tolerance_m = min(waypoint_tolerance_m, MIN_WALK_GAP_M)
     origin = tuple(pose(ctx)[:2])
@@ -1632,6 +1642,8 @@ def _walk_waypoints(ctx, waypoints, held: dict, ticks: int, *,
         leg_origin = (start if preserve_goal and route_start is not None else
                       tuple(pose(ctx)[:2]) if preserve_goal else None)
         following = waypoints[i] if i < len(waypoints) else goal_xy
+        straight = (preserve_goal and route_start is not None and allow_rejoin
+                    and following is not None and _straight_waypoint(start, wp, following))
         check = (_RouteMotionCheck(
             ctx, checker_ref[0], wp, tuple(waypoints[i:]) + ((goal_xy,) if goal_xy else ()),
             radius_m, checker_ref=checker_ref, route_id=route_id,
@@ -1641,13 +1653,21 @@ def _walk_waypoints(ctx, waypoints, held: dict, ticks: int, *,
         if check is not None and not allow_rejoin:
             check.rejoin_used = True
 
-        def reached(wp=wp, start=start, following=following, check=check):
-            xy = tuple(pose(ctx)[:2])
-            if (math.dist(xy, wp) > waypoint_tolerance_m
-                    and not _passed_waypoint(xy, start, wp)):
+        def reached(wp=wp, start=start, following=following, check=check, straight=straight):
+            x, y, yaw = pose(ctx)
+            xy = (x, y)
+            gap = math.dist(xy, wp)
+            # Straight-line samples need a checked onward connector, not an exact visit.
+            # Corners and local rejoin endpoints use the tighter tracking gates.
+            reach_tolerance_m = waypoint_tolerance_m
+            bearing = wrap_angle(math.atan2(wp[1] - y, wp[0] - x) - yaw)
+            if (straight and gap <= pass_tolerance_m
+                    and abs(bearing) > _align_gate(gap, waypoint_tolerance_m)):
+                reach_tolerance_m = pass_tolerance_m
+            if gap > reach_tolerance_m and not _passed_waypoint(xy, start, wp):
                 return False
             current_checker = check.checker if check is not None else checker
-            if (preserve_goal and route_start is not None and following is not None
+            if (not straight and preserve_goal and route_start is not None and following is not None
                     and _off_line(ctx, wp, following) > LEG_CROSS_TRACK_M):
                 return False
             if (current_checker is not None and following is not None
@@ -2017,13 +2037,16 @@ def prepare(ctx, args, *, cancelled=None) -> dict:
                                       "turn_translation_limit_m")
     if turn_translation_limit_m <= 0.:
         raise DriveFailure("CONTROLLER_REFUSED", "turn_translation_limit_m must be positive")
-    # validate_radius_m accepts 0.20 to 0.60 m inclusive.
+    # Only a composition with measured sweep enforcement can admit a larger footprint.
+    # A model argument cannot enlarge this capability; ordinary exploration is capped at .60 m.
+    maximum_radius = (getattr(ctx, "max_footprint_radius_m", .60)
+                      if preserve_goal and "execution_radius_m" in args else .60)
     held = _held_snapshot(ctx)
     requested_radius = args.get("radius_m", DEFAULT_RADIUS_M)
     try:
         if preserve_goal and "planning_radius_m" in args:
-            requested_radius = validate_radius_m(requested_radius)
-            radius_m = validate_radius_m(args["planning_radius_m"])
+            requested_radius = validate_radius_m(requested_radius, maximum_m=maximum_radius)
+            radius_m = validate_radius_m(args["planning_radius_m"], maximum_m=maximum_radius)
             if radius_m < requested_radius:
                 raise ValueError("planning_radius_m must be >= requested radius_m")
         else:
