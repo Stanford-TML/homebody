@@ -1,7 +1,7 @@
 <h1 align="center">HomeBody: A Humanoid That Explores, Remembers, and Acts on Its Own</h1>
 
 <p align="center">
-  <a href="https://www.giohuh.com">Gio Huh</a><sup>1,2</sup> &nbsp;&nbsp;
+  <a href="https://giohuh.com">Gio Huh</a><sup>1,2</sup> &nbsp;&nbsp;
   <a href="https://www.linkedin.com/in/caydengu/">Cayden Gu</a><sup>2</sup> &nbsp;&nbsp;
   <a href="https://www.takaratruong.com/">Takara E. Truong</a><sup>2</sup> &nbsp;&nbsp;
   <a href="https://profiles.stanford.edu/c-karen-liu">C. Karen Liu</a><sup>2,†</sup> &nbsp;&nbsp;
